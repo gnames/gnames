@@ -1,0 +1,14 @@
+gnames/gnames
+debug.test
+t
+t.json
+*.pprof
+*.trace
+*.test
+*test
+.idea
+.vscode
+*.tar.gz
+bench*.txt
+binding/*.so
+binding/*.h
