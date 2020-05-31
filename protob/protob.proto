@@ -6,11 +6,10 @@ option go_package = "protob";
 // An "empty" message for gRPC methods that do not need any reasonable input.
 message Void {}
 
-// Output for the Ping method, it returns "Pong" if connection to the service
+// Output for the Ping method. It returns "Pong" if connection to the service
 // worked.
 message Pong {
-  // A simple value ("Pong" with all probability) to return if Ping method
-  // succeded.
+  // A simple value "Pong" to return if Ping method succeded.
   string value = 1;
 }
 
@@ -18,20 +17,18 @@ message Pong {
 message Version {
   // Version of gnames project.
   string version = 1;
-  // Timestamp of when gnames service was compiled.
+  // Date and time of the project compilation.
   string build = 2;
 }
 
-// A list name-strings and options for verification process via
-// the Verify method..
+// Options/parameters for the Verify method.
 message VerifOpts {
   // A list of name-strings to verify.
   repeated string name_strings = 1;
-  // Verification results will allways be returned for this data-sources,
-  // if any.
+  // Verification matches results (if not empty) for the preferred
+  // DataSources will always be returned.
   repeated int32 preferred_sources = 2;
-  // Return vernaculars in addition to matched scientific names for the best
-  // result and preferred results.
+  // If true, verification results will include vernacular names as well.
   bool with_vernaculars = 3;
 }
 
@@ -58,16 +55,15 @@ message Verification {
 message ResultData {
   // We try our best to return ID that correspond to global_id of the
   // DataSource. If such ID is not provided, it will be auto-generated.
-  // Auto-generated IDs will have 'GN-' prefix.
+  // Auto-generated IDs will have 'gn_' prefix.
   string id = 1;
   // The ID that is exposed globally by the DataSource.
   string global_id = 2;
   // The ID used by the DataSource internally.
   string local_id = 3;
-  // Provides information which ID should be used for substituting a
-  // placehoder in the URL template. After such substitution the URL can
-  // be used to link the result to the data in the matched DataSource.
-  UrlTemplateId url_template_id = 4;
+  // This ID should be used for generating outlinks for a resource.
+  // If it is empty, we do not know how to generate outlink for the record.
+  string url_template_id = 4;
   // ID of the matched DataSource itself.
   int32  data_source_id = 5;
   // Shortened/abbreviated title of the data source.
@@ -165,26 +161,11 @@ enum CurationLevel {
   AUTO_CURATED = 2;
 }
 
-// Explains which ID out of returned should be used for substitution in the
-// placeholder of the URL template.
-enum UrlTemplateId {
-  // None of the IDs can be used for creating outlinks.
-  NONE = 0;
-  // Indicates that "id" is always good for creating outlinks.
-  ID = 1;
-  // "global_id" can always be used for creating outlinks.
-  GLOBAL_ID = 2;
-  // "local_id" can always be used for creating outlinks.
-  LOCAL_ID = 3;
-}
-
 // Options to send to GetDataSources method.
 message DataSourcesOpts {
   // To return results only for this data_source_id. If not given return
   // results for all data_sources.
   int32 data_source_id = 1;
-  // Return all metadata about a data_source.
-  bool verbose = 2;
 }
 
 // Results received from DataSources method
@@ -192,23 +173,35 @@ message DataSources {
   repeated DataSource data_sources = 1;
 }
 
+// DataSource describes an externally collected data-set.
 message DataSource {
   // The DataSource ID.
   int32 id = 1;
-  // A URL string with a placeholder for an ID component. This placeholder
-  // can be replaced with a corresponding ID from name verification results
-  // to get a working link to the name resource.
+  // A URL string with a placeholder '{}' for an ID component. This
+  // placeholder can be replaced with a corresponding ID from name
+  // verification results to get a working link to the name resource.
   string url_template = 2;
   // Shortened/abbreviated title of the DataSource.
   string title_short = 3;
-  // Full title of the DataSource (verbatim option only).
+  // Full title of the DataSource
   string title = 4;
-  // Hompage of the DataSource (verbatim option only).
+  // Version of the data-set for the DataSource.
+  string version = 4;
+  // Date when the data-set was released.
+  string release_date;
+  // DOI of the DataSource;
+  string doi = 4;
+  // Hompage of the DataSource
   string url_home = 5;
-  // UUID associated with the DataSource at Global Names (verbatim option only).
+  // UUID associated with the DataSource at Global Names
   string uuid = 6;
   // Description of the DataSource.
   string description = 7;
+  // Determines how much of manual or programmatic work is put into
+  // assuring the quality of the data.
+  CurationLevel curation_level = 8;
+  // Last import time and date.
+  string updated_at = 9;
 }
 
 // An API methods for the name verification gRPC service.
