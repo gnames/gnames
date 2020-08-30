@@ -24,13 +24,13 @@ deps:
 	$(FLAG_MODULE) $(GOGET) github.com/golang/protobuf/protoc-gen-go@v1.4.1; \
 	$(GOGENERATE)
 
-build: grpc
+build: proto
 	$(GOGENERATE)
 	cd gnames; \
 	$(GOCLEAN); \
 	$(FLAGS_SHARED) $(GOBUILD);
 
-release: grpc
+release: proto
 	cd gnames; \
 	$(GOCLEAN); \
 	$(FLAGS_SHARED) GOOS=linux $(GOBUILD); \
@@ -43,12 +43,11 @@ release: grpc
 	zip -9 /tmp/gnames-${VER}-win-64.zip gnames.exe; \
 	$(GOCLEAN);
 
-install: grpc
+install: proto
 	$(GOGENERATE)
 	cd gnames; \
 	$(FLAGS_SHARED) $(GOINSTALL);
 
-.PHONY:grpc
-grpc:
+proto:
 	cd protob; \
 	protoc -I . ./protob.proto --go_out=plugins=grpc:.;
