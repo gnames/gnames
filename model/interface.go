@@ -1,6 +1,6 @@
 package model
 
-type GNamesService interface {
+type VerificationService interface {
 	// Ping checks if the service is alive.
 	Ping() string
 
@@ -8,9 +8,12 @@ type GNamesService interface {
 	GetVersion() Version
 
 	// Verify takes names-strings and options and returns verification result.
-	Verify(VerifyOpts) []Verification
+	Verify(VerifyParams) []Verification
 
 	// GetDataSources takes data-source id and opts and returns the data-source
 	// metadata.  If no id is provided, it returns metadata for all data-sources.
 	GetDataSources(DataSourcesOpts) []DataSource
+
+	// GetPort returns port of the HTTP/1 service.
+	GetPort() int
 }

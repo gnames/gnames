@@ -8,8 +8,8 @@ type Version struct {
 	Build string `json:"build"`
 }
 
-// VerifyOpts are options/parameters for the Verify method.
-type VerifyOpts struct {
+// VerifyParams are options/parameters for the Verify method.
+type VerifyParams struct {
 	// NameStrings is a list of name-strings to verify.
 	NameStrings []string `json:"nameStrings"`
 	// PreferredSources contain DataSources IDs whos matches will be returned

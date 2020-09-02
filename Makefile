@@ -24,30 +24,24 @@ deps:
 	$(FLAG_MODULE) $(GOGET) github.com/golang/protobuf/protoc-gen-go@v1.4.1; \
 	$(GOGENERATE)
 
-build: proto
+build:
 	$(GOGENERATE)
 	cd gnames; \
 	$(GOCLEAN); \
 	$(FLAGS_SHARED) $(GOBUILD);
 
-release: proto
+dc: build
+	docker-compose build;
+
+release:
 	cd gnames; \
 	$(GOCLEAN); \
 	$(FLAGS_SHARED) GOOS=linux $(GOBUILD); \
 	tar zcvf /tmp/gnames-${VER}-linux.tar.gz gnames; \
-	$(GOCLEAN); \
-	$(FLAGS_SHARED) GOOS=darwin $(GOBUILD); \
-	tar zcvf /tmp/gnames-${VER}-mac.tar.gz gnames; \
-	$(GOCLEAN); \
-	$(FLAGS_SHARED) GOOS=windows $(GOBUILD); \
-	zip -9 /tmp/gnames-${VER}-win-64.zip gnames.exe; \
 	$(GOCLEAN);
 
-install: proto
+install:
 	$(GOGENERATE)
 	cd gnames; \
 	$(FLAGS_SHARED) $(GOINSTALL);
 
-proto:
-	cd protob; \
-	protoc -I . ./protob.proto --go_out=plugins=grpc:.;

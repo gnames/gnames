@@ -28,6 +28,7 @@ import (
 	"path/filepath"
 
 	"github.com/gnames/gnames"
+	gncnf "github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/sys"
 	"github.com/spf13/cobra"
 
@@ -36,7 +37,46 @@ import (
 	"github.com/spf13/viper"
 )
 
-var configText = ""
+const configText = `# Path to keep working data and key-value stores
+WorkDir: /var/gnmatcher
+
+# Postgresql host for gnames database
+PgHost: localhost
+
+# Postgresql user
+PgUser: postgres
+
+# Postgresql password
+PgPass:
+
+# Postgresql database
+PgDB: gnames
+
+# Number of jobs for parallel tasks
+JobsNum: 4
+
+# MaxEditDist is the maximal edit distance for fuzzy matching of
+# stemmed canonical forms. Can be 1 or 2, 2 is significantly slower.
+MaxEditDist: 1
+`
+
+var (
+	opts []gncnf.Option
+)
+
+// config purpose is to achieve automatic import of data from the
+// configuration file, if it exists.
+type config struct {
+	WorkDir     string
+	PgHost      string
+	PgPort      int
+	PgUser      string
+	PgPass      string
+	PgDB        string
+	JobsNum     int
+	MaxEditDist int
+	MatcherURL  string
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -88,6 +128,17 @@ func initConfig() {
 	viper.AddConfigPath(home)
 	viper.SetConfigName(configFile)
 
+	// Set environment variables to override
+	// config file settings
+	viper.BindEnv("WorkDir", "GNM_WORK_DIR")
+	viper.BindEnv("PgHost", "GNM_PG_HOST")
+	viper.BindEnv("PgPort", "GNM_PG_PORT")
+	viper.BindEnv("PgUser", "GNM_PG_USER")
+	viper.BindEnv("PgPass", "GNM_PG_PASS")
+	viper.BindEnv("PgDB", "GNM_PG_DB")
+	viper.BindEnv("JobsNum", "GNM_JOBS_NUM")
+	viper.BindEnv("MaxEditDist", "GNM_MAX_EDIT_DIST")
+
 	viper.AutomaticEnv() // read in environment variables that match
 
 	configPath := filepath.Join(home, fmt.Sprintf("%s.yaml", configFile))
@@ -97,6 +148,42 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+// getOpts imports data from the configuration file. Some of the settings can
+// be overriden by command line flags.
+func getOpts() []gncnf.Option {
+	cfg := &config{}
+	err := viper.Unmarshal(cfg)
+	if err != nil {
+		log.Fatalf("Cannot deserialize config data: %s.", err)
+	}
+
+	if cfg.WorkDir != "" {
+		opts = append(opts, gncnf.OptWorkDir(cfg.WorkDir))
+	}
+	if cfg.JobsNum != 0 {
+		opts = append(opts, gncnf.OptJobsNum(cfg.JobsNum))
+	}
+	if cfg.MaxEditDist != 0 {
+		opts = append(opts, gncnf.OptMaxEditDist(cfg.MaxEditDist))
+	}
+	if cfg.PgHost != "" {
+		opts = append(opts, gncnf.OptPgHost(cfg.PgHost))
+	}
+	if cfg.PgPort != 0 {
+		opts = append(opts, gncnf.OptPgPort(cfg.PgPort))
+	}
+	if cfg.PgUser != "" {
+		opts = append(opts, gncnf.OptPgUser(cfg.PgUser))
+	}
+	if cfg.PgPass != "" {
+		opts = append(opts, gncnf.OptPgPass(cfg.PgPass))
+	}
+	if cfg.PgDB != "" {
+		opts = append(opts, gncnf.OptPgDB(cfg.PgDB))
+	}
+	return opts
 }
 
 // showVersionFlag provides version and the build timestamp. If it returns
@@ -121,7 +208,6 @@ func touchConfigFile(configPath string, configFile string) {
 
 	log.Printf("Creating config file: %s.", configPath)
 	createConfig(configPath, configFile)
-
 }
 
 // createConfig creates config file.

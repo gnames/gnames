@@ -2,6 +2,7 @@ gnames/gnames
 debug.test
 t
 t.json
+.env
 *.pprof
 *.trace
 *.test

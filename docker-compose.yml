@@ -7,15 +7,15 @@ services:
     build:
       context: .
     ports:
-      - 0.0.0.0:8080:8080
+      - 0.0.0.0:8888:8888
     volumes:
       - gnames:/var/opt/gnames
     command:
       - rest
       - -p
-      - "8080"
+      - "8888"
       - -d
 
 volumes:
-  gnmatcher:
+  gnames:
 

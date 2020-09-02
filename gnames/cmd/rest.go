@@ -22,17 +22,43 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
+	"os"
 
+	"github.com/gnames/gnames"
+	gncnf "github.com/gnames/gnames/config"
+	"github.com/gnames/gnames/rest"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 // restCmd represents the rest command
 var restCmd = &cobra.Command{
 	Use:   "rest",
-	Short: "Starts a REST service to verify scientific names.",
+	Short: "HTTP interface to scientific names verification.",
+	Long: `Runs an HTTP/1 service that takes a list of scientific names,
+  normalizes input names and finds them in a variety of biodiversity data
+  sources, returning back the results.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("rest called")
+		var port int
+		debug, _ := cmd.Flags().GetBool("debug")
+		if debug {
+			log.SetLevel(log.DebugLevel)
+			log.Printf("Log level is set to '%s'.", log.Level.String(log.GetLevel()))
+		}
+		port, err := cmd.Flags().GetInt("port")
+		if err != nil {
+			log.Warnf("Cannot get port flag: %s", err)
+		} else {
+			opts = append(opts, gncnf.OptGNPort(port))
+		}
+		cnf := gncnf.NewConfig(opts...)
+		gn := gnames.NewGNames(cnf)
+		if err != nil {
+			log.Fatalf("Cannot create an instance of GNames: %s.", err)
+		}
+		service := rest.NewVerifierHTTP(gn)
+		rest.Run(service)
+		os.Exit(0)
 	},
 }
 
