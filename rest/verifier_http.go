@@ -4,6 +4,7 @@ import (
 	"github.com/gnames/gnames"
 	"github.com/gnames/gnames/encode"
 	"github.com/gnames/gnames/model"
+	log "github.com/sirupsen/logrus"
 )
 
 type VerifierHTTP struct {
@@ -30,15 +31,18 @@ func (v VerifierHTTP) GetVersion() model.Version {
 }
 
 // Verify takes names-strings and options and returns verification result.
-func (v VerifierHTTP) Verify(vp model.VerifyParams) []model.Verification {
-	verif := make([]model.Verification, len(vp.NameStrings))
+func (v VerifierHTTP) Verify(vp model.VerifyParams) []*model.Verification {
+	verif := make([]*model.Verification, len(vp.NameStrings))
 	return verif
 }
 
 // GetDataSources takes data-source id and opts and returns the data-source
 // metadata.  If no id is provided, it returns metadata for all data-sources.
-func (v VerifierHTTP) GetDataSources(opts model.DataSourcesOpts) []model.DataSource {
-	var ds []model.DataSource
+func (v VerifierHTTP) GetDataSources(opts model.DataSourcesOpts) []*model.DataSource {
+	ds, err := v.gn.GetDataSources(opts)
+	if err != nil {
+		log.Warnf("VerifierHTTP cannot get data_sources: %s.", err)
+	}
 	return ds
 }
 

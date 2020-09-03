@@ -131,3 +131,10 @@ func OptPgDB(s string) Option {
 		cnf.PgDB = s
 	}
 }
+
+// OptMatcherURL sets the name of gnames database
+func OptMatcherURL(s string) Option {
+	return func(cnf *Config) {
+		cnf.MatcherURL = s
+	}
+}

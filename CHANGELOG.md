@@ -4,6 +4,7 @@
 
 ## [v0.0.2]
 
+- Add [#13]: Get DataSource metadata out of API.
 - Add [#8]: Make decode/encode accept either Gob or JSON.
 - Add [#6]: Migrate from protobuf to Go.
 - Add [#4]: Send names via HTTP API.
@@ -20,6 +21,7 @@ This document follows [changelog guidelines]
 [v0.0.2]: https://github.com/gnames/gnfinder/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.1
 
+[#13]: https://github.com/gnames/gnames/issues/13
 [#12]: https://github.com/gnames/gnames/issues/12
 [#11]: https://github.com/gnames/gnames/issues/11
 [#10]: https://github.com/gnames/gnames/issues/10

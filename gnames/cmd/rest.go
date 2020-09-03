@@ -53,9 +53,9 @@ var restCmd = &cobra.Command{
 		gob, _ := cmd.Flags().GetBool("gob")
 		if gob {
 			enc = encode.GNgob{}
-			log.Print("Serialization with Gob")
+			log.Print("Serialization with Gob.")
 		} else {
-			log.Print("Serialization with JSON")
+			log.Print("Serialization with JSON.")
 		}
 
 		cnf := gncnf.NewConfig(opts...)

@@ -37,7 +37,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-const configText = `# Path to keep working data and key-value stores
+const configText = `# GNport is a port to the gnames service
+GNport: 8888
+
+# Path to keep working data and key-value stores
 WorkDir: /var/gnmatcher
 
 # Postgresql host for gnames database
@@ -58,6 +61,9 @@ JobsNum: 4
 # MaxEditDist is the maximal edit distance for fuzzy matching of
 # stemmed canonical forms. Can be 1 or 2, 2 is significantly slower.
 MaxEditDist: 1
+
+# MatcherURL is a url to a gnmatcher service.
+MatcherURL: "http://:8080"
 `
 
 var (
@@ -67,6 +73,7 @@ var (
 // config purpose is to achieve automatic import of data from the
 // configuration file, if it exists.
 type config struct {
+	GNport      int
 	WorkDir     string
 	PgHost      string
 	PgPort      int
@@ -130,14 +137,16 @@ func initConfig() {
 
 	// Set environment variables to override
 	// config file settings
-	viper.BindEnv("WorkDir", "GNM_WORK_DIR")
-	viper.BindEnv("PgHost", "GNM_PG_HOST")
-	viper.BindEnv("PgPort", "GNM_PG_PORT")
-	viper.BindEnv("PgUser", "GNM_PG_USER")
-	viper.BindEnv("PgPass", "GNM_PG_PASS")
-	viper.BindEnv("PgDB", "GNM_PG_DB")
-	viper.BindEnv("JobsNum", "GNM_JOBS_NUM")
-	viper.BindEnv("MaxEditDist", "GNM_MAX_EDIT_DIST")
+	viper.BindEnv("GNport", "GN_PORT")
+	viper.BindEnv("WorkDir", "GN_WORK_DIR")
+	viper.BindEnv("PgHost", "GN_PG_HOST")
+	viper.BindEnv("PgPort", "GN_PG_PORT")
+	viper.BindEnv("PgUser", "GN_PG_USER")
+	viper.BindEnv("PgPass", "GN_PG_PASS")
+	viper.BindEnv("PgDB", "GN_PG_DB")
+	viper.BindEnv("JobsNum", "GN_JOBS_NUM")
+	viper.BindEnv("MaxEditDist", "GN_MAX_EDIT_DIST")
+	viper.BindEnv("MatcherURL", "GN_MATCHER_URL")
 
 	viper.AutomaticEnv() // read in environment variables that match
 
@@ -146,8 +155,9 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		log.Printf("Using config file: %s.", viper.ConfigFileUsed())
 	}
+	getOpts()
 }
 
 // getOpts imports data from the configuration file. Some of the settings can
@@ -157,6 +167,10 @@ func getOpts() []gncnf.Option {
 	err := viper.Unmarshal(cfg)
 	if err != nil {
 		log.Fatalf("Cannot deserialize config data: %s.", err)
+	}
+
+	if cfg.GNport != 0 {
+		opts = append(opts, gncnf.OptGNPort(cfg.GNport))
 	}
 
 	if cfg.WorkDir != "" {
@@ -182,6 +196,9 @@ func getOpts() []gncnf.Option {
 	}
 	if cfg.PgDB != "" {
 		opts = append(opts, gncnf.OptPgDB(cfg.PgDB))
+	}
+	if cfg.MatcherURL != "" {
+		opts = append(opts, gncnf.OptMatcherURL(cfg.MatcherURL))
 	}
 	return opts
 }
@@ -219,6 +236,6 @@ func createConfig(path string, file string) {
 
 	err = ioutil.WriteFile(path, []byte(configText), 0644)
 	if err != nil {
-		log.Fatalf("Cannot write to file %s: %s", path, err)
+		log.Fatalf("Cannot write to file %s: %s.", path, err)
 	}
 }

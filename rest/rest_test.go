@@ -64,4 +64,38 @@ var _ = Describe("Rest", func() {
 			Expect(len(response)).To(Equal(len(names)))
 		})
 	})
+
+	Describe("GetDataSources()", func() {
+		It("Receives metadata of all data sources", func() {
+			var response []*model.DataSource
+			req := []byte("")
+			r := bytes.NewReader(req)
+			resp, err := http.Post(url+"data_sources", "application/x-binary", r)
+			Expect(err).To(BeNil())
+			respBytes, err := ioutil.ReadAll(resp.Body)
+			Expect(err).To(BeNil())
+
+			err = encode.GNjson{}.Decode(respBytes, &response)
+			Expect(err).To(BeNil())
+			Expect(len(response)).To(BeNumerically(">", 50))
+			col := response[0]
+			Expect(col.Title).To(Equal("Catalogue of Life"))
+		})
+
+		It("Receives metadata of a data source", func() {
+			var response []*model.DataSource
+			req := []byte("")
+			r := bytes.NewReader(req)
+			resp, err := http.Post(url+"data_sources/12", "application/x-binary", r)
+			Expect(err).To(BeNil())
+			respBytes, err := ioutil.ReadAll(resp.Body)
+			Expect(err).To(BeNil())
+
+			err = encode.GNjson{}.Decode(respBytes, &response)
+			Expect(err).To(BeNil())
+			Expect(len(response)).To(Equal(1))
+			col := response[0]
+			Expect(col.Title).To(Equal("Encyclopedia of Life"))
+		})
+	})
 })

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gnames/gnames/model"
@@ -31,6 +32,21 @@ func Run(s model.VerificationService) {
 			verifyHTTP(resp, req, s)
 		})
 
+	r.HandleFunc("/data_sources/{id:[0-9]+}",
+		func(resp http.ResponseWriter, req *http.Request) {
+			vars := mux.Vars(req)
+			id, err := strconv.Atoi(vars["id"])
+			if err != nil {
+				log.Warnf("Cannot convert DataSourceID %s: %s.", vars["id"], err)
+			}
+			getDataSourcesHTTP(resp, req, s, model.DataSourcesOpts{DataSourceID: id})
+		}).Methods("GET", "POST")
+
+	r.HandleFunc("/data_sources",
+		func(resp http.ResponseWriter, req *http.Request) {
+			getDataSourcesHTTP(resp, req, s, model.DataSourcesOpts{})
+		}).Methods("GET", "POST")
+
 	addr := fmt.Sprintf(":%d", s.GetPort())
 
 	server := &http.Server{
@@ -53,7 +69,7 @@ func getVersionHTTP(resp http.ResponseWriter, _ *http.Request,
 	version := s.GetVersion()
 	ver, err := s.Encode(version)
 	if err != nil {
-		log.Warnf("Cannot decode version: %s", err)
+		log.Warnf("Cannot decode version: %s.", err)
 	}
 	resp.Write([]byte(ver))
 }
@@ -65,12 +81,12 @@ func verifyHTTP(resp http.ResponseWriter, req *http.Request,
 	var err error
 
 	if body, err = ioutil.ReadAll(req.Body); err != nil {
-		log.Warnf("verifyHTTP: cannot read message from request : %v", err)
+		log.Warnf("verifyHTTP: cannot read message from request : %v.", err)
 		return
 	}
 
 	if err = s.Decode(body, &params); err != nil {
-		log.Warnf("verifyHTTP: cannot decode message from request : %v", err)
+		log.Warnf("verifyHTTP: cannot decode message from request : %v.", err)
 		return
 	}
 
@@ -79,6 +95,17 @@ func verifyHTTP(resp http.ResponseWriter, req *http.Request,
 	if out, err := s.Encode(verified); err == nil {
 		resp.Write(out)
 	} else {
-		log.Warnf("MatchAry: Cannot encode response : %v", err)
+		log.Warnf("MatchAry: Cannot encode response : %v.", err)
+	}
+}
+
+func getDataSourcesHTTP(resp http.ResponseWriter, req *http.Request,
+	s model.VerificationService, opts model.DataSourcesOpts) {
+	verified := s.GetDataSources(opts)
+
+	if out, err := s.Encode(verified); err == nil {
+		resp.Write(out)
+	} else {
+		log.Warnf("MatchAry: Cannot encode response : %v.", err)
 	}
 }
