@@ -26,6 +26,7 @@ import (
 
 	"github.com/gnames/gnames"
 	gncnf "github.com/gnames/gnames/config"
+	"github.com/gnames/gnames/encode"
 	"github.com/gnames/gnames/rest"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -39,24 +40,28 @@ var restCmd = &cobra.Command{
   normalizes input names and finds them in a variety of biodiversity data
   sources, returning back the results.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var port int
 		debug, _ := cmd.Flags().GetBool("debug")
 		if debug {
 			log.SetLevel(log.DebugLevel)
 			log.Printf("Log level is set to '%s'.", log.Level.String(log.GetLevel()))
 		}
-		port, err := cmd.Flags().GetInt("port")
-		if err != nil {
-			log.Warnf("Cannot get port flag: %s", err)
+
+		port, _ := cmd.Flags().GetInt("port")
+		opts = append(opts, gncnf.OptGNPort(port))
+
+		var enc encode.Encoder = encode.GNjson{}
+		gob, _ := cmd.Flags().GetBool("gob")
+		if gob {
+			enc = encode.GNgob{}
+			log.Print("Serialization with Gob")
 		} else {
-			opts = append(opts, gncnf.OptGNPort(port))
+			log.Print("Serialization with JSON")
 		}
+
 		cnf := gncnf.NewConfig(opts...)
 		gn := gnames.NewGNames(cnf)
-		if err != nil {
-			log.Fatalf("Cannot create an instance of GNames: %s.", err)
-		}
-		service := rest.NewVerifierHTTP(gn)
+
+		service := rest.NewVerifierHTTP(gn, enc)
 		rest.Run(service)
 		os.Exit(0)
 	},
@@ -65,6 +70,7 @@ var restCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(restCmd)
 
-	restCmd.Flags().IntP("port", "p", 8080, "REST port")
+	restCmd.Flags().IntP("port", "p", 8888, "REST port")
+	restCmd.Flags().BoolP("gob", "g", false, "switch encoding from JSON to Gob")
 	restCmd.Flags().BoolP("debug", "d", false, "set logs level to DEBUG")
 }

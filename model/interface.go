@@ -1,5 +1,9 @@
 package model
 
+import (
+	"github.com/gnames/gnames/encode"
+)
+
 type VerificationService interface {
 	// Ping checks if the service is alive.
 	Ping() string
@@ -16,4 +20,6 @@ type VerificationService interface {
 
 	// GetPort returns port of the HTTP/1 service.
 	GetPort() int
+
+	encode.Encoder
 }

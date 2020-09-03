@@ -2,6 +2,7 @@ package rest
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -18,6 +19,16 @@ func Run(s model.VerificationService) {
 	r.HandleFunc("/ping",
 		func(resp http.ResponseWriter, req *http.Request) {
 			pingHTTP(resp, req, s)
+		})
+
+	r.HandleFunc("/version",
+		func(resp http.ResponseWriter, req *http.Request) {
+			getVersionHTTP(resp, req, s)
+		})
+
+	r.HandleFunc("/verification",
+		func(resp http.ResponseWriter, req *http.Request) {
+			verifyHTTP(resp, req, s)
 		})
 
 	addr := fmt.Sprintf(":%d", s.GetPort())
@@ -37,3 +48,37 @@ func pingHTTP(resp http.ResponseWriter, _ *http.Request,
 	resp.Write([]byte(s.Ping()))
 }
 
+func getVersionHTTP(resp http.ResponseWriter, _ *http.Request,
+	s model.VerificationService) {
+	version := s.GetVersion()
+	ver, err := s.Encode(version)
+	if err != nil {
+		log.Warnf("Cannot decode version: %s", err)
+	}
+	resp.Write([]byte(ver))
+}
+
+func verifyHTTP(resp http.ResponseWriter, req *http.Request,
+	s model.VerificationService) {
+	var params model.VerifyParams
+	var body []byte
+	var err error
+
+	if body, err = ioutil.ReadAll(req.Body); err != nil {
+		log.Warnf("verifyHTTP: cannot read message from request : %v", err)
+		return
+	}
+
+	if err = s.Decode(body, &params); err != nil {
+		log.Warnf("verifyHTTP: cannot decode message from request : %v", err)
+		return
+	}
+
+	verified := s.Verify(params)
+
+	if out, err := s.Encode(verified); err == nil {
+		resp.Write(out)
+	} else {
+		log.Warnf("MatchAry: Cannot encode response : %v", err)
+	}
+}
