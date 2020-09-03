@@ -34,7 +34,7 @@ func NewConfig(opts ...Option) Config {
 		PgUser:      "postgres",
 		PgPass:      "",
 		PgDB:        "gnames",
-		MatcherURL:  ":8080",
+		MatcherURL:  "https://:8080",
 	}
 	for _, opt := range opts {
 		opt(&cnf)

@@ -14,6 +14,7 @@ var _ = Describe("Config", func() {
 			Expect(cnf.JobsNum).To(Equal(8))
 			Expect(cnf.PgHost).To(Equal("localhost"))
 			deflt := Config{
+				GNport:      8888,
 				WorkDir:     "/tmp/gnmatcher",
 				JobsNum:     8,
 				MaxEditDist: 1,
@@ -22,6 +23,7 @@ var _ = Describe("Config", func() {
 				PgUser:      "postgres",
 				PgPass:      "",
 				PgDB:        "gnames",
+				MatcherURL:  "https://:8080",
 			}
 			Expect(cnf).To(Equal(deflt))
 		})
@@ -31,6 +33,7 @@ var _ = Describe("Config", func() {
 		opts := opts()
 		cnf := NewConfig(opts...)
 		updt := Config{
+			GNport:      8888,
 			WorkDir:     "/var/opt/gnmatcher",
 			JobsNum:     16,
 			MaxEditDist: 2,
@@ -39,6 +42,7 @@ var _ = Describe("Config", func() {
 			PgUser:      "gnm",
 			PgPass:      "secret",
 			PgDB:        "gnm",
+			MatcherURL:  "https://:8080",
 		}
 		Expect(cnf).To(Equal(updt))
 	})
