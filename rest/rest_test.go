@@ -9,6 +9,7 @@ import (
 	"github.com/gnames/gnames/model"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	// log "github.com/sirupsen/logrus"
 )
 
 const url = "http://:8888/"
@@ -61,6 +62,23 @@ var _ = Describe("Rest", func() {
 			err = encode.GNjson{}.Decode(respBytes, &response)
 			Expect(err).To(BeNil())
 			Expect(len(response)).To(Equal(len(names)))
+
+			bad := response[0]
+			Expect(bad.InputID).To(Equal("82dbfb99-fe6c-5882-99f2-17c7d3955599"))
+			Expect(bad.Input).To(Equal("Not name"))
+			Expect(bad.MatchType).To(Equal(model.NoMatch))
+			Expect(bad.BestResult).To(BeNil())
+			Expect(bad.DataSourcesNum).To(Equal(0))
+			Expect(bad.CurationLevel).To(Equal(model.NotCurated))
+			Expect(bad.Error).To(Equal(""))
+
+			binom := response[1]
+			Expect(binom.InputID).To(Equal("4431a0f3-e901-519a-886f-9b97e0c99d8e"))
+			Expect(binom.Input).To(Equal("Bubo bubo"))
+			Expect(binom.BestResult).ToNot(BeNil())
+			Expect(binom.BestResult.MatchType).To(Equal(model.Exact))
+			Expect(binom.CurationLevel).To(Equal(model.Curated))
+			Expect(binom.Error).To(Equal(""))
 		})
 	})
 

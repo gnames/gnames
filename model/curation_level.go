@@ -9,20 +9,20 @@ const (
 	// are not curated sufficiently.
 	NotCurated CurationLevel = iota
 
+	// AutoCurated means that at least one of the returned DataSources invested
+	// significantly in curating their data by scripts.
+	AutoCurated
+
 	// Curated means that at least one DataSource is marked as sufficiently
 	// curated. It does not mean that the particular match was manually checked
 	// though.
 	Curated
-
-	// AutoCurated means that at least one of the returned DataSources invested
-	// significantly in curating their data by scripts.
-	AutoCurated
 )
 
 var mapCurationLevel = map[int]string{
 	0: "NOT_CURATED",
-	1: "CURATED",
-	2: "AUTO_CURATED",
+	1: "AUTO_CURATED",
+	2: "CURATED",
 }
 
 func (c CurationLevel) String() string {

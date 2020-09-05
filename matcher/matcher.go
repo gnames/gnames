@@ -9,8 +9,8 @@ import (
 	gnm "github.com/gnames/gnmatcher/model"
 )
 
-func MatchNames(names []string, url string) ([]gnm.Match, error) {
-	var response []gnm.Match
+func MatchNames(names []string, url string) ([]*gnm.Match, error) {
+	var response []*gnm.Match
 	enc := encode.GNgob{}
 	req, err := enc.Encode(names)
 	if err != nil {

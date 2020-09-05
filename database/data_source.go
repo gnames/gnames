@@ -16,7 +16,7 @@ type dataSource struct {
 	Title         string
 	TitleShort    string
 	Version       string
-	CreationDate  string
+	RevisionDate  string
 	DOI           string
 	Citation      string
 	Authors       string
@@ -35,7 +35,7 @@ func (ds dataSource) convert() model.DataSource {
 		Title:        ds.Title,
 		TitleShort:   ds.TitleShort,
 		Version:      ds.Version,
-		CreationDate: ds.CreationDate,
+		RevisionDate: ds.RevisionDate,
 		DOI:          ds.DOI,
 		Citation:     ds.Citation,
 		Authors:      ds.Authors,
@@ -54,7 +54,7 @@ func (ds dataSource) convert() model.DataSource {
 }
 
 var data_sources_q = `
-  SELECT id, uuid, title, title_short, version, creation_date,
+SELECT id, uuid, title, title_short, version, revision_date,
     doi, citation, authors, description, website_url,
     is_curated, is_auto_curated, record_count, updated_at
   FROM data_sources`

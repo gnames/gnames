@@ -4,9 +4,11 @@
 
 ## [v0.0.1]
 
+- Add [#14]: Return complete result.
 - Add [#13]: Get DataSource metadata out of API.
 - Add [#8]: Make decode/encode accept either Gob or JSON.
 - Add [#6]: Migrate from protobuf to Go.
+- Add [#5]: Incorporate gnmatcher service.
 - Add [#4]: Send names via HTTP API.
 - Add [#3]: Setup testing framework.
 - Add [#1]: Develop a draft ot output format as a protobuffer.
@@ -18,6 +20,7 @@ This document follows [changelog guidelines]
 [v0.0.2]: https://github.com/gnames/gnfinder/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.1
 
+[#14]: https://github.com/gnames/gnames/issues/14
 [#13]: https://github.com/gnames/gnames/issues/13
 [#12]: https://github.com/gnames/gnames/issues/12
 [#11]: https://github.com/gnames/gnames/issues/11

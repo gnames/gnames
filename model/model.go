@@ -28,12 +28,14 @@ type Verification struct {
 	InputID string `json:"input_id"`
 	// Input is a verified name-string
 	Input string `json:"input"`
+	// MatchType is best available match.
+	MatchType
 	// BestResult is the best result according to GNames scoring.
-	BestResult ResultData `json:"bestResult"`
+	BestResult *ResultData `json:"bestResult,omitempty"`
 
 	// PreferredResults contain all detected matches from preverred data sources
 	// provided by user.
-	PreferredResults []ResultData `json:"preferredResults"`
+	PreferredResults []*ResultData `json:"preferredResults,omitempty"`
 
 	// DataSourcesNum is a number of data sources that matched an
 	// input name-string.
@@ -117,7 +119,7 @@ type ResultData struct {
 
 	// ClassificationRanks of the classification path. They follow the
 	// same order as the classification path.
-	ClassificationRank string `json:"classificationRanks,omitempty"`
+	ClassificationRanks string `json:"classificationRanks,omitempty"`
 
 	// ClassificationIDs of the names-strings. They always correspond to
 	// the "id" field.
@@ -173,9 +175,9 @@ type DataSource struct {
 	// Version of the data-set for a DataSource.
 	Version string `json:"version,omitempty"`
 
-	// CreationDate of a data-set from a data-provider.
+	// RevisionDate of a data-set from a data-provider.
 	// It follows format of 'year-month-day' || 'year-month' || 'year'
-	CreationDate string `json:"releaseDate,omitempty"`
+	RevisionDate string `json:"releaseDate,omitempty"`
 
 	// DOI of a DataSource;
 	DOI string `json:"doi,omitempty"`
