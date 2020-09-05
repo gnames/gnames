@@ -58,7 +58,6 @@ var _ = Describe("Rest", func() {
 			Expect(err).To(BeNil())
 			respBytes, err := ioutil.ReadAll(resp.Body)
 			Expect(err).To(BeNil())
-
 			err = encode.GNjson{}.Decode(respBytes, &response)
 			Expect(err).To(BeNil())
 			Expect(len(response)).To(Equal(len(names)))

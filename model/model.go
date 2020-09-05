@@ -24,6 +24,10 @@ type VerifyParams struct {
 
 // Verification is a result returned by Verify method.
 type Verification struct {
+	// InputID is a UUIDv5 generated out of the Input string.
+	InputID string `json:"input_id"`
+	// Input is a verified name-string
+	Input string `json:"input"`
 	// BestResult is the best result according to GNames scoring.
 	BestResult ResultData `json:"bestResult"`
 

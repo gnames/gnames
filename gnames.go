@@ -5,6 +5,7 @@ import (
 
 	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/database"
+	"github.com/gnames/gnames/matcher"
 	"github.com/gnames/gnames/model"
 	log "github.com/sirupsen/logrus"
 )
@@ -19,9 +20,23 @@ func NewGNames(cnf config.Config) GNames {
 	return GNames{Config: cnf, DB: db}
 }
 
-func (gn GNames) Verify(names model.VerifyParams) []*model.Verification {
-	var vs []*model.Verification
-	return vs
+func (gn GNames) Verify(params model.VerifyParams) []*model.Verification {
+	log.Printf("Verifying %d name-strings.", len(params.NameStrings))
+	res := make([]*model.Verification, len(params.NameStrings))
+	matches, err := matcher.MatchNames(params.NameStrings, gn.Config.MatcherURL)
+	errString := ""
+	if err != nil {
+		errString = err.Error()
+	}
+	for i, v := range matches {
+		item := model.Verification{
+			InputID: v.ID,
+			Input:   v.Name,
+			Error:   errString,
+		}
+		res[i] = &item
+	}
+	return res
 }
 
 func (gn GNames) GetDataSources(opts model.DataSourcesOpts) ([]*model.DataSource, error) {

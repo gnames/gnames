@@ -31,8 +31,8 @@ func (v VerifierHTTP) GetVersion() model.Version {
 }
 
 // Verify takes names-strings and options and returns verification result.
-func (v VerifierHTTP) Verify(vp model.VerifyParams) []*model.Verification {
-	verif := make([]*model.Verification, len(vp.NameStrings))
+func (v VerifierHTTP) Verify(params model.VerifyParams) []*model.Verification {
+	verif := v.gn.Verify(params)
 	return verif
 }
 
