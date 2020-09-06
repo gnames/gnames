@@ -2,16 +2,13 @@
 
 ## Unreleased
 
-## [v0.0.2]
+## [v0.0.1]
 
 - Add [#13]: Get DataSource metadata out of API.
 - Add [#8]: Make decode/encode accept either Gob or JSON.
 - Add [#6]: Migrate from protobuf to Go.
 - Add [#4]: Send names via HTTP API.
 - Add [#3]: Setup testing framework.
-
-## [v0.0.1]
-
 - Add [#1]: Develop a draft ot output format as a protobuffer.
 
 ## Footnotes
