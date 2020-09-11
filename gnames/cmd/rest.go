@@ -26,7 +26,8 @@ import (
 
 	"github.com/gnames/gnames"
 	gncnf "github.com/gnames/gnames/config"
-	"github.com/gnames/gnames/encode"
+	"github.com/gnames/gnames/data/data_pg"
+	"github.com/gnames/gnames/lib/encode"
 	"github.com/gnames/gnames/rest"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -59,7 +60,8 @@ var restCmd = &cobra.Command{
 		}
 
 		cnf := gncnf.NewConfig(opts...)
-		gn := gnames.NewGNames(cnf)
+		dgr := data_pg.NewDataGrabberPG(cnf)
+		gn := gnames.NewGNames(cnf, dgr)
 
 		service := rest.NewVerifierHTTP(gn, enc)
 		rest.Run(service)

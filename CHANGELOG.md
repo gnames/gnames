@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## [v0.0.2]
+
+- Add [#15]: Clean up architecture.
+
 ## [v0.0.1]
 
 - Add [#14]: Return complete result.
@@ -20,6 +24,7 @@ This document follows [changelog guidelines]
 [v0.0.2]: https://github.com/gnames/gnfinder/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.1
 
+[#15]: https://github.com/gnames/gnames/issues/15
 [#14]: https://github.com/gnames/gnames/issues/14
 [#13]: https://github.com/gnames/gnames/issues/13
 [#12]: https://github.com/gnames/gnames/issues/12

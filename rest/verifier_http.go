@@ -2,8 +2,8 @@ package rest
 
 import (
 	"github.com/gnames/gnames"
-	"github.com/gnames/gnames/encode"
-	"github.com/gnames/gnames/model"
+	"github.com/gnames/gnames/domain/entity"
+	"github.com/gnames/gnames/lib/encode"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -22,32 +22,35 @@ func (v VerifierHTTP) Ping() string {
 	return "pong"
 }
 
-// GetVersion returns Version of gnames project.
-func (v VerifierHTTP) GetVersion() model.Version {
-	return model.Version{
+// Version returns Version of gnames project.
+func (v VerifierHTTP) Version() entity.Version {
+	return entity.Version{
 		Version: gnames.Version,
 		Build:   gnames.Build,
 	}
 }
 
 // Verify takes names-strings and options and returns verification result.
-func (v VerifierHTTP) Verify(params model.VerifyParams) []*model.Verification {
-	verif := v.gn.Verify(params)
+func (v VerifierHTTP) Verify(params entity.VerifyParams) []*entity.Verification {
+	verif, err := v.gn.Verify(params)
+	if err != nil {
+		log.Warnf("Cannot verify names: %s", err)
+	}
 	return verif
 }
 
-// GetDataSources takes data-source id and opts and returns the data-source
+// DataSources takes data-source id and opts and returns the data-source
 // metadata.  If no id is provided, it returns metadata for all data-sources.
-func (v VerifierHTTP) GetDataSources(opts model.DataSourcesOpts) []*model.DataSource {
-	ds, err := v.gn.GetDataSources(opts)
+func (v VerifierHTTP) DataSources(opts entity.DataSourcesOpts) []*entity.DataSource {
+	ds, err := v.gn.DataSources(opts)
 	if err != nil {
 		log.Warnf("VerifierHTTP cannot get data_sources: %s.", err)
 	}
 	return ds
 }
 
-// GetPort returns port of HTTP/1 service.
-func (v VerifierHTTP) GetPort() int {
+// Port returns port of HTTP/1 service.
+func (v VerifierHTTP) Port() int {
 	return v.gn.Config.GNport
 }
 

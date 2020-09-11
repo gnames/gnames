@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gnames/gnames/encode"
-	"github.com/gnames/gnames/model"
+	"github.com/gnames/gnames/domain/entity"
+	"github.com/gnames/gnames/lib/encode"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	// log "github.com/sirupsen/logrus"
@@ -27,7 +27,7 @@ var _ = Describe("Rest", func() {
 		})
 	})
 
-	Describe("GetVersion()", func() {
+	Describe("Version()", func() {
 		It("Gets Version from REST server", func() {
 			resp, err := http.Get(url + "version")
 			Expect(err).To(BeNil())
@@ -35,7 +35,7 @@ var _ = Describe("Rest", func() {
 			Expect(err).To(BeNil())
 
 			enc := encode.GNjson{}
-			var response model.Version
+			var response entity.Version
 			err = enc.Decode(respBytes, &response)
 			Expect(err).To(BeNil())
 			Expect(response.Version).To(MatchRegexp(`^v\d+\.\d+\.\d+`))
@@ -44,14 +44,14 @@ var _ = Describe("Rest", func() {
 
 	Describe("Verify()", func() {
 		It("Verifies entered names", func() {
-			var response []model.Verification
+			var response []entity.Verification
 			names := []string{
 				"Not name", "Bubo bubo", "Pomatomus",
 				"Pardosa moesta", "Plantago major var major",
 				"Cytospora ribis mitovirus 2",
 				"A-shaped rods", "Alb. alba",
 			}
-			request := model.VerifyParams{NameStrings: names}
+			request := entity.VerifyParams{NameStrings: names}
 			req, err := encode.GNjson{}.Encode(request)
 			Expect(err).To(BeNil())
 			r := bytes.NewReader(req)
@@ -66,25 +66,25 @@ var _ = Describe("Rest", func() {
 			bad := response[0]
 			Expect(bad.InputID).To(Equal("82dbfb99-fe6c-5882-99f2-17c7d3955599"))
 			Expect(bad.Input).To(Equal("Not name"))
-			Expect(bad.MatchType).To(Equal(model.NoMatch))
+			Expect(bad.MatchType).To(Equal(entity.NoMatch))
 			Expect(bad.BestResult).To(BeNil())
 			Expect(bad.DataSourcesNum).To(Equal(0))
-			Expect(bad.CurationLevel).To(Equal(model.NotCurated))
+			Expect(bad.CurationLevel).To(Equal(entity.NotCurated))
 			Expect(bad.Error).To(Equal(""))
 
 			binom := response[1]
 			Expect(binom.InputID).To(Equal("4431a0f3-e901-519a-886f-9b97e0c99d8e"))
 			Expect(binom.Input).To(Equal("Bubo bubo"))
 			Expect(binom.BestResult).ToNot(BeNil())
-			Expect(binom.BestResult.MatchType).To(Equal(model.Exact))
-			Expect(binom.CurationLevel).To(Equal(model.Curated))
+			Expect(binom.BestResult.MatchType).To(Equal(entity.Exact))
+			Expect(binom.CurationLevel).To(Equal(entity.Curated))
 			Expect(binom.Error).To(Equal(""))
 		})
 	})
 
-	Describe("GetDataSources()", func() {
+	Describe("DataSources()", func() {
 		It("Receives metadata of all data sources", func() {
-			var response []*model.DataSource
+			var response []*entity.DataSource
 			req := []byte("")
 			r := bytes.NewReader(req)
 			resp, err := http.Post(url+"data_sources", "application/x-binary", r)
@@ -100,7 +100,7 @@ var _ = Describe("Rest", func() {
 		})
 
 		It("Receives metadata of a data source", func() {
-			var response []*model.DataSource
+			var response []*entity.DataSource
 			req := []byte("")
 			r := bytes.NewReader(req)
 			resp, err := http.Post(url+"data_sources/12", "application/x-binary", r)

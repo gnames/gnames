@@ -29,7 +29,7 @@ import (
 
 	"github.com/gnames/gnames"
 	gncnf "github.com/gnames/gnames/config"
-	"github.com/gnames/gnames/sys"
+	"github.com/gnames/gnames/lib/sys"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"

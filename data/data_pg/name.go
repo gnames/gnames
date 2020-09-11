@@ -1,4 +1,4 @@
-package database
+package data_pg
 
 import (
 	"context"
@@ -7,27 +7,15 @@ import (
 	"strings"
 
 	"github.com/georgysavva/scany/sqlscan"
-	"github.com/gnames/gnames/model"
-	gnm "github.com/gnames/gnmatcher/model"
+	"github.com/gnames/gnames/data"
+	"github.com/gnames/gnames/domain/entity"
+	gnm "github.com/gnames/gnmatcher/domain/entity"
 	log "github.com/sirupsen/logrus"
 	"gitlab.com/gogna/gnparser"
 )
 
 // MatchRecords connects result data to input name-string. Input name-string
 // is a key.
-
-type InputUUID string
-
-type MatchRecord struct {
-	InputID        string
-	Input          string
-	Score          int
-	MatchType      model.MatchType
-	CurationLevel  model.CurationLevel
-	DataSourcesNum int
-	ResultData     []*model.ResultData
-}
-
 type verif struct {
 	CanonicalID         sql.NullString
 	CanonicalFullID     sql.NullString
@@ -59,35 +47,30 @@ var names_q = `
 
 // MatchRecords takes matches from gnmatcher and returns back data from
 // the database that organizes data from database into matched records.
-func MatchRecords(
-	db *sql.DB,
-	dss map[int]*model.DataSource,
-	matches []*gnm.Match,
-) (map[InputUUID]MatchRecord, error) {
+func (dgp DataGrabberPG) MatchRecords(matches []*gnm.Match) (map[string]*data.MatchRecord, error) {
 	parser := gnparser.NewGNparser()
-	res := make(map[InputUUID]MatchRecord)
+	res := make(map[string]*data.MatchRecord)
 	splitMatches := partitionMatches(matches)
 
-	verifs, err := nameQuery(db, splitMatches.canonical)
+	verifs, err := nameQuery(dgp.DB, splitMatches.canonical)
 	if err != nil {
 		return res, err
 	}
 
-	res = produceResultData(splitMatches, dss, parser, verifs)
+	res = dgp.produceResultData(splitMatches, parser, verifs)
 	return res, nil
 }
 
-func produceResultData(
+func (dgp DataGrabberPG) produceResultData(
 	ms matchSplit,
-	dss map[int]*model.DataSource,
 	parser gnparser.GNparser,
 	v []*verif,
-) map[InputUUID]MatchRecord {
+) map[string]*data.MatchRecord {
 
 	// deal with NoMatch first
-	mrs := make(map[InputUUID]MatchRecord)
+	mrs := make(map[string]*data.MatchRecord)
 	for _, v := range ms.noMatch {
-		mrs[InputUUID(v.ID)] = MatchRecord{
+		mrs[v.ID] = &data.MatchRecord{
 			InputID: v.ID,
 			Input:   v.Name,
 		}
@@ -95,25 +78,24 @@ func produceResultData(
 
 	verifMap := getVerifMap(v)
 	for _, v := range ms.canonical {
-		mr := MatchRecord{
+		mr := data.MatchRecord{
 			InputID:       v.ID,
 			Input:         v.Name,
 			MatchType:     v.MatchType,
-			CurationLevel: model.NotCurated,
+			CurationLevel: entity.NotCurated,
 		}
 		for _, vv := range v.MatchItems {
-			mr.populateMatchRecord(vv, *v, dss, parser, verifMap)
+			dgp.populateMatchRecord(vv, *v, &mr, parser, verifMap)
 		}
-		mr.DataSourcesNum = len(dss)
-		mrs[InputUUID(v.ID)] = mr
+		mrs[v.ID] = &mr
 	}
 	return mrs
 }
 
-func (mr *MatchRecord) populateMatchRecord(
+func (dgp *DataGrabberPG) populateMatchRecord(
 	mi gnm.MatchItem,
 	m gnm.Match,
-	dss map[int]*model.DataSource,
+	mr *data.MatchRecord,
 	parser gnparser.GNparser,
 	verifMap map[string][]*verif,
 ) {
@@ -123,13 +105,13 @@ func (mr *MatchRecord) populateMatchRecord(
 	}
 
 	sources := make(map[int]struct{})
-	mr.ResultData = make([]*model.ResultData, len(v))
+	mr.ResultData = make([]*entity.ResultData, len(v))
 	for i, vv := range v {
 		parsed := parser.ParseToObject(vv.Name.String)
 		parsedCurrent := parser.ParseToObject(vv.AcceptedName.String)
 		sources[vv.DataSourceID] = struct{}{}
 
-		resData := model.ResultData{
+		resData := entity.ResultData{
 			ID:                     vv.RecordID.String,
 			LocalID:                vv.LocalID.String,
 			Outlink:                vv.OutlinkID.String,
@@ -150,7 +132,7 @@ func (mr *MatchRecord) populateMatchRecord(
 			MatchType:              m.MatchType,
 		}
 		mr.ResultData[i] = &resData
-		cl := dss[resData.DataSourceID].CurationLevel
+		cl := dgp.DataSourcesMap[resData.DataSourceID].CurationLevel
 		if mr.CurationLevel < cl {
 			mr.CurationLevel = cl
 		}
@@ -205,7 +187,8 @@ func partitionMatches(matches []*gnm.Match) matchSplit {
 		canonical: make([]*gnm.Match, 0, len(matches)),
 	}
 	for _, v := range matches {
-		if v.MatchType == model.NoMatch || v.VirusMatch {
+		// TODO: handle v.VirusMatch case too.
+		if v.MatchType == entity.NoMatch || v.VirusMatch {
 			ms.noMatch = append(ms.noMatch, v)
 		} else {
 			ms.canonical = append(ms.canonical, v)

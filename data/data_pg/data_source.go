@@ -1,13 +1,13 @@
-package database
+package data_pg
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
 	"github.com/georgysavva/scany/sqlscan"
-	"github.com/gnames/gnames/model"
+	"github.com/gnames/gnames/data"
+	"github.com/gnames/gnames/domain/entity"
 )
 
 type dataSource struct {
@@ -28,8 +28,8 @@ type dataSource struct {
 	UpdatedAt     time.Time
 }
 
-func (ds dataSource) convert() model.DataSource {
-	res := model.DataSource{
+func (ds dataSource) convert() entity.DataSource {
+	res := entity.DataSource{
 		ID:           ds.ID,
 		UUID:         ds.UUID,
 		Title:        ds.Title,
@@ -44,11 +44,11 @@ func (ds dataSource) convert() model.DataSource {
 		UpdatedAt:    ds.UpdatedAt,
 	}
 	if ds.IsCurated {
-		res.CurationLevel = model.Curated
+		res.CurationLevel = entity.Curated
 	} else if ds.IsAutoCurated {
-		res.CurationLevel = model.AutoCurated
+		res.CurationLevel = entity.AutoCurated
 	} else {
-		res.CurationLevel = model.NotCurated
+		res.CurationLevel = entity.NotCurated
 	}
 	return res
 }
@@ -59,23 +59,23 @@ SELECT id, uuid, title, title_short, version, revision_date,
     is_curated, is_auto_curated, record_count, updated_at
   FROM data_sources`
 
-func GetDataSources(db *sql.DB) ([]*model.DataSource, error) {
-	return dataSourcesQuery(db, data_sources_q)
+func (dgp DataGrabberPG) DataSources(id data.NullInt) ([]*entity.DataSource, error) {
+	q := data_sources_q
+	if id.Valid {
+		q = q + fmt.Sprintf(" WHERE id = %d", id.Int)
+	}
+	return dgp.dataSourcesQuery(q)
 }
 
-func GetDataSource(db *sql.DB, id int) ([]*model.DataSource, error) {
-	q := data_sources_q + fmt.Sprintf(" where id = %d", id)
-	return dataSourcesQuery(db, q)
-}
-
-func dataSourcesQuery(db *sql.DB, q string) ([]*model.DataSource, error) {
+func (dgp DataGrabberPG) dataSourcesQuery(q string) ([]*entity.DataSource, error) {
 	var dss []*dataSource
 	ctx := context.Background()
-	err := sqlscan.Select(ctx, db, &dss, q)
-	res := make([]*model.DataSource, len(dss))
+	err := sqlscan.Select(ctx, dgp.DB, &dss, q)
+	res := make([]*entity.DataSource, len(dss))
 	for i, ds := range dss {
 		dsItem := ds.convert()
 		res[i] = &dsItem
 	}
 	return res, err
 }
+

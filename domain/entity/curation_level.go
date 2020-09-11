@@ -1,4 +1,4 @@
-package model
+package entity
 
 // CurationLevel tells if matched result was returned by at least one
 // DataSource in the following categories.

@@ -7,14 +7,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gnames/gnames/model"
+	"github.com/gnames/gnames/domain/entity"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
 // Run starts HTTP/1 service for scientific names verification.
-func Run(s model.VerificationService) {
-	log.Printf("Starting the HTTP API server on port %d.", s.GetPort())
+func Run(s VerificationService) {
+	log.Printf("Starting the HTTP API server on port %d.", s.Port())
 	r := mux.NewRouter()
 
 	r.HandleFunc("/ping",
@@ -39,15 +39,15 @@ func Run(s model.VerificationService) {
 			if err != nil {
 				log.Warnf("Cannot convert DataSourceID %s: %s.", vars["id"], err)
 			}
-			getDataSourcesHTTP(resp, req, s, model.DataSourcesOpts{DataSourceID: id})
+			getDataSourcesHTTP(resp, req, s, entity.DataSourcesOpts{DataSourceID: id})
 		}).Methods("GET", "POST")
 
 	r.HandleFunc("/data_sources",
 		func(resp http.ResponseWriter, req *http.Request) {
-			getDataSourcesHTTP(resp, req, s, model.DataSourcesOpts{})
+			getDataSourcesHTTP(resp, req, s, entity.DataSourcesOpts{})
 		}).Methods("GET", "POST")
 
-	addr := fmt.Sprintf(":%d", s.GetPort())
+	addr := fmt.Sprintf(":%d", s.Port())
 
 	server := &http.Server{
 		Handler:      r,
@@ -60,13 +60,13 @@ func Run(s model.VerificationService) {
 }
 
 func pingHTTP(resp http.ResponseWriter, _ *http.Request,
-	s model.VerificationService) {
+	s VerificationService) {
 	resp.Write([]byte(s.Ping()))
 }
 
 func getVersionHTTP(resp http.ResponseWriter, _ *http.Request,
-	s model.VerificationService) {
-	version := s.GetVersion()
+	s VerificationService) {
+	version := s.Version()
 	ver, err := s.Encode(version)
 	if err != nil {
 		log.Warnf("Cannot decode version: %s.", err)
@@ -75,8 +75,8 @@ func getVersionHTTP(resp http.ResponseWriter, _ *http.Request,
 }
 
 func verifyHTTP(resp http.ResponseWriter, req *http.Request,
-	s model.VerificationService) {
-	var params model.VerifyParams
+	s VerificationService) {
+	var params entity.VerifyParams
 	var body []byte
 	var err error
 
@@ -100,10 +100,10 @@ func verifyHTTP(resp http.ResponseWriter, req *http.Request,
 }
 
 func getDataSourcesHTTP(resp http.ResponseWriter, req *http.Request,
-	s model.VerificationService, opts model.DataSourcesOpts) {
-	verified := s.GetDataSources(opts)
+	s VerificationService, opts entity.DataSourcesOpts) {
+	dataSources := s.DataSources(opts)
 
-	if out, err := s.Encode(verified); err == nil {
+	if out, err := s.Encode(dataSources); err == nil {
 		resp.Write(out)
 	} else {
 		log.Warnf("MatchAry: Cannot encode response : %v.", err)

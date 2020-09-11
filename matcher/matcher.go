@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gnames/gnames/encode"
-	gnm "github.com/gnames/gnmatcher/model"
+	"github.com/gnames/gnames/lib/encode"
+	gnm "github.com/gnames/gnmatcher/domain/entity"
 )
 
 func MatchNames(names []string, url string) ([]*gnm.Match, error) {

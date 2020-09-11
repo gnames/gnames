@@ -1,4 +1,4 @@
-package model
+package entity
 
 // MatchType describes how a name-string matched a name in gnames database.
 type MatchType int

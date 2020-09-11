@@ -18,10 +18,7 @@ test: deps install
 	$(FLAG_MODULE) go test ./...
 
 deps:
-	$(FLAG_MODULE) $(GOGET) github.com/spf13/cobra/cobra@v1.0.0; \
-	$(FLAG_MODULE) $(GOGET) github.com/onsi/ginkgo/ginkgo@v1.12.0; \
-	$(FLAG_MODULE) $(GOGET) github.com/onsi/gomega@v1.10.0; \
-	$(FLAG_MODULE) $(GOGET) github.com/golang/protobuf/protoc-gen-go@v1.4.1; \
+	$(GOCMD) mod download; \
 	$(GOGENERATE)
 
 build:
