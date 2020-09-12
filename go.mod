@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/georgysavva/scany v0.2.5
-	github.com/gnames/gnmatcher v0.3.3-0.20200907130711-9ed95e4d704a
+	github.com/gnames/gnmatcher v0.3.3
 	github.com/gorilla/mux v1.7.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/json-iterator/go v1.1.9
