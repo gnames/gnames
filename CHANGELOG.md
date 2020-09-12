@@ -2,9 +2,11 @@
 
 ## Unreleased
 
+- Add [#23]: Make gnmatcher access more flexible.
+
 ## [v0.0.2]
 
-- Add [#15]: Clean up architecture.
+- Add [#21]: Clean up architecture.
 
 ## [v0.0.1]
 
@@ -24,6 +26,15 @@ This document follows [changelog guidelines]
 [v0.0.2]: https://github.com/gnames/gnfinder/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.1
 
+[#24]: https://github.com/gnames/gnames/issues/24
+[#23]: https://github.com/gnames/gnames/issues/23
+[#22]: https://github.com/gnames/gnames/issues/22
+[#21]: https://github.com/gnames/gnames/issues/21
+[#20]: https://github.com/gnames/gnames/issues/20
+[#19]: https://github.com/gnames/gnames/issues/19
+[#18]: https://github.com/gnames/gnames/issues/18
+[#17]: https://github.com/gnames/gnames/issues/17
+[#16]: https://github.com/gnames/gnames/issues/16
 [#15]: https://github.com/gnames/gnames/issues/15
 [#14]: https://github.com/gnames/gnames/issues/14
 [#13]: https://github.com/gnames/gnames/issues/13

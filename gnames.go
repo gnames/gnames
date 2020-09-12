@@ -5,26 +5,29 @@ import (
 	"github.com/gnames/gnames/data"
 	"github.com/gnames/gnames/domain/entity"
 	"github.com/gnames/gnames/matcher"
+	gnmu "github.com/gnames/gnmatcher/domain/usecase"
 	log "github.com/sirupsen/logrus"
 )
 
 type GNames struct {
 	Config config.Config
 	data.DataGrabber
+	gnmu.Matcher
 }
 
 func NewGNames(cnf config.Config, dg data.DataGrabber) GNames {
-	return GNames{Config: cnf, DataGrabber: dg}
+	return GNames{
+		Config:      cnf,
+		DataGrabber: dg,
+		Matcher:     matcher.NewMatcherREST(cnf.MatcherURL),
+	}
 }
 
 func (gn GNames) Verify(params entity.VerifyParams) ([]*entity.Verification, error) {
 	log.Printf("Verifying %d name-strings.", len(params.NameStrings))
 	res := make([]*entity.Verification, len(params.NameStrings))
 
-	matches, err := matcher.MatchNames(params.NameStrings, gn.Config.MatcherURL)
-	if err != nil {
-		return res, err
-	}
+	matches := gn.Matcher.MatchAry(params.NameStrings)
 
 	var errString string
 	matchRecords, err := gn.DataGrabber.MatchRecords(matches)
@@ -63,4 +66,3 @@ func bestResult(rds []*entity.ResultData) *entity.ResultData {
 	}
 	return rd
 }
-
