@@ -138,7 +138,6 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 		}
 		if i == 0 {
 			mr.MatchType = m.MatchType
-			log.Println(mr.MatchType)
 		}
 	}
 	mr.DataSourcesNum = len(sources)
