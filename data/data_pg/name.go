@@ -18,12 +18,13 @@ import (
 // is a key.
 type verif struct {
 	CanonicalID         sql.NullString
-	CanonicalFullID     sql.NullString
+	Canonical           sql.NullString
+	CanonicalFull       sql.NullString
 	Name                sql.NullString
 	Cardinality         int
-	DataSourceID        int
 	RecordID            sql.NullString
 	NameStringID        sql.NullString
+	DataSourceID        int
 	LocalID             sql.NullString
 	OutlinkID           sql.NullString
 	AcceptedRecordID    sql.NullString
@@ -39,8 +40,7 @@ type matchSplit struct {
 }
 
 var names_q = `
-  SELECT canonical_id, canonical_full_id, name,
-      cardinality, data_source_id, record_id, name_string_id,
+  SELECT canonical_id, name, data_source_id, record_id, name_string_id,
       local_id, outlink_id, accepted_record_id, accepted_name_id,
       accepted_name, classification, classification_ranks
     FROM verification where %s in (%s)`
@@ -54,6 +54,7 @@ func (dgp DataGrabberPG) MatchRecords(matches []*gnm.Match) (map[string]*data.Ma
 
 	verifs, err := nameQuery(dgp.DB, splitMatches.canonical)
 	if err != nil {
+		log.Warnf("Cannot get matches data: %s", err)
 		return res, err
 	}
 
@@ -78,11 +79,23 @@ func (dgp DataGrabberPG) produceResultData(
 
 	verifMap := getVerifMap(v)
 	for _, v := range ms.canonical {
+		parsed := parser.ParseToObject(v.Name)
+		if !parsed.Parsed {
+			log.Fatalf("Cannot parse input '%s'. Should never happen at this point.", v.Name)
+		}
+		var authors []string
+		if parsed.Authorship != nil {
+			authors = parsed.Authorship.AllAuthors
+		}
 		mr := data.MatchRecord{
-			InputID:       v.ID,
-			Input:         v.Name,
-			MatchType:     v.MatchType,
-			CurationLevel: entity.NotCurated,
+			InputID:         v.ID,
+			Input:           v.Name,
+			Cardinality:     int(parsed.Cardinality),
+			CanonicalSimple: parsed.Canonical.GetSimple(),
+			CanonicalFull:   parsed.Canonical.GetFull(),
+			Authors:         authors,
+			MatchType:       v.MatchType,
+			CurationLevel:   entity.NotCurated,
 		}
 		for _, vv := range v.MatchItems {
 			dgp.populateMatchRecord(vv, *v, &mr, parser, verifMap)
@@ -105,7 +118,7 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 	}
 
 	sources := make(map[int]struct{})
-	mr.ResultData = make([]*entity.ResultData, len(v))
+	mr.MatchResults = make([]*entity.ResultData, len(v))
 	for i, vv := range v {
 		parsed := parser.ParseToObject(vv.Name.String)
 		parsedCurrent := parser.ParseToObject(vv.AcceptedName.String)
@@ -131,7 +144,7 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 			StemEditDistance:       mi.EditDistanceStem,
 			MatchType:              m.MatchType,
 		}
-		mr.ResultData[i] = &resData
+		mr.MatchResults[i] = &resData
 		cl := dgp.DataSourcesMap[resData.DataSourceID].CurationLevel
 		if mr.CurationLevel < cl {
 			mr.CurationLevel = cl

@@ -58,6 +58,10 @@ type ResultData struct {
 	// auto-generated.  Auto-generated IDs will have 'gn_' prefix.
 	ID string `json:"id"`
 
+	// Score determines how well the match did work. It is used to determine
+	// best match overall, and best match for every data-source.
+	Score uint32 `json:"score"`
+
 	// GlobalID that is exposed globally by a DataSource.
 	GlobalID string `json:"globalId,omitempty"`
 
@@ -78,7 +82,7 @@ type ResultData struct {
 	MatchedName string
 
 	// MatchCardinality is the cardinality of returned name:
-	// 0 - No match or hybrid formula,
+	// 0 - No match, virus or hybrid formula,
 	// 1 - Uninomial, 2 - Binomial, 3 - trinomial etc.
 	MatchedCardinality int `json:"matchedCardinality"`
 
@@ -86,11 +90,14 @@ type ResultData struct {
 	// names lower than species, and with ommited hybrid signs for named hybrids.
 	// Quite often simple canonical is the same as full canonical. Hybrid signs
 	// are preserved for hybrid formulas.
-	MatchedCanonicalSimple string `json:"matchedCanonicalSimple"`
+	MatchedCanonicalSimple string `json:"matchedCanonicalSimple,omitempty"`
 
 	// MatchedCanonicalFull is a canonical form that preserves hybrid signs
 	// and infraspecific ranks.
-	MatchedCanonicalFull string `json:"matchedCanonicalFull"`
+	MatchedCanonicalFull string `json:"matchedCanonicalFull,omitempty"`
+
+	// MatchedAuthors are authors of the matched name.
+	MatchedAuthors string `json:"matchedAuthors,omitempty"`
 
 	// CurrentName is a currently accepted name (it is only provided by
 	// DataSources with taxonomic data).
@@ -148,4 +155,3 @@ type Vernacular struct {
 	// Locality is geographic places where the name is used.
 	Locality string `json:"locality,omitempty"`
 }
-

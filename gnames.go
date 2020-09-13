@@ -5,6 +5,7 @@ import (
 	"github.com/gnames/gnames/data"
 	"github.com/gnames/gnames/domain/entity"
 	"github.com/gnames/gnames/matcher"
+	"github.com/gnames/gnames/score"
 	gnmu "github.com/gnames/gnmatcher/domain/usecase"
 	log "github.com/sirupsen/logrus"
 )
@@ -13,6 +14,7 @@ type GNames struct {
 	Config config.Config
 	data.DataGrabber
 	gnmu.Matcher
+	Score score.Scorer
 }
 
 func NewGNames(cnf config.Config, dg data.DataGrabber) GNames {
@@ -20,6 +22,7 @@ func NewGNames(cnf config.Config, dg data.DataGrabber) GNames {
 		Config:      cnf,
 		DataGrabber: dg,
 		Matcher:     matcher.NewMatcherREST(cnf.MatcherURL),
+		Score:       score.Score{},
 	}
 }
 
@@ -36,18 +39,22 @@ func (gn GNames) Verify(params entity.VerifyParams) ([]*entity.Verification, err
 	}
 
 	for i, v := range matches {
-		mr := matchRecords[v.ID]
-		item := entity.Verification{
-			InputID:        v.ID,
-			Input:          v.Name,
-			MatchType:      mr.MatchType,
-			CurationLevel:  mr.CurationLevel,
-			DataSourcesNum: mr.DataSourcesNum,
-			BestResult:     bestResult(mr.ResultData),
-			Error:          errString,
-		}
+		if mr, ok := matchRecords[v.ID]; ok {
+			item := entity.Verification{
+				InputID:          mr.InputID,
+				Input:            mr.Input,
+				MatchType:        mr.MatchType,
+				CurationLevel:    mr.CurationLevel,
+				DataSourcesNum:   mr.DataSourcesNum,
+				BestResult:       gn.Score.BestResult(mr),
+				PreferredResults: gn.Score.PreferredResults(params.PreferredSources, mr),
+				Error:            errString,
+			}
 
-		res[i] = &item
+			res[i] = &item
+		} else {
+			log.Warnf("Cannot find %+v record.", v)
+		}
 	}
 	return res, nil
 }

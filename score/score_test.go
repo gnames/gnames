@@ -15,13 +15,15 @@ var _ = Describe("Score", func() {
 	})
 
 	DescribeTable("rank",
-		func(uuid1, uuid2, expected string) {
+		func(can1, can2 string, card1, card2 int, expected string) {
 			s := Score{}
-			Expect(s.rank(uuid1, uuid2).String()).To(Equal(expected))
+			Expect(s.rank(can1, can2, card1, card2).String()).To(Equal(expected))
 		},
-		Entry("empty 1", "", "", "01000000000000000000000000000000: 1073741824"),
-		Entry("empty 2", "", "123", "01000000000000000000000000000000: 1073741824"),
-		Entry("yes", "123", "123", "11000000000000000000000000000000: 3221225472"),
-		Entry("no", "123", "1234", "00000000000000000000000000000000: 0"),
+		Entry("partial", "Aus bus var. cus", "Aus bus", 3, 2, "01000000000000000000000000000000: 1073741824"),
+		Entry("binomial", "Aus bus", "Aus bus", 2, 2, "01000000000000000000000000000000: 1073741824"),
+		Entry("exact", "Aus bus var. cus", "Aus bus var. cus", 3, 3, "10000000000000000000000000000000: 2147483648"),
+		Entry("no match", "Aus bus var. cus", "Aus bus f. cus", 3, 3, "00000000000000000000000000000000: 0"),
+		Entry("n/a", "Aus bus cus", "Aus bus f. cus", 3, 3, "01000000000000000000000000000000: 1073741824"),
+		Entry("n/a", "Aus bus f. cus", "Aus bus cus", 3, 3, "01000000000000000000000000000000: 1073741824"),
 	)
 })
