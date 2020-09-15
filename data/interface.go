@@ -19,6 +19,7 @@ type MatchRecord struct {
 	CanonicalSimple string
 	CanonicalFull   string
 	Authors         []string
+	Year            int
 	MatchType       gn.MatchType
 	CurationLevel   gn.CurationLevel
 	DataSourcesNum  int

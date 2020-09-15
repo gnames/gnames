@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/georgysavva/scany/sqlscan"
@@ -12,6 +13,7 @@ import (
 	gnm "github.com/gnames/gnmatcher/domain/entity"
 	log "github.com/sirupsen/logrus"
 	"gitlab.com/gogna/gnparser"
+	"gitlab.com/gogna/gnparser/pb"
 )
 
 // MatchRecords connects result data to input name-string. Input name-string
@@ -83,10 +85,8 @@ func (dgp DataGrabberPG) produceResultData(
 		if !parsed.Parsed {
 			log.Fatalf("Cannot parse input '%s'. Should never happen at this point.", v.Name)
 		}
-		var authors []string
-		if parsed.Authorship != nil {
-			authors = parsed.Authorship.AllAuthors
-		}
+		authors, year := processAuthorship(parsed.Authorship)
+
 		mr := data.MatchRecord{
 			InputID:         v.ID,
 			Input:           v.Name,
@@ -94,6 +94,7 @@ func (dgp DataGrabberPG) produceResultData(
 			CanonicalSimple: parsed.Canonical.GetSimple(),
 			CanonicalFull:   parsed.Canonical.GetFull(),
 			Authors:         authors,
+			Year:            year,
 			MatchType:       v.MatchType,
 			CurationLevel:   entity.NotCurated,
 		}
@@ -103,6 +104,34 @@ func (dgp DataGrabberPG) produceResultData(
 		mrs[v.ID] = &mr
 	}
 	return mrs
+}
+
+func processAuthorship(au *pb.Authorship) ([]string, int) {
+	authors := make([]string, 0, 2)
+	var year int
+	if au == nil {
+		return authors, year
+	}
+
+	authors = au.AllAuthors
+
+	if au.Original != nil && au.Original.Year != "" {
+		yr, err := strconv.Atoi(au.Original.Year)
+		if err == nil && !au.Original.ApproximateYear {
+			year = yr
+		}
+	}
+	if au.Combination != nil && au.Combination.Year != "" {
+		if year > 0 {
+			return authors, 0
+		}
+
+		yr, err := strconv.Atoi(au.Original.Year)
+		if err == nil && !au.Original.ApproximateYear {
+			year = yr
+		}
+	}
+	return authors, year
 }
 
 func (dgp *DataGrabberPG) populateMatchRecord(
@@ -121,18 +150,27 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 	mr.MatchResults = make([]*entity.ResultData, len(v))
 	for i, vv := range v {
 		parsed := parser.ParseToObject(vv.Name.String)
+		authors, year := processAuthorship(parsed.Authorship)
 		parsedCurrent := parser.ParseToObject(vv.AcceptedName.String)
 		sources[vv.DataSourceID] = struct{}{}
+
+		cl := dgp.DataSourcesMap[vv.DataSourceID].CurationLevel
+		if mr.CurationLevel < cl {
+			mr.CurationLevel = cl
+		}
 
 		resData := entity.ResultData{
 			ID:                     vv.RecordID.String,
 			LocalID:                vv.LocalID.String,
 			Outlink:                vv.OutlinkID.String,
 			DataSourceID:           vv.DataSourceID,
+			CurationLevel:          cl,
 			MatchedName:            vv.Name.String,
 			MatchedCardinality:     vv.Cardinality,
 			MatchedCanonicalSimple: parsed.Canonical.Simple,
 			MatchedCanonicalFull:   parsed.Canonical.Full,
+			MatchedAuthors:         authors,
+			MatchedYear:            year,
 			CurrentName:            vv.AcceptedName.String,
 			CurrentCardinality:     int(parsedCurrent.Cardinality),
 			CurrentCanonicalSimple: parsedCurrent.Canonical.Simple,
@@ -145,10 +183,6 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 			MatchType:              m.MatchType,
 		}
 		mr.MatchResults[i] = &resData
-		cl := dgp.DataSourcesMap[resData.DataSourceID].CurationLevel
-		if mr.CurationLevel < cl {
-			mr.CurationLevel = cl
-		}
 		if i == 0 {
 			mr.MatchType = m.MatchType
 		}

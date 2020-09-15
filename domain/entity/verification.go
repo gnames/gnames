@@ -77,6 +77,9 @@ type ResultData struct {
 	// Shortened/abbreviated title of the data source.
 	DataSrouceTitleShort string `json:"dataSourceTitleShort"`
 
+	// CurationLevel of the data source.
+	CurationLevel `json:"curationLevel"`
+
 	// MatchedName is a name-string from the DataSource that was matched
 	// by GNames algorithm.
 	MatchedName string
@@ -96,8 +99,12 @@ type ResultData struct {
 	// and infraspecific ranks.
 	MatchedCanonicalFull string `json:"matchedCanonicalFull,omitempty"`
 
-	// MatchedAuthors are authors of the matched name.
-	MatchedAuthors string `json:"matchedAuthors,omitempty"`
+	// MatchedAuthors is a list of authors mentioned in the name.
+	MatchedAuthors []string `json:"matchedAuthors,omitempty"`
+
+	// MatchedYear is a year mentioned in the name. Multiple years or
+	// approximate years are ignored.
+	MatchedYear int `json:"matchedYear,omitempty"`
 
 	// CurrentName is a currently accepted name (it is only provided by
 	// DataSources with taxonomic data).

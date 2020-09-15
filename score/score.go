@@ -9,8 +9,24 @@
 // 01 - match is unknown
 //    `Aus bus cus` vs `Aus bus f. cus`
 //    `Aus bus` vs `Aus bus`
-// 11 - rank matches
+// 10 - rank matches
 //    `Aus bus var. cus` vs `Aus bus var. cus`
+//
+// 00xx0000_00000000_00000000_00000000: curation
+// 00 - uncurated sources only
+// 01 - auto-curated sources
+// 10 - human-curated sources
+// 11 - Catalogue of Life
+//
+// 0000xx00_00000000_00000000_00000000: matching authorship
+// 00 - authorship does not match
+//    `Aus bus Linn.` vs `Aus bus Banks`
+// 01 - match is unknown
+//    `Aus bus Linn` vs `Aus bus`
+// 10 - authorship or year matches
+//    `Aus bus L.` vs `Aus bus Linn.`
+// 11 - authorship and year matches (one year difference is accepted)
+//     `Aus bus L. 1765` vs `Aus bus Linn. 1766`
 //
 package score
 
@@ -32,8 +48,11 @@ func (s Score) String() string {
 }
 
 func (s Score) Calculate(mr *data.MatchRecord, rd *entity.ResultData) uint32 {
-	return s.rank(mr.CanonicalFull, rd.MatchedCanonicalFull,
-		mr.Cardinality, rd.MatchedCardinality).Value
+	score := s.rank(mr.CanonicalFull, rd.MatchedCanonicalFull,
+		mr.Cardinality, rd.MatchedCardinality).
+		curation(rd.DataSourceID, rd.CurationLevel).
+		auth(mr.Authors, rd.MatchedAuthors, mr.Year, rd.MatchedYear)
+	return score.Value
 }
 
 func (s Score) Sort(mr *data.MatchRecord) {
@@ -86,6 +105,9 @@ func (s Score) PreferredResults(
 	return res
 }
 
+// rank checks if infraspecific canonical forms contain the same ranks. If they
+// do the score is 2, if comparison cannot be done the score is 1, and if the
+// ranks are different, the score is 0. 2 bits, shift 30
 func (s Score) rank(can1, can2 string, card1, card2 int) Score {
 	shift := 30
 	i := s.Value
@@ -99,5 +121,16 @@ func (s Score) rank(can1, can2 string, card1, card2 int) Score {
 	if can1 == can2 {
 		s.Value = (i | uint32(0b10<<shift))
 	}
+	return s
+}
+
+// Sort by curation level of data-sources
+func (s Score) curation(dataSourceID int, curationLevel entity.CurationLevel) Score {
+	shift := 28
+	i := uint32(curationLevel)
+	if dataSourceID == 1 {
+		i = 3
+	}
+	s.Value = (s.Value | uint32(i<<shift))
 	return s
 }
