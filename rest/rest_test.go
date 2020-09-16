@@ -89,6 +89,45 @@ var _ = Describe("Rest", func() {
 			Expect(acceptFilter.BestResult.MatchType).To(Equal(entity.Exact))
 			Expect(acceptFilter.BestResult.CurrentCanonicalSimple).To(Equal("Pisonia grandis"))
 		})
+
+		It("Verifies entered names with preferred data-sources", func() {
+			var response []entity.Verification
+			names := []string{
+				"Bubo bubo", "Pomatomus",
+				"Pardosa moesta", "Plantago major var major",
+				"Cytospora ribis mitovirus 2",
+				"Pisonia grandis",
+			}
+			request := entity.VerifyParams{NameStrings: names, PreferredSources: []int{1, 12, 169, 182}}
+			req, err := encode.GNjson{}.Encode(request)
+			Expect(err).To(BeNil())
+			r := bytes.NewReader(req)
+			resp, err := http.Post(url+"verification", "application/x-binary", r)
+			Expect(err).To(BeNil())
+			respBytes, err := ioutil.ReadAll(resp.Body)
+			Expect(err).To(BeNil())
+			err = encode.GNjson{}.Decode(respBytes, &response)
+			Expect(err).To(BeNil())
+			Expect(len(response)).To(Equal(len(names)))
+
+			binom := response[0]
+			Expect(binom.InputID).To(Equal("4431a0f3-e901-519a-886f-9b97e0c99d8e"))
+			Expect(binom.Input).To(Equal("Bubo bubo"))
+			Expect(binom.BestResult).ToNot(BeNil())
+			Expect(binom.BestResult.DataSourceID).To(Equal(1))
+			Expect(binom.BestResult.MatchType).To(Equal(entity.Exact))
+			Expect(binom.CurationLevel).To(Equal(entity.Curated))
+			Expect(len(binom.PreferredResults)).To(Equal(3))
+			Expect(binom.Error).To(Equal(""))
+
+			acceptFilter := response[5]
+			Expect(acceptFilter.InputID).To(Equal("4c8848f2-7271-588c-ba81-e4d5efcc1e92"))
+			Expect(acceptFilter.Input).To(Equal("Pisonia grandis"))
+			Expect(acceptFilter.BestResult.DataSourceID).To(Equal(1))
+			Expect(acceptFilter.BestResult.MatchType).To(Equal(entity.Exact))
+			Expect(acceptFilter.BestResult.CurrentCanonicalSimple).To(Equal("Pisonia grandis"))
+			Expect(len(binom.PreferredResults)).To(Equal(3))
+		})
 	})
 
 	Describe("DataSources()", func() {

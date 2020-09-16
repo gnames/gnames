@@ -166,7 +166,7 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 			DataSourceID:           vv.DataSourceID,
 			CurationLevel:          cl,
 			MatchedName:            vv.Name.String,
-			MatchedCardinality:     vv.Cardinality,
+			MatchedCardinality:     int(parsed.Cardinality),
 			MatchedCanonicalSimple: parsed.Canonical.Simple,
 			MatchedCanonicalFull:   parsed.Canonical.Full,
 			MatchedAuthors:         authors,

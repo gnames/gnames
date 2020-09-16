@@ -4,6 +4,7 @@
 
 ## [v0.0.3]
 
+- Add [#24]: Get reasonable preferred matches from real data.
 - Add [#28]: Get reasonable best matches from real data.
 - Add [#19]: Fuzzy matching with higher edit distance score lower.
 - Add [#20]: Currently accepted names score higher than synonyms.
