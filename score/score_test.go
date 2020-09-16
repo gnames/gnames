@@ -27,6 +27,18 @@ var _ = Describe("Score", func() {
 		Entry("accepted2", "123", "", "00000001_00000000_00000000_00000000"),
 	)
 
+	DescribeTable("fuzzy",
+		func(edit_dist int, expected string) {
+			s := Score{}
+			Expect(s.fuzzy(edit_dist).String()).To(Equal(expected))
+		},
+		Entry("exact", 0, "00000000_11000000_00000000_00000000"),
+		Entry("fuzzy1", 1, "00000000_10000000_00000000_00000000"),
+		Entry("fuzzy2", 2, "00000000_01000000_00000000_00000000"),
+		Entry("fuzzy3", 3, "00000000_00000000_00000000_00000000"),
+		Entry("fuzzy4", 13, "00000000_00000000_00000000_00000000"),
+	)
+
 	DescribeTable("rank",
 		func(can1, can2 string, card1, card2 int, expected string) {
 			s := Score{}

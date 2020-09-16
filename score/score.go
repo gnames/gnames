@@ -47,6 +47,12 @@
 // 0000000x_00000000_00000000_00000000: accepted name
 // 0 - name is a synonym
 // 1 - name is currently accepted
+//
+// 00000000_xx000000_00000000_00000000: edit distance
+// 00 - edit distance is 3 or more
+// 01 - edit distance 2
+// 10 - edit distance 1
+// 11 - edit distance 0
 package score
 
 import (
@@ -171,6 +177,20 @@ func (s Score) accepted(record_id, accepted_id string) Score {
 	if accepted_id == "" || record_id == accepted_id {
 		i = 1
 	}
+	s.Value = (s.Value | uint32(i<<shift))
+	return s
+}
+
+// fuzzy matching
+func (s Score) fuzzy(edit_distance int) Score {
+	shift := 22
+	var i uint32 = 3
+	if edit_distance > int(i) || edit_distance < 0 {
+		i = 0
+	} else {
+		i = i - uint32(edit_distance)
+	}
+
 	s.Value = (s.Value | uint32(i<<shift))
 	return s
 }
