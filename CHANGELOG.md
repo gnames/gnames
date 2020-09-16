@@ -2,10 +2,11 @@
 
 ## Unreleased
 
-- Add [#23]: Make gnmatcher access more flexible.
+- Add [#15]: Use curation level for scoring results.
 - Add [#16]: Use authorship for scoring results.
 - Add [#17]: Use infraspecies ranks for scoring results.
 - Add [#18]: Develop a ranking system.
+- Add [#23]: Make gnmatcher access more flexible.
 
 ## [v0.0.2]
 
