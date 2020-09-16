@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## [v0.0.3]
+
+- Add [#19]: Fuzzy matching with higher edit distance score lower.
+- Add [#20]: Currently accepted names score higher than synonyms.
 - Add [#15]: Use curation level for scoring results.
 - Add [#16]: Use authorship for scoring results.
 - Add [#17]: Use infraspecies ranks for scoring results.
@@ -27,6 +31,7 @@
 
 This document follows [changelog guidelines]
 
+[v0.0.3]: https://github.com/gnames/gnfinder/compare/v0.0.2...v0.0.3
 [v0.0.2]: https://github.com/gnames/gnfinder/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.1
 

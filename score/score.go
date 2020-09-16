@@ -43,6 +43,10 @@
 //       `Auth1, Auth2, Auth3, 1888` vs `Auth1, Auth2, 1888`
 // 111 - Authors and years are identical.
 //       `Auth1, Auth2, 1888` vs `Auth1, Auth2, 1888`
+//
+// 0000000x_00000000_00000000_00000000: accepted name
+// 0 - name is a synonym
+// 1 - name is currently accepted
 package score
 
 import (
@@ -155,6 +159,17 @@ func (s Score) curation(dataSourceID int, curationLevel entity.CurationLevel) Sc
 	i := uint32(curationLevel)
 	if dataSourceID == 1 {
 		i = 3
+	}
+	s.Value = (s.Value | uint32(i<<shift))
+	return s
+}
+
+// accepted name
+func (s Score) accepted(record_id, accepted_id string) Score {
+	shift := 24
+	var i uint32 = 0
+	if accepted_id == "" || record_id == accepted_id {
+		i = 1
 	}
 	s.Value = (s.Value | uint32(i<<shift))
 	return s

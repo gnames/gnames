@@ -17,6 +17,16 @@ var _ = Describe("Score", func() {
 		})
 	})
 
+	DescribeTable("accepted",
+		func(record_id, accepted_record_id, expected string) {
+			s := Score{}
+			Expect(s.accepted(record_id, accepted_record_id).String()).To(Equal(expected))
+		},
+		Entry("synonym", "123", "234", "00000000_00000000_00000000_00000000"),
+		Entry("accepted1", "123", "123", "00000001_00000000_00000000_00000000"),
+		Entry("accepted2", "123", "", "00000001_00000000_00000000_00000000"),
+	)
+
 	DescribeTable("rank",
 		func(can1, can2 string, card1, card2 int, expected string) {
 			s := Score{}
