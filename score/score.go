@@ -57,17 +57,18 @@ package score
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
-	"github.com/gnames/gnames/data"
 	"github.com/gnames/gnames/domain/entity"
 )
 
+// Score
 type Score struct {
 	Value uint32
 }
 
+// String returns a string representation of a score as a set of bits with
+// every byte (8 bits) separated by an underscore.
 func (s Score) String() string {
 	str := fmt.Sprintf("%032b", s.Value)
 	res := make([]byte, 35)
@@ -80,64 +81,6 @@ func (s Score) String() string {
 		}
 	}
 	return string(res)
-}
-
-func (s Score) Calculate(mr *data.MatchRecord, rd *entity.ResultData) uint32 {
-	score := s.rank(mr.CanonicalFull, rd.MatchedCanonicalFull,
-		mr.Cardinality, rd.MatchedCardinality).
-		curation(rd.DataSourceID, rd.CurationLevel).
-		auth(mr.Authors, rd.MatchedAuthors, mr.Year, rd.MatchedYear)
-	return score.Value
-}
-
-func (s Score) Sort(mr *data.MatchRecord) {
-	mrs := mr.MatchResults
-	sort.SliceStable(mrs, func(i, j int) bool {
-		return mrs[i].Score < mrs[j].Score
-	})
-	mr.Sorted = true
-}
-
-func (s Score) BestResult(mr *data.MatchRecord) *entity.ResultData {
-	if mr.MatchResults == nil {
-		var br *entity.ResultData
-		return br
-	}
-
-	if !mr.Sorted {
-		s.Sort(mr)
-	}
-	return mr.MatchResults[0]
-}
-
-func (s Score) PreferredResults(
-	sources []int,
-	mr *data.MatchRecord) []*entity.ResultData {
-
-	if mr.MatchResults == nil || len(mr.MatchResults) == 0 {
-		var res []*entity.ResultData
-		return res
-	}
-
-	if !mr.Sorted {
-		s.Sort(mr)
-	}
-	sourceMap := make(map[int]*entity.ResultData)
-	for _, v := range sources {
-		sourceMap[v] = nil
-	}
-	for _, v := range mr.MatchResults {
-		if datum, ok := sourceMap[v.DataSourceID]; ok && datum == nil {
-			sourceMap[v.DataSourceID] = v
-		}
-	}
-	res := make([]*entity.ResultData, 0, len(sources))
-	for _, v := range sourceMap {
-		if v != nil {
-			res = append(res, v)
-		}
-	}
-	return res
 }
 
 // rank checks if infraspecific canonical forms contain the same ranks. If they

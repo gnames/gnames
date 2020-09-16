@@ -4,6 +4,7 @@
 
 ## [v0.0.3]
 
+- Add [#28]: Get reasonable best matches from real data.
 - Add [#19]: Fuzzy matching with higher edit distance score lower.
 - Add [#20]: Currently accepted names score higher than synonyms.
 - Add [#15]: Use curation level for scoring results.
@@ -35,6 +36,12 @@ This document follows [changelog guidelines]
 [v0.0.2]: https://github.com/gnames/gnfinder/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.1
 
+[#30]: https://github.com/gnames/gnames/issues/30
+[#29]: https://github.com/gnames/gnames/issues/29
+[#28]: https://github.com/gnames/gnames/issues/28
+[#27]: https://github.com/gnames/gnames/issues/27
+[#26]: https://github.com/gnames/gnames/issues/26
+[#25]: https://github.com/gnames/gnames/issues/25
 [#24]: https://github.com/gnames/gnames/issues/24
 [#23]: https://github.com/gnames/gnames/issues/23
 [#22]: https://github.com/gnames/gnames/issues/22

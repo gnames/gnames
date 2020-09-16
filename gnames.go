@@ -14,7 +14,6 @@ type GNames struct {
 	Config config.Config
 	data.DataGrabber
 	gnmu.Matcher
-	Score score.Scorer
 }
 
 func NewGNames(cnf config.Config, dg data.DataGrabber) GNames {
@@ -22,7 +21,6 @@ func NewGNames(cnf config.Config, dg data.DataGrabber) GNames {
 		Config:      cnf,
 		DataGrabber: dg,
 		Matcher:     matcher.NewMatcherREST(cnf.MatcherURL),
-		Score:       score.Score{},
 	}
 }
 
@@ -40,14 +38,15 @@ func (gn GNames) Verify(params entity.VerifyParams) ([]*entity.Verification, err
 
 	for i, v := range matches {
 		if mr, ok := matchRecords[v.ID]; ok {
+			score.Calculate(mr)
 			item := entity.Verification{
 				InputID:          mr.InputID,
 				Input:            mr.Input,
 				MatchType:        mr.MatchType,
 				CurationLevel:    mr.CurationLevel,
 				DataSourcesNum:   mr.DataSourcesNum,
-				BestResult:       gn.Score.BestResult(mr),
-				PreferredResults: gn.Score.PreferredResults(params.PreferredSources, mr),
+				BestResult:       score.BestResult(mr),
+				PreferredResults: score.PreferredResults(params.PreferredSources, mr),
 				Error:            errString,
 			}
 
@@ -64,12 +63,4 @@ func (gn GNames) DataSources(opts entity.DataSourcesOpts) ([]*entity.DataSource,
 	dsID := opts.DataSourceID
 	nullDsID := data.NullInt{Int: dsID, Valid: dsID > 0}
 	return gn.DataGrabber.DataSources(nullDsID)
-}
-
-func bestResult(rds []*entity.ResultData) *entity.ResultData {
-	var rd *entity.ResultData
-	if len(rds) > 0 {
-		rd = rds[0]
-	}
-	return rd
 }

@@ -50,6 +50,7 @@ var _ = Describe("Rest", func() {
 				"Pardosa moesta", "Plantago major var major",
 				"Cytospora ribis mitovirus 2",
 				"A-shaped rods", "Alb. alba",
+				"Pisonia grandis",
 			}
 			request := entity.VerifyParams{NameStrings: names}
 			req, err := encode.GNjson{}.Encode(request)
@@ -76,9 +77,17 @@ var _ = Describe("Rest", func() {
 			Expect(binom.InputID).To(Equal("4431a0f3-e901-519a-886f-9b97e0c99d8e"))
 			Expect(binom.Input).To(Equal("Bubo bubo"))
 			Expect(binom.BestResult).ToNot(BeNil())
+			Expect(binom.BestResult.DataSourceID).To(Equal(1))
 			Expect(binom.BestResult.MatchType).To(Equal(entity.Exact))
 			Expect(binom.CurationLevel).To(Equal(entity.Curated))
 			Expect(binom.Error).To(Equal(""))
+
+			acceptFilter := response[8]
+			Expect(acceptFilter.InputID).To(Equal("4c8848f2-7271-588c-ba81-e4d5efcc1e92"))
+			Expect(acceptFilter.Input).To(Equal("Pisonia grandis"))
+			Expect(acceptFilter.BestResult.DataSourceID).To(Equal(1))
+			Expect(acceptFilter.BestResult.MatchType).To(Equal(entity.Exact))
+			Expect(acceptFilter.BestResult.CurrentCanonicalSimple).To(Equal("Pisonia grandis"))
 		})
 	})
 

@@ -106,6 +106,10 @@ type ResultData struct {
 	// approximate years are ignored.
 	MatchedYear int `json:"matchedYear,omitempty"`
 
+	// CurrentRecordID is the id of currently accepted name given by
+	// the data-source.
+	CurrentRecordID string `json:"currentRecordID"`
+
 	// CurrentName is a currently accepted name (it is only provided by
 	// DataSources with taxonomic data).
 	CurrentName string `json:"currentName"`

@@ -171,6 +171,7 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 			MatchedCanonicalFull:   parsed.Canonical.Full,
 			MatchedAuthors:         authors,
 			MatchedYear:            year,
+			CurrentRecordID:        vv.AcceptedRecordID.String,
 			CurrentName:            vv.AcceptedName.String,
 			CurrentCardinality:     int(parsedCurrent.Cardinality),
 			CurrentCanonicalSimple: parsedCurrent.Canonical.Simple,
