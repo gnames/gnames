@@ -40,14 +40,15 @@ func (gn GNames) Verify(params entity.VerifyParams) ([]*entity.Verification, err
 		if mr, ok := matchRecords[v.ID]; ok {
 			score.Calculate(mr)
 			item := entity.Verification{
-				InputID:          mr.InputID,
-				Input:            mr.Input,
-				MatchType:        mr.MatchType,
-				CurationLevel:    mr.CurationLevel,
-				DataSourcesNum:   mr.DataSourcesNum,
-				BestResult:       score.BestResult(mr),
-				PreferredResults: score.PreferredResults(params.PreferredSources, mr),
-				Error:            errString,
+				InputID:             mr.InputID,
+				Input:               mr.Input,
+				MatchType:           mr.MatchType,
+				CurationLevel:       mr.CurationLevel,
+				CurationLevelString: mr.CurationLevel.String(),
+				DataSourcesNum:      mr.DataSourcesNum,
+				BestResult:          score.BestResult(mr),
+				PreferredResults:    score.PreferredResults(params.PreferredSources, mr),
+				Error:               errString,
 			}
 
 			res[i] = &item

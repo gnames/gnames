@@ -43,7 +43,10 @@ type Verification struct {
 	// matches are returned by at least one manually curated data source, or by
 	// automatically curated data source, or only by sources that are not
 	// significantly manually curated.
-	CurationLevel `json:"curationLevel"`
+	CurationLevel `json:"-"`
+
+	// CurationLevelString is a string representation of CurationLevel
+	CurationLevelString string `json:"curationLevel"`
 
 	// Error provides an error message, if any. If error is not empty, the match
 	// failed because of a bug in the service.
@@ -53,14 +56,29 @@ type Verification struct {
 // ResultData are returned data of the "best" or "preferred" result of
 // name verification.
 type ResultData struct {
+	// DataSourceID is the ID of a matched DataSource.
+	DataSourceID int `json:"dataSourceId"`
+
+	// Shortened/abbreviated title of the data source.
+	DataSrouceTitleShort string `json:"dataSourceTitleShort"`
+
+	// CurationLevel of the data source.
+	CurationLevel `json:"-"`
+
+	// Curation is a string representation of CurationLevel
+	CurationLevelString string `json:"curationLevel"`
+
 	// ID from a data source. We try our best to return ID that correspond to
 	// global_id of a DataSource. If such ID is not provided, this ID will be
 	// auto-generated.  Auto-generated IDs will have 'gn_' prefix.
 	ID string `json:"id"`
 
+	// EntryDate is a timestamp created on entry of the data.
+	EntryDate string `json:"entryDate"`
+
 	// Score determines how well the match did work. It is used to determine
 	// best match overall, and best match for every data-source.
-	Score uint32 `json:"score"`
+	Score uint32 `json:"-"`
 
 	// GlobalID that is exposed globally by a DataSource.
 	GlobalID string `json:"globalId,omitempty"`
@@ -71,18 +89,9 @@ type ResultData struct {
 	// Outlink to the record in the DataSource.
 	Outlink string `json:"outlink,omitempty"`
 
-	// DataSourceID is the ID of a matched DataSource.
-	DataSourceID int `json:"dataSourceId"`
-
-	// Shortened/abbreviated title of the data source.
-	DataSrouceTitleShort string `json:"dataSourceTitleShort"`
-
-	// CurationLevel of the data source.
-	CurationLevel `json:"curationLevel"`
-
 	// MatchedName is a name-string from the DataSource that was matched
 	// by GNames algorithm.
-	MatchedName string
+	MatchedName string `json:"matchedName"`
 
 	// MatchCardinality is the cardinality of returned name:
 	// 0 - No match, virus or hybrid formula,
@@ -100,11 +109,11 @@ type ResultData struct {
 	MatchedCanonicalFull string `json:"matchedCanonicalFull,omitempty"`
 
 	// MatchedAuthors is a list of authors mentioned in the name.
-	MatchedAuthors []string `json:"matchedAuthors,omitempty"`
+	MatchedAuthors []string `json:"-"`
 
 	// MatchedYear is a year mentioned in the name. Multiple years or
 	// approximate years are ignored.
-	MatchedYear int `json:"matchedYear,omitempty"`
+	MatchedYear int `json:"-"`
 
 	// CurrentRecordID is the id of currently accepted name given by
 	// the data-source.

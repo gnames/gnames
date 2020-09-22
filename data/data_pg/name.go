@@ -141,44 +141,49 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 	parser gnparser.GNparser,
 	verifMap map[string][]*verif,
 ) {
-	v, ok := verifMap[mi.ID]
+	verifRecs, ok := verifMap[mi.ID]
 	if !ok {
 		log.Fatalf("Cannot find verification records for %s.", mi.MatchStr)
 	}
 
 	sources := make(map[int]struct{})
-	mr.MatchResults = make([]*entity.ResultData, len(v))
-	for i, vv := range v {
-		parsed := parser.ParseToObject(vv.Name.String)
+	mr.MatchResults = make([]*entity.ResultData, len(verifRecs))
+	for i, verRec := range verifRecs {
+		parsed := parser.ParseToObject(verRec.Name.String)
 		authors, year := processAuthorship(parsed.Authorship)
-		parsedCurrent := parser.ParseToObject(vv.AcceptedName.String)
-		sources[vv.DataSourceID] = struct{}{}
+		parsedCurrent := parser.ParseToObject(verRec.AcceptedName.String)
+		sources[verRec.DataSourceID] = struct{}{}
 
-		cl := dgp.DataSourcesMap[vv.DataSourceID].CurationLevel
-		if mr.CurationLevel < cl {
-			mr.CurationLevel = cl
+		ds := dgp.DataSourcesMap[verRec.DataSourceID]
+		curationLevel := ds.CurationLevel
+
+		if mr.CurationLevel < curationLevel {
+			mr.CurationLevel = curationLevel
 		}
 
 		resData := entity.ResultData{
-			ID:                     vv.RecordID.String,
-			LocalID:                vv.LocalID.String,
-			Outlink:                vv.OutlinkID.String,
-			DataSourceID:           vv.DataSourceID,
-			CurationLevel:          cl,
-			MatchedName:            vv.Name.String,
+			ID:                     verRec.RecordID.String,
+			LocalID:                verRec.LocalID.String,
+			Outlink:                verRec.OutlinkID.String,
+			DataSourceID:           verRec.DataSourceID,
+			DataSrouceTitleShort:   ds.TitleShort,
+			CurationLevel:          curationLevel,
+			CurationLevelString:    curationLevel.String(),
+			EntryDate:              ds.UpdatedAt.Format("2006-01-02"),
+			MatchedName:            verRec.Name.String,
 			MatchedCardinality:     int(parsed.Cardinality),
 			MatchedCanonicalSimple: parsed.Canonical.Simple,
 			MatchedCanonicalFull:   parsed.Canonical.Full,
 			MatchedAuthors:         authors,
 			MatchedYear:            year,
-			CurrentRecordID:        vv.AcceptedRecordID.String,
-			CurrentName:            vv.AcceptedName.String,
+			CurrentRecordID:        verRec.AcceptedRecordID.String,
+			CurrentName:            verRec.AcceptedName.String,
 			CurrentCardinality:     int(parsedCurrent.Cardinality),
 			CurrentCanonicalSimple: parsedCurrent.Canonical.Simple,
 			CurrentCanonicalFull:   parsedCurrent.Canonical.Full,
-			IsSynonym:              vv.RecordID != vv.AcceptedRecordID,
-			ClassificationPath:     vv.Classification.String,
-			ClassificationRanks:    vv.ClassificationRanks.String,
+			IsSynonym:              verRec.RecordID != verRec.AcceptedRecordID,
+			ClassificationPath:     verRec.Classification.String,
+			ClassificationRanks:    verRec.ClassificationRanks.String,
 			EditDistance:           mi.EditDistance,
 			StemEditDistance:       mi.EditDistanceStem,
 			MatchType:              m.MatchType,

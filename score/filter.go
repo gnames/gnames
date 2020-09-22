@@ -58,6 +58,7 @@ func PreferredResults(
 	if !mr.Sorted {
 		Calculate(mr)
 	}
+	// maps a data-source ID to corresponding result data.
 	sourceMap := make(map[int]*entity.ResultData)
 	for _, v := range sources {
 		sourceMap[v] = nil
