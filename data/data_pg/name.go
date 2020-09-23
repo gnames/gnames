@@ -59,7 +59,6 @@ func (dgp DataGrabberPG) MatchRecords(matches []*gnm.Match) (map[string]*data.Ma
 		log.Warnf("Cannot get matches data: %s", err)
 		return res, err
 	}
-
 	res = dgp.produceResultData(splitMatches, parser, verifs)
 	return res, nil
 }
@@ -80,28 +79,28 @@ func (dgp DataGrabberPG) produceResultData(
 	}
 
 	verifMap := getVerifMap(v)
-	for _, v := range ms.canonical {
-		parsed := parser.ParseToObject(v.Name)
+	for _, match := range ms.canonical {
+		parsed := parser.ParseToObject(match.Name)
 		if !parsed.Parsed {
-			log.Fatalf("Cannot parse input '%s'. Should never happen at this point.", v.Name)
+			log.Fatalf("Cannot parse input '%s'. Should never happen at this point.", match.Name)
 		}
 		authors, year := processAuthorship(parsed.Authorship)
 
 		mr := data.MatchRecord{
-			InputID:         v.ID,
-			Input:           v.Name,
+			InputID:         match.ID,
+			Input:           match.Name,
 			Cardinality:     int(parsed.Cardinality),
 			CanonicalSimple: parsed.Canonical.GetSimple(),
 			CanonicalFull:   parsed.Canonical.GetFull(),
 			Authors:         authors,
 			Year:            year,
-			MatchType:       v.MatchType,
+			MatchType:       match.MatchType,
 			CurationLevel:   entity.NotCurated,
 		}
-		for _, vv := range v.MatchItems {
-			dgp.populateMatchRecord(vv, *v, &mr, parser, verifMap)
+		for _, mi := range match.MatchItems {
+			dgp.populateMatchRecord(mi, *match, &mr, parser, verifMap)
 		}
-		mrs[v.ID] = &mr
+		mrs[match.ID] = &mr
 	}
 	return mrs
 }
@@ -143,18 +142,28 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 ) {
 	verifRecs, ok := verifMap[mi.ID]
 	if !ok {
-		log.Fatalf("Cannot find verification records for %s.", mi.MatchStr)
+		mr.MatchType = entity.NoMatch
+		return
 	}
 
 	sources := make(map[int]struct{})
 	mr.MatchResults = make([]*entity.ResultData, len(verifRecs))
-	for i, verRec := range verifRecs {
-		parsed := parser.ParseToObject(verRec.Name.String)
+	for i, verifRec := range verifRecs {
+		parsed := parser.ParseToObject(verifRec.Name.String)
 		authors, year := processAuthorship(parsed.Authorship)
-		parsedCurrent := parser.ParseToObject(verRec.AcceptedName.String)
-		sources[verRec.DataSourceID] = struct{}{}
 
-		ds := dgp.DataSourcesMap[verRec.DataSourceID]
+		currentRecordID := verifRec.RecordID.String
+		currentName := verifRec.Name.String
+		parsedCurrent := parsed
+		if verifRec.AcceptedRecordID.Valid {
+			currentRecordID = verifRec.AcceptedRecordID.String
+			currentName = verifRec.AcceptedName.String
+			parsedCurrent = parser.ParseToObject(currentName)
+		}
+
+		sources[verifRec.DataSourceID] = struct{}{}
+
+		ds := dgp.DataSourcesMap[verifRec.DataSourceID]
 		curationLevel := ds.CurationLevel
 
 		if mr.CurationLevel < curationLevel {
@@ -162,28 +171,28 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 		}
 
 		resData := entity.ResultData{
-			ID:                     verRec.RecordID.String,
-			LocalID:                verRec.LocalID.String,
-			Outlink:                verRec.OutlinkID.String,
-			DataSourceID:           verRec.DataSourceID,
+			ID:                     verifRec.RecordID.String,
+			LocalID:                verifRec.LocalID.String,
+			Outlink:                verifRec.OutlinkID.String,
+			DataSourceID:           verifRec.DataSourceID,
 			DataSrouceTitleShort:   ds.TitleShort,
 			CurationLevel:          curationLevel,
 			CurationLevelString:    curationLevel.String(),
 			EntryDate:              ds.UpdatedAt.Format("2006-01-02"),
-			MatchedName:            verRec.Name.String,
+			MatchedName:            verifRec.Name.String,
 			MatchedCardinality:     int(parsed.Cardinality),
 			MatchedCanonicalSimple: parsed.Canonical.Simple,
 			MatchedCanonicalFull:   parsed.Canonical.Full,
 			MatchedAuthors:         authors,
 			MatchedYear:            year,
-			CurrentRecordID:        verRec.AcceptedRecordID.String,
-			CurrentName:            verRec.AcceptedName.String,
+			CurrentRecordID:        currentRecordID,
+			CurrentName:            currentName,
 			CurrentCardinality:     int(parsedCurrent.Cardinality),
 			CurrentCanonicalSimple: parsedCurrent.Canonical.Simple,
 			CurrentCanonicalFull:   parsedCurrent.Canonical.Full,
-			IsSynonym:              verRec.RecordID != verRec.AcceptedRecordID,
-			ClassificationPath:     verRec.Classification.String,
-			ClassificationRanks:    verRec.ClassificationRanks.String,
+			IsSynonym:              verifRec.RecordID != verifRec.AcceptedRecordID,
+			ClassificationPath:     verifRec.Classification.String,
+			ClassificationRanks:    verifRec.ClassificationRanks.String,
 			EditDistance:           mi.EditDistance,
 			StemEditDistance:       mi.EditDistanceStem,
 			MatchType:              m.MatchType,
@@ -205,10 +214,14 @@ func getVerifMap(vs []*verif) map[string][]*verif {
 }
 
 func nameQuery(db *sql.DB, canMatches []*gnm.Match) ([]*verif, error) {
+	var res []*verif
+	if len(canMatches) == 0 {
+		return res, nil
+	}
+
 	ids := getUUIDs(canMatches)
 	idStr := "'" + strings.Join(ids, "','") + "'"
 	q := fmt.Sprintf(names_q, "canonical_id", idStr)
-	var res []*verif
 	ctx := context.Background()
 	err := sqlscan.Select(ctx, db, &res, q)
 	return res, err

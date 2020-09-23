@@ -79,7 +79,7 @@ var _ = Describe("Rest", func() {
 			Expect(binom.BestResult).ToNot(BeNil())
 			Expect(binom.BestResult.DataSourceID).To(Equal(1))
 			Expect(binom.BestResult.MatchType).To(Equal(entity.Exact))
-			Expect(binom.CurationLevel).To(Equal(entity.Curated))
+			Expect(binom.CurationLevelString).To(Equal("CURATED"))
 			Expect(binom.Error).To(Equal(""))
 
 			acceptFilter := response[8]
@@ -116,7 +116,7 @@ var _ = Describe("Rest", func() {
 			Expect(binom.BestResult).ToNot(BeNil())
 			Expect(binom.BestResult.DataSourceID).To(Equal(1))
 			Expect(binom.BestResult.MatchType).To(Equal(entity.Exact))
-			Expect(binom.CurationLevel).To(Equal(entity.Curated))
+			Expect(binom.CurationLevelString).To(Equal("CURATED"))
 			Expect(len(binom.PreferredResults)).To(Equal(3))
 			Expect(binom.Error).To(Equal(""))
 
@@ -127,6 +127,24 @@ var _ = Describe("Rest", func() {
 			Expect(acceptFilter.BestResult.MatchType).To(Equal(entity.Exact))
 			Expect(acceptFilter.BestResult.CurrentCanonicalSimple).To(Equal("Pisonia grandis"))
 			Expect(len(binom.PreferredResults)).To(Equal(3))
+		})
+
+		FIt("Verifies names that were breaking older versions", func() {
+			var response []entity.Verification
+			names := []string{
+				"Aceratagallia fuscosscripta (Oman )",
+			}
+			request := entity.VerifyParams{NameStrings: names}
+			req, err := encode.GNjson{}.Encode(request)
+			Expect(err).To(BeNil())
+			r := bytes.NewReader(req)
+			resp, err := http.Post(url+"verification", "application/x-binary", r)
+			Expect(err).To(BeNil())
+			respBytes, err := ioutil.ReadAll(resp.Body)
+			Expect(err).To(BeNil())
+			err = encode.GNjson{}.Decode(respBytes, &response)
+			Expect(err).To(BeNil())
+			Expect(len(response)).To(Equal(len(names)))
 		})
 	})
 

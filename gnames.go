@@ -53,7 +53,7 @@ func (gn GNames) Verify(params entity.VerifyParams) ([]*entity.Verification, err
 
 			res[i] = &item
 		} else {
-			log.Warnf("Cannot find %+v record.", v)
+			log.Warnf("Cannot find record for '%s'.", v.Name)
 		}
 	}
 	return res, nil
