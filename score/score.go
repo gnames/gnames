@@ -31,6 +31,8 @@
 //       `Auth1, Auth2, 1880` vs `Auth1, Auth2, 1887`
 // 100 - Authorship is not comparable.
 //       `Auth1, Auth2, 1880` vs ``
+// 101 - Authorship is not comparable, input has no authorship, but
+//       output has authorship
 // 101 - Authors are identical, year is not comparable.
 //       `Auth1, Auth2` vs `Auth1, Auth2, 1888`
 // 101 - One set of authors is fully included into other,

@@ -13,6 +13,9 @@ const (
 	noOverlap authMatch = iota
 	// uncomparable: cannot compare because one or both author sets are empty.
 	uncomparable
+	// noAuthVsAuth means that authors cannot be compared, and input has
+	// no authorship, but matched name does provide authorship.
+	noAuthVsAuth
 	// overlap: there are some common authors, but both lists have unique authors.
 	overlap
 	// fullInclusion: one set of authors fully included into another set.
@@ -74,6 +77,8 @@ func (s Score) auth(auth1, auth2 []string, year1, year2 int) Score {
 		default:
 			i = 0b001 //1
 		}
+	} else if authors == noAuthVsAuth {
+		i = 0b101 //5
 	} else if authors == uncomparable {
 		i = 0b100 //4
 	}
@@ -92,12 +97,15 @@ func max(i1, i2 uint32) uint32 {
 // to each other.
 func findAuthMatch(auth1, auth2 []string) authMatch {
 	auth1 = authorsNormalize(auth1)
-	if len(auth1) == 0 {
+	auth2 = authorsNormalize(auth2)
+	if len(auth1) == 0 && len(auth2) == 0 {
 		return uncomparable
 	}
-	auth2 = authorsNormalize(auth2)
 	if len(auth2) == 0 {
 		return uncomparable
+	}
+	if len(auth1) == 0 && len(auth2) > 0 {
+		return noAuthVsAuth
 	}
 	return findAuthOverlap(auth1, auth2)
 }
