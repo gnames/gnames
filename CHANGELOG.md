@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add [#34]: Add UUIDv5 library to generate IDs for globalnames.org
+- Fix [#32]: Set false positives from gnmatcher as NoMatch
+
 ## [v0.0.3]
 
 - Add [#24]: Get reasonable preferred matches from real data.
