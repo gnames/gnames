@@ -129,10 +129,12 @@ var _ = Describe("Rest", func() {
 			Expect(len(binom.PreferredResults)).To(Equal(3))
 		})
 
-		FIt("Verifies names that were breaking older versions", func() {
+		It("Verifies names that were breaking older versions", func() {
 			var response []entity.Verification
 			names := []string{
 				"Aceratagallia fuscosscripta (Oman )",
+				"Ampullaria immersa",
+				"Abacetine",
 			}
 			request := entity.VerifyParams{NameStrings: names}
 			req, err := encode.GNjson{}.Encode(request)
