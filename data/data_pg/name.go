@@ -147,7 +147,6 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 	}
 
 	sources := make(map[int]struct{})
-	mr.MatchResults = make([]*entity.ResultData, len(verifRecs))
 	for i, verifRec := range verifRecs {
 		parsed := parser.ParseToObject(verifRec.Name.String)
 		authors, year := processAuthorship(parsed.Authorship)
@@ -155,10 +154,16 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 		currentRecordID := verifRec.RecordID.String
 		currentName := verifRec.Name.String
 		parsedCurrent := parsed
+		currentCan := ""
+		currentCanFull := ""
 		if verifRec.AcceptedRecordID.Valid {
 			currentRecordID = verifRec.AcceptedRecordID.String
 			currentName = verifRec.AcceptedName.String
 			parsedCurrent = parser.ParseToObject(currentName)
+			if parsedCurrent.Parsed {
+				currentCan = parsedCurrent.Canonical.Simple
+				currentCanFull = parsedCurrent.Canonical.Full
+			}
 		}
 
 		sources[verifRec.DataSourceID] = struct{}{}
@@ -188,8 +193,8 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 			CurrentRecordID:        currentRecordID,
 			CurrentName:            currentName,
 			CurrentCardinality:     int(parsedCurrent.Cardinality),
-			CurrentCanonicalSimple: parsedCurrent.Canonical.Simple,
-			CurrentCanonicalFull:   parsedCurrent.Canonical.Full,
+			CurrentCanonicalSimple: currentCan,
+			CurrentCanonicalFull:   currentCanFull,
 			IsSynonym:              verifRec.RecordID != verifRec.AcceptedRecordID,
 			ClassificationPath:     verifRec.Classification.String,
 			ClassificationRanks:    verifRec.ClassificationRanks.String,
@@ -197,7 +202,7 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 			StemEditDistance:       mi.EditDistanceStem,
 			MatchType:              m.MatchType,
 		}
-		mr.MatchResults[i] = &resData
+		mr.MatchResults = append(mr.MatchResults, &resData)
 		if i == 0 {
 			mr.MatchType = m.MatchType
 		}

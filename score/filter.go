@@ -5,7 +5,6 @@ import (
 
 	"github.com/gnames/gnames/data"
 	"github.com/gnames/gnames/domain/entity"
-	// log "github.com/sirupsen/logrus"
 )
 
 // Calculate goes through entity.ResultData aggregated by a match and
@@ -22,7 +21,8 @@ func Calculate(mr *data.MatchRecord) {
 
 		rd.Score = score.Value
 	}
-	// sort according to the score
+	// Sort (in reverse) according to the score. First element has
+	// the highest score, the has last the lowest.
 	mrs := mr.MatchResults
 	sort.SliceStable(mrs, func(i, j int) bool {
 		return mrs[i].Score > mrs[j].Score

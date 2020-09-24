@@ -90,6 +90,28 @@ var _ = Describe("Rest", func() {
 			Expect(acceptFilter.BestResult.CurrentCanonicalSimple).To(Equal("Pisonia grandis"))
 		})
 
+		It("does fuzzy verification correctly", func() {
+			var response []entity.Verification
+			names := []string{
+				"Abras precatorius",
+			}
+			request := entity.VerifyParams{NameStrings: names, PreferredSources: []int{1, 12, 169, 182}}
+			req, err := encode.GNjson{}.Encode(request)
+			Expect(err).To(BeNil())
+			r := bytes.NewReader(req)
+			resp, err := http.Post(url+"verification", "application/x-binary", r)
+			Expect(err).To(BeNil())
+			respBytes, err := ioutil.ReadAll(resp.Body)
+			Expect(err).To(BeNil())
+			err = encode.GNjson{}.Decode(respBytes, &response)
+			Expect(err).To(BeNil())
+			Expect(len(response)).To(Equal(len(names)))
+
+			fuz1 := response[0]
+			Expect(fuz1.Input).To(Equal("Abras precatorius"))
+			Expect(fuz1.BestResult.EditDistance).To(Equal(1))
+		})
+
 		It("Verifies entered names with preferred data-sources", func() {
 			var response []entity.Verification
 			names := []string{

@@ -29,11 +29,11 @@ const (
 )
 
 var mapMatchType = map[int]string{
-	0: "NO_MATCH",
-	1: "EXACT",
-	2: "FUZZY",
-	3: "PARTIAL_EXACT",
-	4: "PARTIAL_FUZZY",
+	0: "NoMatch",
+	1: "Exact",
+	2: "Fuzzy",
+	3: "PartialExact",
+	4: "PartialFuzzy",
 }
 
 func (mt MatchType) String() string {
@@ -43,4 +43,3 @@ func (mt MatchType) String() string {
 		return "N/A"
 	}
 }
-

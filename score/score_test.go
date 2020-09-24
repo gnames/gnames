@@ -23,8 +23,8 @@ var _ = Describe("Score", func() {
 			Expect(s.accepted(record_id, accepted_record_id).String()).To(Equal(expected))
 		},
 		Entry("synonym", "123", "234", "00000000_00000000_00000000_00000000"),
-		Entry("accepted1", "123", "123", "00000001_00000000_00000000_00000000"),
-		Entry("accepted2", "123", "", "00000001_00000000_00000000_00000000"),
+		Entry("accepted1", "123", "123", "00000000_01000000_00000000_00000000"),
+		Entry("accepted2", "123", "", "00000000_01000000_00000000_00000000"),
 	)
 
 	DescribeTable("fuzzy",
@@ -32,9 +32,9 @@ var _ = Describe("Score", func() {
 			s := Score{}
 			Expect(s.fuzzy(edit_dist).String()).To(Equal(expected))
 		},
-		Entry("exact", 0, "00000000_11000000_00000000_00000000"),
-		Entry("fuzzy1", 1, "00000000_10000000_00000000_00000000"),
-		Entry("fuzzy2", 2, "00000000_01000000_00000000_00000000"),
+		Entry("exact", 0, "00110000_00000000_00000000_00000000"),
+		Entry("fuzzy1", 1, "00100000_00000000_00000000_00000000"),
+		Entry("fuzzy2", 2, "00010000_00000000_00000000_00000000"),
 		Entry("fuzzy3", 3, "00000000_00000000_00000000_00000000"),
 		Entry("fuzzy4", 13, "00000000_00000000_00000000_00000000"),
 	)
@@ -58,9 +58,9 @@ var _ = Describe("Score", func() {
 			Expect(s.curation(dsID, curLev).String()).To(Equal(expected))
 		},
 		Entry("no cur", 67, entity.NotCurated, "00000000_00000000_00000000_00000000"),
-		Entry("auto cur", 67, entity.AutoCurated, "00010000_00000000_00000000_00000000"),
-		Entry("cur", 67, entity.Curated, "00100000_00000000_00000000_00000000"),
-		Entry("CoL", 1, entity.Curated, "00110000_00000000_00000000_00000000"),
+		Entry("auto cur", 67, entity.AutoCurated, "00000100_00000000_00000000_00000000"),
+		Entry("cur", 67, entity.Curated, "00001000_00000000_00000000_00000000"),
+		Entry("CoL", 1, entity.Curated, "00001100_00000000_00000000_00000000"),
 	)
 
 	DescribeTable("auth",
@@ -68,22 +68,22 @@ var _ = Describe("Score", func() {
 			s := Score{}
 			Expect(s.auth(auth1, auth2, year1, year2).String()).To(Equal(expected))
 		},
-		Entry("empty1", []string{}, []string{}, 0, 0, "00001000_00000000_00000000_00000000"),
-		Entry("empty2", []string{"L."}, []string{}, 1758, 0, "00001000_00000000_00000000_00000000"),
-		Entry("empty3", []string{}, []string{"L."}, 0, 1758, "00001000_00000000_00000000_00000000"),
+		Entry("empty1", []string{}, []string{}, 0, 0, "00000010_00000000_00000000_00000000"),
+		Entry("empty2", []string{"L."}, []string{}, 1758, 0, "00000010_00000000_00000000_00000000"),
+		Entry("empty3", []string{}, []string{"L."}, 0, 1758, "00000010_10000000_00000000_00000000"),
 		Entry("no match1", []string{"Banks"}, []string{"L."}, 0, 0, "00000000_00000000_00000000_00000000"),
 		Entry("no match2", []string{"L."}, []string{"Banks"}, 1758, 1758, "00000000_00000000_00000000_00000000"),
-		Entry("overlap", []string{"Tomm.", "L.", "Banks", "Muetze"}, []string{"Kuntze", "Linn", "Hopkins"}, 1758, 1758, "00000010_00000000_00000000_00000000"),
-		Entry("full subset, yes yr", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1758, 1758, "00001100_00000000_00000000_00000000"),
-		Entry("full subset, aprx yr1", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1757, 1758, "00001010_00000000_00000000_00000000"),
-		Entry("full subset, aprx yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1757, 1756, "00001010_00000000_00000000_00000000"),
-		Entry("full subset, n/a yr1", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 0, 1756, "00001000_00000000_00000000_00000000"),
-		Entry("full subset, n/a yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 0, "00001000_00000000_00000000_00000000"),
-		Entry("full subset, no yr", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 1800, "00000100_00000000_00000000_00000000"),
-		Entry("match, yes yr", []string{"L.", "Thomson"}, []string{"Linn", "Thomson"}, 1800, 1800, "00001110_00000000_00000000_00000000"),
-		Entry("match, aprx yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1799, 1800, "00001100_00000000_00000000_00000000"),
-		Entry("match, n/a yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 0, 0, "00001010_00000000_00000000_00000000"),
-		Entry("match, bad yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1750, 1755, "00000110_00000000_00000000_00000000"),
+		Entry("overlap", []string{"Tomm.", "L.", "Banks", "Muetze"}, []string{"Kuntze", "Linn", "Hopkins"}, 1758, 1758, "00000000_10000000_00000000_00000000"),
+		Entry("full subset, yes yr", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1758, 1758, "00000011_00000000_00000000_00000000"),
+		Entry("full subset, aprx yr1", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1757, 1758, "00000010_10000000_00000000_00000000"),
+		Entry("full subset, aprx yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1757, 1756, "00000010_10000000_00000000_00000000"),
+		Entry("full subset, n/a yr1", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 0, 1756, "00000010_00000000_00000000_00000000"),
+		Entry("full subset, n/a yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 0, "00000010_00000000_00000000_00000000"),
+		Entry("full subset, no yr", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 1800, "00000001_00000000_00000000_00000000"),
+		Entry("match, yes yr", []string{"L.", "Thomson"}, []string{"Linn", "Thomson"}, 1800, 1800, "00000011_10000000_00000000_00000000"),
+		Entry("match, aprx yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1799, 1800, "00000011_00000000_00000000_00000000"),
+		Entry("match, n/a yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 0, 0, "00000010_10000000_00000000_00000000"),
+		Entry("match, bad yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1750, 1755, "00000001_10000000_00000000_00000000"),
 	)
 
 	DescribeTable("compareAuth",

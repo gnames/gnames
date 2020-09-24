@@ -12,13 +12,19 @@
 // 10 - rank matches
 //    `Aus bus var. cus` vs `Aus bus var. cus`
 //
-// 00xx0000_00000000_00000000_00000000: curation
+// 00xx0000_00000000_00000000_00000000: edit distance
+// 00 - edit distance is 3 or more
+// 01 - edit distance 2
+// 10 - edit distance 1
+// 11 - edit distance 0
+//
+// 0000xx00_00000000_00000000_00000000: curation
 // 00 - uncurated sources only
 // 01 - auto-curated sources
 // 10 - human-curated sources
 // 11 - Catalogue of Life
 //
-// 0000xxx0_00000000_00000000_00000000: matching authorship
+// 000000xx_x0000000_00000000_00000000: matching authorship
 // 000 - authorship does not match
 //       `Linn.` vs `Banks`
 // 001 - authors overlap, but there are additional authors for both sets. Years
@@ -46,15 +52,9 @@
 // 111 - Authors and years are identical.
 //       `Auth1, Auth2, 1888` vs `Auth1, Auth2, 1888`
 //
-// 0000000x_00000000_00000000_00000000: accepted name
+// 00000000_0x000000_00000000_00000000: accepted name
 // 0 - name is a synonym
 // 1 - name is currently accepted
-//
-// 00000000_xx000000_00000000_00000000: edit distance
-// 00 - edit distance is 3 or more
-// 01 - edit distance 2
-// 10 - edit distance 1
-// 11 - edit distance 0
 package score
 
 import (
@@ -104,9 +104,23 @@ func (s Score) rank(can1, can2 string, card1, card2 int) Score {
 	return s
 }
 
+// fuzzy matching
+func (s Score) fuzzy(edit_distance int) Score {
+	shift := 28
+	var i uint32 = 3
+	if edit_distance > int(i) || edit_distance < 0 {
+		i = 0
+	} else {
+		i = i - uint32(edit_distance)
+	}
+
+	s.Value = (s.Value | uint32(i<<shift))
+	return s
+}
+
 // curation scores by curation level of data-sources.
 func (s Score) curation(dataSourceID int, curationLevel entity.CurationLevel) Score {
-	shift := 28
+	shift := 26
 	i := uint32(curationLevel)
 	if dataSourceID == 1 {
 		i = 3
@@ -115,27 +129,61 @@ func (s Score) curation(dataSourceID int, curationLevel entity.CurationLevel) Sc
 	return s
 }
 
+// auth takes two lists of authors, and their corresponding years and
+// tries to match them to each other. The score is decided on how well
+// authors and years did match.
+// The score takes 3 bits and ranges from 0 to 7.
+func (s Score) auth(auth1, auth2 []string, year1, year2 int) Score {
+	shift := 23
+	years := findYearsMatch(year1, year2)
+	authors := findAuthMatch(auth1, auth2)
+	var i uint32 = 0
+
+	if authors == identical {
+		switch years {
+		case perfectMatch:
+			i = 0b111 //7
+		case approxMatch:
+			i = 0b110 //6
+		case notAvailable:
+			i = 0b101 //5
+		case noMatch:
+			i = 0b011 //3
+		}
+	} else if authors == fullInclusion {
+		switch years {
+		case perfectMatch:
+			i = 0b110 //6
+		case approxMatch:
+			i = 0b101 //5
+		case notAvailable:
+			i = 0b100 //4
+		case noMatch:
+			i = 0b010 //2
+		}
+	} else if authors == overlap {
+		switch years {
+		case noMatch:
+			i = 0b000 //0
+		default:
+			i = 0b001 //1
+		}
+	} else if authors == noAuthVsAuth {
+		i = 0b101 //5
+	} else if authors == uncomparable {
+		i = 0b100 //4
+	}
+	s.Value = (s.Value | i<<shift)
+	return s
+}
+
 // accepted name
 func (s Score) accepted(record_id, accepted_id string) Score {
-	shift := 24
+	shift := 22
 	var i uint32 = 0
 	if accepted_id == "" || record_id == accepted_id {
 		i = 1
 	}
-	s.Value = (s.Value | uint32(i<<shift))
-	return s
-}
-
-// fuzzy matching
-func (s Score) fuzzy(edit_distance int) Score {
-	shift := 22
-	var i uint32 = 3
-	if edit_distance > int(i) || edit_distance < 0 {
-		i = 0
-	} else {
-		i = i - uint32(edit_distance)
-	}
-
 	s.Value = (s.Value | uint32(i<<shift))
 	return s
 }

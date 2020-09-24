@@ -38,54 +38,6 @@ const (
 	perfectMatch
 )
 
-// auth takes two lists of authors, and their corresponding years and
-// tries to match them to each other. The score is decided on how well
-// authors and years did match.
-// The score takes 3 bits and ranges from 0 to 7.
-func (s Score) auth(auth1, auth2 []string, year1, year2 int) Score {
-	shift := 25
-	years := findYearsMatch(year1, year2)
-	authors := findAuthMatch(auth1, auth2)
-	var i uint32 = 0
-
-	if authors == identical {
-		switch years {
-		case perfectMatch:
-			i = 0b111 //7
-		case approxMatch:
-			i = 0b110 //6
-		case notAvailable:
-			i = 0b101 //5
-		case noMatch:
-			i = 0b011 //3
-		}
-	} else if authors == fullInclusion {
-		switch years {
-		case perfectMatch:
-			i = 0b110 //6
-		case approxMatch:
-			i = 0b101 //5
-		case notAvailable:
-			i = 0b100 //4
-		case noMatch:
-			i = 0b010 //2
-		}
-	} else if authors == overlap {
-		switch years {
-		case noMatch:
-			i = 0b000 //0
-		default:
-			i = 0b001 //1
-		}
-	} else if authors == noAuthVsAuth {
-		i = 0b101 //5
-	} else if authors == uncomparable {
-		i = 0b100 //4
-	}
-	s.Value = (s.Value | i<<shift)
-	return s
-}
-
 func max(i1, i2 uint32) uint32 {
 	if i1 >= i2 {
 		return i1
