@@ -50,7 +50,7 @@ var _ = Describe("Rest", func() {
 				"Pardosa moesta", "Plantago major var major",
 				"Cytospora ribis mitovirus 2",
 				"A-shaped rods", "Alb. alba",
-				"Pisonia grandis",
+				"Pisonia grandis", "Acacia vestita may",
 			}
 			request := entity.VerifyParams{NameStrings: names}
 			req, err := encode.GNjson{}.Encode(request)
@@ -88,6 +88,13 @@ var _ = Describe("Rest", func() {
 			Expect(acceptFilter.BestResult.DataSourceID).To(Equal(1))
 			Expect(acceptFilter.BestResult.MatchType).To(Equal(entity.Exact))
 			Expect(acceptFilter.BestResult.CurrentCanonicalSimple).To(Equal("Pisonia grandis"))
+
+			partial := response[9]
+			Expect(partial.InputID).To(Equal("0f84ed48-3a57-59ac-ac1a-2e9221439fdc"))
+			Expect(partial.Input).To(Equal("Acacia vestita may"))
+			Expect(partial.BestResult.DataSourceID).To(Equal(1))
+			Expect(partial.MatchType).To(Equal(entity.PartialExact))
+			Expect(partial.BestResult.CurrentCanonicalSimple).To(Equal("Acacia vestita"))
 		})
 
 		It("does fuzzy verification correctly", func() {

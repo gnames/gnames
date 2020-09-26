@@ -1,10 +1,10 @@
-package uuid_test
+package gnuuid_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/gnames/gnames/lib/uuid"
+	. "github.com/gnames/gnames/lib/gnuuid"
 )
 
 var _ = Describe("uuid", func() {

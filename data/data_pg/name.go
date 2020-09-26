@@ -50,6 +50,11 @@ var names_q = `
 // MatchRecords takes matches from gnmatcher and returns back data from
 // the database that organizes data from database into matched records.
 func (dgp DataGrabberPG) MatchRecords(matches []*gnm.Match) (map[string]*data.MatchRecord, error) {
+	for _, v := range matches {
+		if v.Name == "Acacia vestita may" {
+			log.Debugf("ACACIA: %+v", v)
+		}
+	}
 	parser := gnparser.NewGNparser()
 	res := make(map[string]*data.MatchRecord)
 	splitMatches := partitionMatches(matches)

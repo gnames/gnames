@@ -1,4 +1,4 @@
-package uuid_test
+package gnuuid_test
 
 import (
 	"testing"
