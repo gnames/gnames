@@ -2,8 +2,10 @@ package sys
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"os"
+	"path/filepath"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // MakeDir a directory out of a given unless it already exists.
@@ -29,4 +31,25 @@ func FileExists(f string) bool {
 			"delete or move it and try again.", f))
 	}
 	return true
+}
+
+// CleanDir removes all files from a directory.
+func CleanDir(dir string) error {
+	d, err := os.Open(dir)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		err = os.RemoveAll(filepath.Join(dir, name))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

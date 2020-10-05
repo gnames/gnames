@@ -120,12 +120,8 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	var home string
-	var err error
 	configFile := "gnames"
-
-	// Find home directory.
-	home, err = homedir.Dir()
+	home, err := homedir.Dir()
 	if err != nil {
 		log.Fatalf("Cannot find home directory: %s.", err)
 	}
@@ -160,8 +156,6 @@ func initConfig() {
 	getOpts()
 }
 
-// getOpts imports data from the configuration file. Some of the settings can
-// be overriden by command line flags.
 func getOpts() []gncnf.Option {
 	cfg := &config{}
 	err := viper.Unmarshal(cfg)
