@@ -4,12 +4,21 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
+	homedir "github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 )
 
 // MakeDir a directory out of a given unless it already exists.
 func MakeDir(dir string) error {
+	if strings.HasPrefix(dir, "~/") || strings.HasPrefix(dir, "~\\") {
+		home, err := homedir.Dir()
+		if err != nil {
+			return err
+		}
+		dir = filepath.Join(home, dir[2:])
+	}
 	path, err := os.Stat(dir)
 	if os.IsNotExist(err) {
 		return os.MkdirAll(dir, 0755)
