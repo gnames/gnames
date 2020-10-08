@@ -2,11 +2,31 @@ package csv
 
 import (
 	"bytes"
+	"encoding/csv"
+	"os"
 	"runtime"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 )
+
+func ReadHeaderCSV(path string, sep rune) (map[string]int, error) {
+	res := make(map[string]int)
+	f, err := os.Open(path)
+	if err != nil {
+		return res, err
+	}
+	defer f.Close()
+	r := csv.NewReader(f)
+	r.Comma = sep
+
+	// skip header
+	header, err := r.Read()
+	for i, v := range header {
+		res[v] = i
+	}
+	return res, nil
+}
 
 func ToCSV(record []string) string {
 	var b bytes.Buffer
@@ -69,4 +89,3 @@ func fieldNeedsQuotes(field string) bool {
 	r1, _ := utf8.DecodeRuneInString(field)
 	return unicode.IsSpace(r1)
 }
-

@@ -3,6 +3,7 @@ package encode
 import (
 	"bytes"
 
+	"github.com/gnames/gnames/lib/format"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -21,4 +22,20 @@ func (e GNjson) Decode(input []byte, output interface{}) error {
 	r := bytes.NewReader(input)
 	err := jsoniter.NewDecoder(r).Decode(output)
 	return err
+}
+
+func (e GNjson) Output(input interface{}, f format.Format) string {
+	switch f {
+	case format.CompactJSON:
+		e.Pretty = false
+	case format.PrettyJSON:
+		e.Pretty = true
+	default:
+		return ""
+	}
+	res, err := e.Encode(input)
+	if err != nil {
+		return ""
+	}
+	return string(res)
 }
