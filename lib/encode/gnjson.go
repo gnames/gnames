@@ -2,6 +2,7 @@ package encode
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/gnames/gnames/lib/format"
 	jsoniter "github.com/json-iterator/go"
@@ -33,9 +34,11 @@ func (e GNjson) Output(input interface{}, f format.Format) string {
 	default:
 		return ""
 	}
-	res, err := e.Encode(input)
+	resByte, err := e.Encode(input)
 	if err != nil {
 		return ""
 	}
-	return string(res)
+	res := string(resByte)
+	res = strings.Replace(res, "\\u0026", "&", -1)
+	return res
 }
