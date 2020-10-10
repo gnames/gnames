@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"github.com/gnames/gnames/domain/entity"
+	"github.com/gnames/gnames/lib/format"
 )
 
 type Verifier interface {
@@ -17,5 +18,5 @@ type Verifier interface {
 type Outputter interface {
 	// FormattedOutput takes a record and returns a string representation of
 	// the record accourding to supplied format.
-	Output(record interface{}, format entity.Format) string
+	Output(record interface{}, f format.Format) string
 }
