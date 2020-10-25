@@ -86,11 +86,14 @@ github.com/georgysavva/scany v0.2.5 h1:cJ8QHopBlJv+CcCVE0EMXQpoelPnL5SBvLAuBHK90
 github.com/georgysavva/scany v0.2.5/go.mod h1:bcxPhzeQFQqAUmjlZVwTGlu6AnWFSOiHpalfBe0xQ6U=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gnames/gnames v0.0.2/go.mod h1:/XZMalYUB72QoTHZzV2Ws6nZpv41jTZ3DB6imNTLzKQ=
+github.com/gnames/gnames v0.0.4/go.mod h1:r2gkfL2tozrzLdEJwoz4Pir6OyyulN6PQRR4AAmDqls=
 github.com/gnames/gnlib v0.0.2 h1:QmvN2PBXJY7XVhnV1BIcM2N9b76s49TDkmFl9AG/1g8=
 github.com/gnames/gnlib v0.0.2/go.mod h1:k7Wsdx6zTzyhbxH2JcoCVFvgOQzA4iwehRxa8eEOfF8=
 github.com/gnames/gnmatcher v0.3.1/go.mod h1:SQ1461cOPPCRhmZuuHGXyyVgHF5OPFUN1x+qDYyVD18=
 github.com/gnames/gnmatcher v0.3.3 h1:AIyt+dQVVnoRKFpkXvy91SNqIGdfwm+rNdqegKX5rTI=
 github.com/gnames/gnmatcher v0.3.3/go.mod h1:Araq/dVBY5DHI8opxRFN980uf5w6S/fqVNWqcLnsBfE=
+github.com/gnames/gnmatcher v0.3.4 h1:/Ed7cCJPP7qP1KXUAwTckR+RMHL0GuVlYLCehnJKGDs=
+github.com/gnames/gnmatcher v0.3.4/go.mod h1:Us9PFZDU46AiB7SwL171Vg5xxj+A/ZCFg0KeRe1qJ+w=
 github.com/gnames/uuid5 v0.1.1 h1:qr+CCfsmvCNeDe8s8YMUSV/XbxWSy+2UQap5jbZ5C6k=
 github.com/gnames/uuid5 v0.1.1/go.mod h1:Zv9jJ66GOpZ8UmYglISzaC2QFh370Rvzz701zzWrjWM=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
