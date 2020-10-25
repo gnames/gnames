@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"github.com/gnames/gnames/domain/entity"
-	"github.com/gnames/gnames/lib/format"
+	"github.com/gnames/gnlib/format"
 )
 
 type Verifier interface {

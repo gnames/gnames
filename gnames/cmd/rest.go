@@ -27,8 +27,8 @@ import (
 	"github.com/gnames/gnames"
 	gncnf "github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/data/data_pg"
-	"github.com/gnames/gnames/lib/encode"
 	"github.com/gnames/gnames/rest"
+	"github.com/gnames/gnlib/encode"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

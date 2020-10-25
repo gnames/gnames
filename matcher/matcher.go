@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gnames/gnames/lib/encode"
+	"github.com/gnames/gnlib/encode"
 	gnm "github.com/gnames/gnmatcher/domain/entity"
 	log "github.com/sirupsen/logrus"
 )

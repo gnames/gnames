@@ -3,7 +3,7 @@ package rest
 import (
 	"github.com/gnames/gnames"
 	"github.com/gnames/gnames/domain/entity"
-	"github.com/gnames/gnames/lib/encode"
+	"github.com/gnames/gnlib/encode"
 	log "github.com/sirupsen/logrus"
 )
 
