@@ -15,7 +15,7 @@ var _ = Describe("Config", func() {
 			Expect(cnf.PgHost).To(Equal("localhost"))
 			deflt := Config{
 				GNport:      8888,
-				WorkDir:     "/tmp/gnmatcher",
+				WorkDir:     "~/.local/share/gnames",
 				JobsNum:     8,
 				MaxEditDist: 1,
 				PgHost:      "localhost",
@@ -34,7 +34,7 @@ var _ = Describe("Config", func() {
 		cnf := NewConfig(opts...)
 		updt := Config{
 			GNport:      8888,
-			WorkDir:     "/var/opt/gnmatcher",
+			WorkDir:     "~/.local/share/gnames",
 			JobsNum:     16,
 			MaxEditDist: 2,
 			PgHost:      "mypg",
@@ -57,7 +57,7 @@ var _ = Describe("Config", func() {
 
 func opts() []Option {
 	return []Option{
-		OptWorkDir("/var/opt/gnmatcher"),
+		OptWorkDir("~/.local/share/gnames"),
 		OptJobsNum(16),
 		OptMaxEditDist(2),
 		OptPgHost("mypg"),

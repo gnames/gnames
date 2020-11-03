@@ -3,7 +3,7 @@ package score
 import (
 	"fmt"
 
-	"github.com/gnames/gnames/domain/entity"
+	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -53,14 +53,14 @@ var _ = Describe("Score", func() {
 	)
 
 	DescribeTable("curation",
-		func(dsID int, curLev entity.CurationLevel, expected string) {
+		func(dsID int, curLev vlib.CurationLevel, expected string) {
 			s := Score{}
 			Expect(s.curation(dsID, curLev).String()).To(Equal(expected))
 		},
-		Entry("no cur", 67, entity.NotCurated, "00000000_00000000_00000000_00000000"),
-		Entry("auto cur", 67, entity.AutoCurated, "00000100_00000000_00000000_00000000"),
-		Entry("cur", 67, entity.Curated, "00001000_00000000_00000000_00000000"),
-		Entry("CoL", 1, entity.Curated, "00001100_00000000_00000000_00000000"),
+		Entry("no cur", 67, vlib.NotCurated, "00000000_00000000_00000000_00000000"),
+		Entry("auto cur", 67, vlib.AutoCurated, "00000100_00000000_00000000_00000000"),
+		Entry("cur", 67, vlib.Curated, "00001000_00000000_00000000_00000000"),
+		Entry("CoL", 1, vlib.Curated, "00001100_00000000_00000000_00000000"),
 	)
 
 	DescribeTable("auth",

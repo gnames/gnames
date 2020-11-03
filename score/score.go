@@ -61,7 +61,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gnames/gnames/domain/entity"
+	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 )
 
 // Score
@@ -119,7 +119,7 @@ func (s Score) fuzzy(edit_distance int) Score {
 }
 
 // curation scores by curation level of data-sources.
-func (s Score) curation(dataSourceID int, curationLevel entity.CurationLevel) Score {
+func (s Score) curation(dataSourceID int, curationLevel vlib.CurationLevel) Score {
 	shift := 26
 	i := uint32(curationLevel)
 	if dataSourceID == 1 {

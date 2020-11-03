@@ -26,7 +26,7 @@ type Config struct {
 func NewConfig(opts ...Option) Config {
 	cnf := Config{
 		GNport:      8888,
-		WorkDir:     "/tmp/gnmatcher",
+		WorkDir:     "~/.local/share/gnames",
 		JobsNum:     8,
 		MaxEditDist: 1,
 		PgHost:      "localhost",

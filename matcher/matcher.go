@@ -5,8 +5,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/gnames/gnlib/domain/entity/gn"
+	mlib "github.com/gnames/gnlib/domain/entity/matcher"
 	"github.com/gnames/gnlib/encode"
-	gnm "github.com/gnames/gnmatcher/domain/entity"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,9 +20,9 @@ func NewMatcherREST(url string) MatcherREST {
 	return MatcherREST{URL: url, Enc: encode.GNgob{}}
 }
 
-func (mr MatcherREST) Version() gnm.Version {
+func (mr MatcherREST) GetVersion() gn.Version {
 	var err error
-	response := gnm.Version{}
+	response := gn.Version{}
 	var req []byte
 	r := bytes.NewReader(req)
 	resp, err := http.Post(mr.URL+"version", "application/x-binary", r)
@@ -39,8 +40,8 @@ func (mr MatcherREST) Version() gnm.Version {
 	return response
 }
 
-func (mr MatcherREST) MatchAry(names []string) []*gnm.Match {
-	var response []*gnm.Match
+func (mr MatcherREST) MatchAry(names []string) []*mlib.Match {
+	var response []*mlib.Match
 	enc := encode.GNgob{}
 	req, err := enc.Encode(names)
 	if err != nil {

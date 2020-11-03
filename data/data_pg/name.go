@@ -9,8 +9,8 @@ import (
 
 	"github.com/georgysavva/scany/sqlscan"
 	"github.com/gnames/gnames/data"
-	"github.com/gnames/gnames/domain/entity"
-	gnm "github.com/gnames/gnmatcher/domain/entity"
+	mlib "github.com/gnames/gnlib/domain/entity/matcher"
+	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	log "github.com/sirupsen/logrus"
 	"gitlab.com/gogna/gnparser"
 	"gitlab.com/gogna/gnparser/pb"
@@ -37,8 +37,8 @@ type verif struct {
 }
 
 type matchSplit struct {
-	noMatch   []*gnm.Match
-	canonical []*gnm.Match
+	noMatch   []*mlib.Match
+	canonical []*mlib.Match
 }
 
 var names_q = `
@@ -49,7 +49,7 @@ var names_q = `
 
 // MatchRecords takes matches from gnmatcher and returns back data from
 // the database that organizes data from database into matched records.
-func (dgp DataGrabberPG) MatchRecords(matches []*gnm.Match) (map[string]*data.MatchRecord, error) {
+func (dgp DataGrabberPG) MatchRecords(matches []*mlib.Match) (map[string]*data.MatchRecord, error) {
 	for _, v := range matches {
 		if v.Name == "Acacia vestita may" {
 			log.Debugf("ACACIA: %+v", v)
@@ -100,7 +100,7 @@ func (dgp DataGrabberPG) produceResultData(
 			Authors:         authors,
 			Year:            year,
 			MatchType:       match.MatchType,
-			CurationLevel:   entity.NotCurated,
+			CurationLevel:   vlib.NotCurated,
 		}
 		for _, mi := range match.MatchItems {
 			dgp.populateMatchRecord(mi, *match, &mr, parser, verifMap)
@@ -139,15 +139,15 @@ func processAuthorship(au *pb.Authorship) ([]string, int) {
 }
 
 func (dgp *DataGrabberPG) populateMatchRecord(
-	mi gnm.MatchItem,
-	m gnm.Match,
+	mi mlib.MatchItem,
+	m mlib.Match,
 	mr *data.MatchRecord,
 	parser gnparser.GNparser,
 	verifMap map[string][]*verif,
 ) {
 	verifRecs, ok := verifMap[mi.ID]
 	if !ok {
-		mr.MatchType = entity.NoMatch
+		mr.MatchType = vlib.NoMatch
 		return
 	}
 
@@ -180,31 +180,43 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 			mr.CurationLevel = curationLevel
 		}
 
-		resData := entity.ResultData{
+		var dsID, matchCard, currCard, edDist, edDistStem *int
+		if m.MatchType != vlib.NoMatch {
+			matchedCardinality := int(parsed.Cardinality)
+			currentCardinality := int(parsedCurrent.Cardinality)
+
+			dsID = &verifRec.DataSourceID
+			matchCard = &matchedCardinality
+			currCard = &currentCardinality
+			edDist = &mi.EditDistance
+			edDistStem = &mi.EditDistanceStem
+		}
+
+		resData := vlib.ResultData{
 			ID:                     verifRec.RecordID.String,
 			LocalID:                verifRec.LocalID.String,
 			Outlink:                verifRec.OutlinkID.String,
-			DataSourceID:           verifRec.DataSourceID,
+			DataSourceID:           dsID,
 			DataSrouceTitleShort:   ds.TitleShort,
 			CurationLevel:          curationLevel,
 			CurationLevelString:    curationLevel.String(),
 			EntryDate:              ds.UpdatedAt.Format("2006-01-02"),
 			MatchedName:            verifRec.Name.String,
-			MatchedCardinality:     int(parsed.Cardinality),
+			MatchedCardinality:     matchCard,
 			MatchedCanonicalSimple: parsed.Canonical.Simple,
 			MatchedCanonicalFull:   parsed.Canonical.Full,
 			MatchedAuthors:         authors,
 			MatchedYear:            year,
 			CurrentRecordID:        currentRecordID,
 			CurrentName:            currentName,
-			CurrentCardinality:     int(parsedCurrent.Cardinality),
+			CurrentCardinality:     currCard,
 			CurrentCanonicalSimple: currentCan,
 			CurrentCanonicalFull:   currentCanFull,
 			IsSynonym:              verifRec.RecordID != verifRec.AcceptedRecordID,
 			ClassificationPath:     verifRec.Classification.String,
 			ClassificationRanks:    verifRec.ClassificationRanks.String,
-			EditDistance:           mi.EditDistance,
-			StemEditDistance:       mi.EditDistanceStem,
+			EditDistance:           edDist,
+			StemEditDistance:       edDistStem,
 			MatchType:              m.MatchType,
 		}
 		mr.MatchResults = append(mr.MatchResults, &resData)
@@ -223,7 +235,7 @@ func getVerifMap(vs []*verif) map[string][]*verif {
 	return vm
 }
 
-func nameQuery(db *sql.DB, canMatches []*gnm.Match) ([]*verif, error) {
+func nameQuery(db *sql.DB, canMatches []*mlib.Match) ([]*verif, error) {
 	var res []*verif
 	if len(canMatches) == 0 {
 		return res, nil
@@ -237,7 +249,7 @@ func nameQuery(db *sql.DB, canMatches []*gnm.Match) ([]*verif, error) {
 	return res, err
 }
 
-func getUUIDs(matches []*gnm.Match) []string {
+func getUUIDs(matches []*mlib.Match) []string {
 	set := make(map[string]struct{})
 	for _, v := range matches {
 		for _, vv := range v.MatchItems {
@@ -256,14 +268,14 @@ func getUUIDs(matches []*gnm.Match) []string {
 	return res
 }
 
-func partitionMatches(matches []*gnm.Match) matchSplit {
+func partitionMatches(matches []*mlib.Match) matchSplit {
 	ms := matchSplit{
-		noMatch:   make([]*gnm.Match, 0, len(matches)),
-		canonical: make([]*gnm.Match, 0, len(matches)),
+		noMatch:   make([]*mlib.Match, 0, len(matches)),
+		canonical: make([]*mlib.Match, 0, len(matches)),
 	}
 	for _, v := range matches {
 		// TODO: handle v.VirusMatch case too.
-		if v.MatchType == entity.NoMatch || v.VirusMatch {
+		if v.MatchType == vlib.NoMatch || v.VirusMatch {
 			ms.noMatch = append(ms.noMatch, v)
 		} else {
 			ms.canonical = append(ms.canonical, v)

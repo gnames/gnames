@@ -8,7 +8,7 @@ import (
 
 	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/data"
-	"github.com/gnames/gnames/domain/entity"
+	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	log "github.com/sirupsen/logrus"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -16,7 +16,7 @@ import (
 
 type DataGrabberPG struct {
 	DB             *sql.DB
-	DataSourcesMap map[int]*entity.DataSource
+	DataSourcesMap map[int]*vlib.DataSource
 }
 
 // NewDB creates a new instance of sql.DB using configuration data.
@@ -36,7 +36,7 @@ func opts(cnf config.Config) string {
 }
 
 func (dgp *DataGrabberPG) dataSourcesMap() {
-	dsm := make(map[int]*entity.DataSource)
+	dsm := make(map[int]*vlib.DataSource)
 	dss, err := dgp.DataSources(data.NullInt{})
 	if err != nil {
 		log.Fatalf("Cannot init DataSources data: %s", err)

@@ -5,8 +5,8 @@
 package data
 
 import (
-	gn "github.com/gnames/gnames/domain/entity"
-	gnm "github.com/gnames/gnmatcher/domain/entity"
+	mlib "github.com/gnames/gnlib/domain/entity/matcher"
+	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 )
 
 // MatchRecord contains information necessary for generating final
@@ -20,11 +20,11 @@ type MatchRecord struct {
 	CanonicalFull   string
 	Authors         []string
 	Year            int
-	MatchType       gn.MatchType
-	CurationLevel   gn.CurationLevel
+	MatchType       vlib.MatchType
+	CurationLevel   vlib.CurationLevel
 	DataSourcesNum  int
 	// MatchResults contains all matches to Input.
-	MatchResults []*gn.ResultData
+	MatchResults []*vlib.ResultData
 	// Sorted indicates if MatchResults are already sorted by their Score field.
 	Sorted bool
 }
@@ -41,10 +41,10 @@ type DataGrabber interface {
 	// DataSrouces returns a slice of all data-sources known to gnames. If
 	// id argument is not nil, it returns a slice with atmost one data-source
 	// founc by its id.
-	DataSources(id NullInt) ([]*gn.DataSource, error)
+	DataSources(id NullInt) ([]*vlib.DataSource, error)
 
 	// MatchRecords function returns unsorted records corresponding to Input
 	// matches.  Matches contain an input name-string, and strings that matched
 	// that input.
-	MatchRecords(matches []*gnm.Match) (map[string]*MatchRecord, error)
+	MatchRecords(matches []*mlib.Match) (map[string]*MatchRecord, error)
 }

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gnames/gnames/domain/entity"
+	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -39,12 +39,12 @@ func Run(s VerificationService) {
 			if err != nil {
 				log.Warnf("Cannot convert DataSourceID %s: %s.", vars["id"], err)
 			}
-			getDataSourcesHTTP(resp, req, s, entity.DataSourcesOpts{DataSourceID: id})
+			getDataSourcesHTTP(resp, req, s, vlib.DataSourcesOpts{DataSourceID: id})
 		}).Methods("GET", "POST")
 
 	r.HandleFunc("/data_sources",
 		func(resp http.ResponseWriter, req *http.Request) {
-			getDataSourcesHTTP(resp, req, s, entity.DataSourcesOpts{})
+			getDataSourcesHTTP(resp, req, s, vlib.DataSourcesOpts{})
 		}).Methods("GET", "POST")
 
 	addr := fmt.Sprintf(":%d", s.Port())
@@ -66,7 +66,7 @@ func pingHTTP(resp http.ResponseWriter, _ *http.Request,
 
 func getVersionHTTP(resp http.ResponseWriter, _ *http.Request,
 	s VerificationService) {
-	version := s.Version()
+	version := s.GetVersion()
 	ver, err := s.Encode(version)
 	if err != nil {
 		log.Warnf("Cannot decode version: %s.", err)
@@ -76,7 +76,7 @@ func getVersionHTTP(resp http.ResponseWriter, _ *http.Request,
 
 func verifyHTTP(resp http.ResponseWriter, req *http.Request,
 	s VerificationService) {
-	var params entity.VerifyParams
+	var params vlib.VerifyParams
 	var body []byte
 	var err error
 
@@ -100,7 +100,7 @@ func verifyHTTP(resp http.ResponseWriter, req *http.Request,
 }
 
 func getDataSourcesHTTP(resp http.ResponseWriter, req *http.Request,
-	s VerificationService, opts entity.DataSourcesOpts) {
+	s VerificationService, opts vlib.DataSourcesOpts) {
 	dataSources := s.DataSources(opts)
 
 	if out, err := s.Encode(dataSources); err == nil {

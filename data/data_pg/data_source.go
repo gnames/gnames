@@ -7,7 +7,7 @@ import (
 
 	"github.com/georgysavva/scany/sqlscan"
 	"github.com/gnames/gnames/data"
-	"github.com/gnames/gnames/domain/entity"
+	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 )
 
 type dataSource struct {
@@ -28,8 +28,8 @@ type dataSource struct {
 	UpdatedAt     time.Time
 }
 
-func (ds dataSource) convert() entity.DataSource {
-	res := entity.DataSource{
+func (ds dataSource) convert() vlib.DataSource {
+	res := vlib.DataSource{
 		ID:           ds.ID,
 		UUID:         ds.UUID,
 		Title:        ds.Title,
@@ -44,11 +44,11 @@ func (ds dataSource) convert() entity.DataSource {
 		UpdatedAt:    ds.UpdatedAt,
 	}
 	if ds.IsCurated {
-		res.CurationLevel = entity.Curated
+		res.CurationLevel = vlib.Curated
 	} else if ds.IsAutoCurated {
-		res.CurationLevel = entity.AutoCurated
+		res.CurationLevel = vlib.AutoCurated
 	} else {
-		res.CurationLevel = entity.NotCurated
+		res.CurationLevel = vlib.NotCurated
 	}
 	return res
 }
@@ -59,7 +59,7 @@ SELECT id, uuid, title, title_short, version, revision_date,
     is_curated, is_auto_curated, record_count, updated_at
   FROM data_sources`
 
-func (dgp DataGrabberPG) DataSources(id data.NullInt) ([]*entity.DataSource, error) {
+func (dgp DataGrabberPG) DataSources(id data.NullInt) ([]*vlib.DataSource, error) {
 	q := data_sources_q
 	if id.Valid {
 		q = q + fmt.Sprintf(" WHERE id = %d", id.Int)
@@ -67,15 +67,14 @@ func (dgp DataGrabberPG) DataSources(id data.NullInt) ([]*entity.DataSource, err
 	return dgp.dataSourcesQuery(q)
 }
 
-func (dgp DataGrabberPG) dataSourcesQuery(q string) ([]*entity.DataSource, error) {
+func (dgp DataGrabberPG) dataSourcesQuery(q string) ([]*vlib.DataSource, error) {
 	var dss []*dataSource
 	ctx := context.Background()
 	err := sqlscan.Select(ctx, dgp.DB, &dss, q)
-	res := make([]*entity.DataSource, len(dss))
+	res := make([]*vlib.DataSource, len(dss))
 	for i, ds := range dss {
 		dsItem := ds.convert()
 		res[i] = &dsItem
 	}
 	return res, err
 }
-

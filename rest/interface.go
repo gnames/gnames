@@ -1,8 +1,8 @@
 package rest
 
 import (
-	"github.com/gnames/gnames/domain/entity"
-	"github.com/gnames/gnames/domain/usecase"
+	"github.com/gnames/gnlib/domain/entity/gn"
+	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	"github.com/gnames/gnlib/encode"
 )
 
@@ -10,13 +10,13 @@ type VerificationService interface {
 	// Ping checks if the service is alive.
 	Ping() string
 
-	// Version returns Version of gnames project.
-	Version() entity.Version
+	// Versioner returns Version of gnames project.
+	gn.Versioner
 
 	// Port returns port of the HTTP/1 service.
 	Port() int
 
-	usecase.Verifier
+	vlib.Verifier
 
 	encode.Encoder
 }

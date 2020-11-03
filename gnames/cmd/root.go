@@ -41,7 +41,7 @@ const configText = `# GNport is a port to the gnames service
 GNport: 8888
 
 # Path to keep working data and key-value stores
-WorkDir: /var/gnmatcher
+WorkDir: ~/.local/share/gnames
 
 # Postgresql host for gnames database
 PgHost: localhost
@@ -57,10 +57,6 @@ PgDB: gnames
 
 # Number of jobs for parallel tasks
 JobsNum: 4
-
-# MaxEditDist is the maximal edit distance for fuzzy matching of
-# stemmed canonical forms. Can be 1 or 2, 2 is significantly slower.
-MaxEditDist: 1
 
 # MatcherURL is a url to a gnmatcher service.
 MatcherURL: "http://:8080"

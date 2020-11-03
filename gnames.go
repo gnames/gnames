@@ -3,17 +3,17 @@ package gnames
 import (
 	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/data"
-	"github.com/gnames/gnames/domain/entity"
 	"github.com/gnames/gnames/matcher"
 	"github.com/gnames/gnames/score"
-	gnmu "github.com/gnames/gnmatcher/domain/usecase"
+	mlib "github.com/gnames/gnlib/domain/entity/matcher"
+	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	log "github.com/sirupsen/logrus"
 )
 
 type GNames struct {
 	Config config.Config
 	data.DataGrabber
-	gnmu.Matcher
+	mlib.Matcher
 }
 
 func NewGNames(cnf config.Config, dg data.DataGrabber) GNames {
@@ -24,9 +24,9 @@ func NewGNames(cnf config.Config, dg data.DataGrabber) GNames {
 	}
 }
 
-func (gn GNames) Verify(params entity.VerifyParams) ([]*entity.Verification, error) {
+func (gn GNames) Verify(params vlib.VerifyParams) ([]*vlib.Verification, error) {
 	log.Printf("Verifying %d name-strings.", len(params.NameStrings))
-	res := make([]*entity.Verification, len(params.NameStrings))
+	res := make([]*vlib.Verification, len(params.NameStrings))
 
 	matches := gn.Matcher.MatchAry(params.NameStrings)
 
@@ -39,7 +39,7 @@ func (gn GNames) Verify(params entity.VerifyParams) ([]*entity.Verification, err
 	for i, v := range matches {
 		if mr, ok := matchRecords[v.ID]; ok {
 			score.Calculate(mr)
-			item := entity.Verification{
+			item := vlib.Verification{
 				InputID:             mr.InputID,
 				Input:               mr.Input,
 				MatchType:           mr.MatchType,
@@ -59,7 +59,7 @@ func (gn GNames) Verify(params entity.VerifyParams) ([]*entity.Verification, err
 	return res, nil
 }
 
-func (gn GNames) DataSources(opts entity.DataSourcesOpts) ([]*entity.DataSource, error) {
+func (gn GNames) DataSources(opts vlib.DataSourcesOpts) ([]*vlib.DataSource, error) {
 	log.Printf("Getting data source with ID %d.", opts.DataSourceID)
 	dsID := opts.DataSourceID
 	nullDsID := data.NullInt{Int: dsID, Valid: dsID > 0}
