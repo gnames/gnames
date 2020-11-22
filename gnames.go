@@ -5,22 +5,22 @@ import (
 	"github.com/gnames/gnames/data"
 	"github.com/gnames/gnames/matcher"
 	"github.com/gnames/gnames/score"
-	mlib "github.com/gnames/gnlib/domain/entity/matcher"
 	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	"github.com/gnames/gnmatcher"
 	log "github.com/sirupsen/logrus"
 )
 
 type GNames struct {
 	Config config.Config
 	data.DataGrabber
-	mlib.Matcher
+	matcher gnmatcher.GNMatcher
 }
 
 func NewGNames(cnf config.Config, dg data.DataGrabber) GNames {
 	return GNames{
 		Config:      cnf,
 		DataGrabber: dg,
-		Matcher:     matcher.NewMatcherREST(cnf.MatcherURL),
+		matcher:     matcher.NewGNMatcher(cnf.MatcherURL),
 	}
 }
 
@@ -28,7 +28,7 @@ func (gn GNames) Verify(params vlib.VerifyParams) ([]*vlib.Verification, error) 
 	log.Printf("Verifying %d name-strings.", len(params.NameStrings))
 	res := make([]*vlib.Verification, len(params.NameStrings))
 
-	matches := gn.Matcher.MatchAry(params.NameStrings)
+	matches := gn.matcher.MatchNames(params.NameStrings)
 
 	var errString string
 	matchRecords, err := gn.DataGrabber.MatchRecords(matches)

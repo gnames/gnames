@@ -11,21 +11,19 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type MatcherREST struct {
-	URL string
-	Enc encode.Encoder
+type matcherREST struct {
+	url string
+	enc encode.Encoder
 }
 
-func NewMatcherREST(url string) MatcherREST {
-	return MatcherREST{URL: url, Enc: encode.GNgob{}}
+func NewGNMatcher(url string) matcherREST {
+	return matcherREST{url: url, enc: encode.GNjson{}}
 }
 
-func (mr MatcherREST) GetVersion() gn.Version {
+func (mr matcherREST) GetVersion() gn.Version {
 	var err error
 	response := gn.Version{}
-	var req []byte
-	r := bytes.NewReader(req)
-	resp, err := http.Post(mr.URL+"version", "application/x-binary", r)
+	resp, err := http.Get(mr.url + "version")
 	if err != nil {
 		log.Warnf("Cannot get gnmatcher version: %s.", err)
 	}
@@ -33,22 +31,21 @@ func (mr MatcherREST) GetVersion() gn.Version {
 	if err != nil {
 		log.Warnf("Cannot get gnmatcher version: %s.", err)
 	}
-	err = mr.Enc.Decode(respBytes, &response)
+	err = mr.enc.Decode(respBytes, &response)
 	if err != nil {
 		log.Warnf("Cannot get gnmatcher version: %s.", err)
 	}
 	return response
 }
 
-func (mr MatcherREST) MatchAry(names []string) []*mlib.Match {
+func (mr matcherREST) MatchNames(names []string) []*mlib.Match {
 	var response []*mlib.Match
-	enc := encode.GNgob{}
-	req, err := enc.Encode(names)
+	req, err := mr.enc.Encode(names)
 	if err != nil {
 		log.Warnf("Cannot encode name-strings: %s.", err)
 	}
 	r := bytes.NewReader(req)
-	resp, err := http.Post(mr.URL+"match", "application/x-binary", r)
+	resp, err := http.Post(mr.url+"match", "application/json", r)
 	if err != nil {
 		log.Warnf("Cannot get matches response: %s.", err)
 	}
@@ -56,7 +53,7 @@ func (mr MatcherREST) MatchAry(names []string) []*mlib.Match {
 	if err != nil {
 		log.Warnf("Cannot read matches from response: %s.", err)
 	}
-	err = enc.Decode(respBytes, &response)
+	err = mr.enc.Decode(respBytes, &response)
 	if err != nil {
 		log.Warnf("Cannot decode matches: %s.", err)
 	}
