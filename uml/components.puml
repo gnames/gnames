@@ -1,7 +1,0 @@
-@startuml
-[Core] -left-> FrontAPI
-[REST] -right-|> FrontAPI
-[Core] -right-> DataAPI
-[Database] -left-|> DataAPI
-[Core] ..> GNmatcher : calls
-@enduml

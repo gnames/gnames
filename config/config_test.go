@@ -1,69 +1,66 @@
 package config_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"testing"
 
-	. "github.com/gnames/gnames/config"
+	"github.com/gnames/gnames/config"
+	"github.com/gnames/gnlib/sys"
+	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
-var _ = Describe("Config", func() {
-	Describe("NewConfig", func() {
-		It("Creates a default GNparser", func() {
-			cnf := NewConfig()
-			Expect(cnf.JobsNum).To(Equal(8))
-			Expect(cnf.PgHost).To(Equal("localhost"))
-			deflt := Config{
-				GNport:      8888,
-				WorkDir:     "~/.local/share/gnames",
-				JobsNum:     8,
-				MaxEditDist: 1,
-				PgHost:      "localhost",
-				PgPort:      5432,
-				PgUser:      "postgres",
-				PgPass:      "",
-				PgDB:        "gnames",
-				MatcherURL:  "https://:8080",
-			}
-			Expect(cnf).To(Equal(deflt))
-		})
-	})
+func TestNew(t *testing.T) {
+	cnf := config.NewConfig()
+	deflt := config.Config{
+		GNport:      8888,
+		WorkDir:     sys.ConvertTilda("~/.local/share/gnames"),
+		JobsNum:     8,
+		MaxEditDist: 1,
+		PgHost:      "localhost",
+		PgPort:      5432,
+		PgUser:      "postgres",
+		PgPass:      "",
+		PgDB:        "gnames",
+		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
+	}
+	assert.Equal(t, cnf, deflt)
+}
 
-	It("Takes options to update default settings", func() {
-		opts := opts()
-		cnf := NewConfig(opts...)
-		updt := Config{
-			GNport:      8888,
-			WorkDir:     "~/.local/share/gnames",
-			JobsNum:     16,
-			MaxEditDist: 2,
-			PgHost:      "mypg",
-			PgPort:      1234,
-			PgUser:      "gnm",
-			PgPass:      "secret",
-			PgDB:        "gnm",
-			MatcherURL:  "https://:8080",
-		}
-		Expect(cnf).To(Equal(updt))
-	})
+func TestNewOpts(t *testing.T) {
+	opts := opts()
+	cnf := config.NewConfig(opts...)
+	updt := config.Config{
+		GNport:      8888,
+		WorkDir:     sys.ConvertTilda("~/.local/share/gnames"),
+		JobsNum:     16,
+		MaxEditDist: 2,
+		PgHost:      "mypg",
+		PgPort:      1234,
+		PgUser:      "gnm",
+		PgPass:      "secret",
+		PgDB:        "gnm",
+		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
+	}
+	assert.Equal(t, cnf, updt)
+}
 
-	It("It limits MaxEditDist to 1 and 2", func() {
-		cnf := NewConfig(OptMaxEditDist(5))
-		Expect(cnf.MaxEditDist).To(Equal(1))
-		cnf = NewConfig(OptMaxEditDist(0))
-		Expect(cnf.MaxEditDist).To(Equal(1))
-	})
-})
+func TestMaxED(t *testing.T) {
+	log.SetLevel(log.FatalLevel)
+	cnf := config.NewConfig(config.OptMaxEditDist(5))
+	assert.Equal(t, cnf.MaxEditDist, 1)
+	cnf = config.NewConfig(config.OptMaxEditDist(0))
+	assert.Equal(t, cnf.MaxEditDist, 1)
+}
 
-func opts() []Option {
-	return []Option{
-		OptWorkDir("~/.local/share/gnames"),
-		OptJobsNum(16),
-		OptMaxEditDist(2),
-		OptPgHost("mypg"),
-		OptPgUser("gnm"),
-		OptPgPass("secret"),
-		OptPgPort(1234),
-		OptPgDB("gnm"),
+func opts() []config.Option {
+	return []config.Option{
+		config.OptWorkDir("~/.local/share/gnames"),
+		config.OptJobsNum(16),
+		config.OptMaxEditDist(2),
+		config.OptPgHost("mypg"),
+		config.OptPgUser("gnm"),
+		config.OptPgPass("secret"),
+		config.OptPgPort(1234),
+		config.OptPgDB("gnm"),
 	}
 }

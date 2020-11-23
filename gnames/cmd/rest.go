@@ -26,8 +26,8 @@ import (
 
 	"github.com/gnames/gnames"
 	gncnf "github.com/gnames/gnames/config"
-	"github.com/gnames/gnames/data/data_pg"
-	"github.com/gnames/gnames/rest"
+	"github.com/gnames/gnames/io/rest"
+	"github.com/gnames/gnames/io/verifierpg"
 	"github.com/gnames/gnlib/encode"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -51,19 +51,12 @@ var restCmd = &cobra.Command{
 		opts = append(opts, gncnf.OptGNPort(port))
 
 		var enc encode.Encoder = encode.GNjson{}
-		gob, _ := cmd.Flags().GetBool("gob")
-		if gob {
-			enc = encode.GNgob{}
-			log.Print("Serialization with Gob.")
-		} else {
-			log.Print("Serialization with JSON.")
-		}
 
 		cnf := gncnf.NewConfig(opts...)
-		dgr := data_pg.NewDataGrabberPG(cnf)
-		gn := gnames.NewGNames(cnf, dgr)
+		vf := verifierpg.NewVerifier(cnf)
+		gn := gnames.NewGNames(cnf, vf)
 
-		service := rest.NewVerifierHTTP(gn, enc)
+		service := rest.NewVerifierService(gn, port, enc)
 		rest.Run(service)
 		os.Exit(0)
 	},
@@ -73,6 +66,5 @@ func init() {
 	rootCmd.AddCommand(restCmd)
 
 	restCmd.Flags().IntP("port", "p", 8888, "REST port")
-	restCmd.Flags().BoolP("gob", "g", false, "switch encoding from JSON to Gob")
 	restCmd.Flags().BoolP("debug", "d", false, "set logs level to DEBUG")
 }

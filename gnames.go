@@ -2,36 +2,45 @@ package gnames
 
 import (
 	"github.com/gnames/gnames/config"
-	"github.com/gnames/gnames/data"
-	"github.com/gnames/gnames/matcher"
-	"github.com/gnames/gnames/score"
+	"github.com/gnames/gnames/entity/score"
+	"github.com/gnames/gnames/entity/verifier"
+	"github.com/gnames/gnames/io/matcher"
+	"github.com/gnames/gnlib/domain/entity/gn"
 	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	"github.com/gnames/gnmatcher"
 	log "github.com/sirupsen/logrus"
 )
 
-type GNames struct {
-	Config config.Config
-	data.DataGrabber
+type gnames struct {
+	cfg     config.Config
+	vf      verifier.Verifier
 	matcher gnmatcher.GNMatcher
 }
 
-func NewGNames(cnf config.Config, dg data.DataGrabber) GNames {
-	return GNames{
-		Config:      cnf,
-		DataGrabber: dg,
-		matcher:     matcher.NewGNMatcher(cnf.MatcherURL),
+// NewGNames is a constructor that returns implmentation of GNames interface.
+func NewGNames(cnf config.Config, vf verifier.Verifier) GNames {
+	return gnames{
+		cfg:     cnf,
+		vf:      vf,
+		matcher: matcher.NewGNMatcher(cnf.MatcherURL),
 	}
 }
 
-func (gn GNames) Verify(params vlib.VerifyParams) ([]*vlib.Verification, error) {
+func (g gnames) GetVersion() gn.Version {
+	return gn.Version{
+		Version: Version,
+		Build:   Build,
+	}
+}
+
+func (g gnames) Verify(params vlib.VerifyParams) ([]*vlib.Verification, error) {
 	log.Printf("Verifying %d name-strings.", len(params.NameStrings))
 	res := make([]*vlib.Verification, len(params.NameStrings))
 
-	matches := gn.matcher.MatchNames(params.NameStrings)
+	matches := g.matcher.MatchNames(params.NameStrings)
 
 	var errString string
-	matchRecords, err := gn.DataGrabber.MatchRecords(matches)
+	matchRecords, err := g.vf.MatchRecords(matches)
 	if err != nil {
 		errString = err.Error()
 	}
@@ -40,15 +49,14 @@ func (gn GNames) Verify(params vlib.VerifyParams) ([]*vlib.Verification, error) 
 		if mr, ok := matchRecords[v.ID]; ok {
 			score.Calculate(mr)
 			item := vlib.Verification{
-				InputID:             mr.InputID,
-				Input:               mr.Input,
-				MatchType:           mr.MatchType,
-				CurationLevel:       mr.CurationLevel,
-				CurationLevelString: mr.CurationLevel.String(),
-				DataSourcesNum:      mr.DataSourcesNum,
-				BestResult:          score.BestResult(mr),
-				PreferredResults:    score.PreferredResults(params.PreferredSources, mr),
-				Error:               errString,
+				InputID:          mr.InputID,
+				Input:            mr.Input,
+				MatchType:        mr.MatchType,
+				Curation:         mr.Curation,
+				DataSourcesNum:   mr.DataSourcesNum,
+				BestResult:       score.BestResult(mr),
+				PreferredResults: score.PreferredResults(params.PreferredSources, mr),
+				Error:            errString,
 			}
 
 			res[i] = &item
@@ -59,9 +67,6 @@ func (gn GNames) Verify(params vlib.VerifyParams) ([]*vlib.Verification, error) 
 	return res, nil
 }
 
-func (gn GNames) DataSources(opts vlib.DataSourcesOpts) ([]*vlib.DataSource, error) {
-	log.Printf("Getting data source with ID %d.", opts.DataSourceID)
-	dsID := opts.DataSourceID
-	nullDsID := data.NullInt{Int: dsID, Valid: dsID > 0}
-	return gn.DataGrabber.DataSources(nullDsID)
+func (g gnames) DataSources(ids ...int) ([]*vlib.DataSource, error) {
+	return g.vf.DataSources(ids...)
 }

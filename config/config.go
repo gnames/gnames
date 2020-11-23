@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/gnames/gnlib/sys"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,7 +27,7 @@ type Config struct {
 func NewConfig(opts ...Option) Config {
 	cnf := Config{
 		GNport:      8888,
-		WorkDir:     "~/.local/share/gnames",
+		WorkDir:     sys.ConvertTilda("~/.local/share/gnames"),
 		JobsNum:     8,
 		MaxEditDist: 1,
 		PgHost:      "localhost",
@@ -34,7 +35,7 @@ func NewConfig(opts ...Option) Config {
 		PgUser:      "postgres",
 		PgPass:      "",
 		PgDB:        "gnames",
-		MatcherURL:  "https://:8080",
+		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
 	}
 	for _, opt := range opts {
 		opt(&cnf)
@@ -73,7 +74,7 @@ func OptGNPort(i int) Option {
 // OptWorkDir sets a directory for key-value stores and temporary files.
 func OptWorkDir(s string) Option {
 	return func(cnf *Config) {
-		cnf.WorkDir = s
+		cnf.WorkDir = sys.ConvertTilda(s)
 	}
 }
 

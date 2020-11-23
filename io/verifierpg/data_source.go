@@ -1,12 +1,13 @@
-package data_pg
+package verifierpg
 
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/georgysavva/scany/sqlscan"
-	"github.com/gnames/gnames/data"
 	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 )
 
@@ -44,33 +45,38 @@ func (ds dataSource) convert() vlib.DataSource {
 		UpdatedAt:    ds.UpdatedAt,
 	}
 	if ds.IsCurated {
-		res.CurationLevel = vlib.Curated
+		res.Curation = vlib.Curated
 	} else if ds.IsAutoCurated {
-		res.CurationLevel = vlib.AutoCurated
+		res.Curation = vlib.AutoCurated
 	} else {
-		res.CurationLevel = vlib.NotCurated
+		res.Curation = vlib.NotCurated
 	}
 	return res
 }
 
-var data_sources_q = `
+var dataSourcesQ = `
 SELECT id, uuid, title, title_short, version, revision_date,
     doi, citation, authors, description, website_url,
     is_curated, is_auto_curated, record_count, updated_at
   FROM data_sources`
 
-func (dgp DataGrabberPG) DataSources(id data.NullInt) ([]*vlib.DataSource, error) {
-	q := data_sources_q
-	if id.Valid {
-		q = q + fmt.Sprintf(" WHERE id = %d", id.Int)
+func (vf verifierpg) DataSources(ids ...int) ([]*vlib.DataSource, error) {
+	q := dataSourcesQ
+	if len(ids) > 0 {
+		idsStrings := make([]string, len(ids))
+		for i, v := range ids {
+			idsStrings[i] = strconv.Itoa(v)
+		}
+		idsStr := strings.Join(idsStrings, ",")
+		q = q + fmt.Sprintf(" WHERE id in (%s)", idsStr)
 	}
-	return dgp.dataSourcesQuery(q)
+	return vf.dataSourcesQuery(q)
 }
 
-func (dgp DataGrabberPG) dataSourcesQuery(q string) ([]*vlib.DataSource, error) {
+func (vf verifierpg) dataSourcesQuery(q string) ([]*vlib.DataSource, error) {
 	var dss []*dataSource
 	ctx := context.Background()
-	err := sqlscan.Select(ctx, dgp.DB, &dss, q)
+	err := sqlscan.Select(ctx, vf.DB, &dss, q)
 	res := make([]*vlib.DataSource, len(dss))
 	for i, ds := range dss {
 		dsItem := ds.convert()

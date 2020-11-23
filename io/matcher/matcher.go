@@ -8,6 +8,7 @@ import (
 	"github.com/gnames/gnlib/domain/entity/gn"
 	mlib "github.com/gnames/gnlib/domain/entity/matcher"
 	"github.com/gnames/gnlib/encode"
+	"github.com/gnames/gnmatcher"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -16,7 +17,8 @@ type matcherREST struct {
 	enc encode.Encoder
 }
 
-func NewGNMatcher(url string) matcherREST {
+// NewGNMatcher creates an implementation of GNMatcher interface.
+func NewGNMatcher(url string) gnmatcher.GNMatcher {
 	return matcherREST{url: url, enc: encode.GNjson{}}
 }
 
@@ -45,7 +47,7 @@ func (mr matcherREST) MatchNames(names []string) []*mlib.Match {
 		log.Warnf("Cannot encode name-strings: %s.", err)
 	}
 	r := bytes.NewReader(req)
-	resp, err := http.Post(mr.url+"match", "application/json", r)
+	resp, err := http.Post(mr.url+"matches", "application/json", r)
 	if err != nil {
 		log.Warnf("Cannot get matches response: %s.", err)
 	}

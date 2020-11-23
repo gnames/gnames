@@ -2,7 +2,7 @@
 // according to their relevancy.
 // Score contains 32bits. They are distributed between different criteria the
 // following way (from the left):
-
+//
 // xx000000_00000000_00000000_00000000: matching rank for ranked infraspecies
 // 00 - rank does not match
 //    `Aus bus var. cus` vs `Aus bus f. cus`
@@ -64,7 +64,7 @@ import (
 	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 )
 
-// Score
+// Score calculates and stores the score of a match.
 type Score struct {
 	Value uint32
 }
@@ -105,13 +105,14 @@ func (s Score) rank(can1, can2 string, card1, card2 int) Score {
 }
 
 // fuzzy matching
-func (s Score) fuzzy(edit_distance int) Score {
+func (s Score) fuzzy(editDistance int) Score {
+	ed := editDistance
 	shift := 28
 	var i uint32 = 3
-	if edit_distance > int(i) || edit_distance < 0 {
+	if ed > int(i) || ed < 0 {
 		i = 0
 	} else {
-		i = i - uint32(edit_distance)
+		i = i - uint32(ed)
 	}
 
 	s.Value = (s.Value | uint32(i<<shift))
@@ -119,7 +120,8 @@ func (s Score) fuzzy(edit_distance int) Score {
 }
 
 // curation scores by curation level of data-sources.
-func (s Score) curation(dataSourceID int, curationLevel vlib.CurationLevel) Score {
+func (s Score) curation(dataSourceID int,
+	curationLevel vlib.CurationLevel) Score {
 	shift := 26
 	i := uint32(curationLevel)
 	if dataSourceID == 1 {
@@ -178,10 +180,10 @@ func (s Score) auth(auth1, auth2 []string, year1, year2 int) Score {
 }
 
 // accepted name
-func (s Score) accepted(record_id, accepted_id string) Score {
+func (s Score) accepted(recordID, acceptedID string) Score {
 	shift := 22
 	var i uint32 = 0
-	if accepted_id == "" || record_id == accepted_id {
+	if acceptedID == "" || recordID == acceptedID {
 		i = 1
 	}
 	s.Value = (s.Value | uint32(i<<shift))

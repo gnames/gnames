@@ -1,4 +1,4 @@
-package data_pg
+package verifierpg
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/georgysavva/scany/sqlscan"
-	"github.com/gnames/gnames/data"
+	"github.com/gnames/gnames/entity/verifier"
 	mlib "github.com/gnames/gnlib/domain/entity/matcher"
 	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	log "github.com/sirupsen/logrus"
@@ -41,7 +41,7 @@ type matchSplit struct {
 	canonical []*mlib.Match
 }
 
-var names_q = `
+var namesQ = `
   SELECT canonical_id, name, data_source_id, record_id, name_string_id,
       local_id, outlink_id, accepted_record_id, accepted_name_id,
       accepted_name, classification, classification_ranks
@@ -49,14 +49,9 @@ var names_q = `
 
 // MatchRecords takes matches from gnmatcher and returns back data from
 // the database that organizes data from database into matched records.
-func (dgp DataGrabberPG) MatchRecords(matches []*mlib.Match) (map[string]*data.MatchRecord, error) {
-	for _, v := range matches {
-		if v.Name == "Acacia vestita may" {
-			log.Debugf("ACACIA: %+v", v)
-		}
-	}
+func (dgp verifierpg) MatchRecords(matches []*mlib.Match) (map[string]*verifier.MatchRecord, error) {
 	parser := gnparser.NewGNparser()
-	res := make(map[string]*data.MatchRecord)
+	res := make(map[string]*verifier.MatchRecord)
 	splitMatches := partitionMatches(matches)
 
 	verifs, err := nameQuery(dgp.DB, splitMatches.canonical)
@@ -68,16 +63,16 @@ func (dgp DataGrabberPG) MatchRecords(matches []*mlib.Match) (map[string]*data.M
 	return res, nil
 }
 
-func (dgp DataGrabberPG) produceResultData(
+func (dgp verifierpg) produceResultData(
 	ms matchSplit,
 	parser gnparser.GNparser,
 	v []*verif,
-) map[string]*data.MatchRecord {
+) map[string]*verifier.MatchRecord {
 
 	// deal with NoMatch first
-	mrs := make(map[string]*data.MatchRecord)
+	mrs := make(map[string]*verifier.MatchRecord)
 	for _, v := range ms.noMatch {
-		mrs[v.ID] = &data.MatchRecord{
+		mrs[v.ID] = &verifier.MatchRecord{
 			InputID: v.ID,
 			Input:   v.Name,
 		}
@@ -91,7 +86,7 @@ func (dgp DataGrabberPG) produceResultData(
 		}
 		authors, year := processAuthorship(parsed.Authorship)
 
-		mr := data.MatchRecord{
+		mr := verifier.MatchRecord{
 			InputID:         match.ID,
 			Input:           match.Name,
 			Cardinality:     int(parsed.Cardinality),
@@ -100,7 +95,7 @@ func (dgp DataGrabberPG) produceResultData(
 			Authors:         authors,
 			Year:            year,
 			MatchType:       match.MatchType,
-			CurationLevel:   vlib.NotCurated,
+			Curation:        vlib.NotCurated,
 		}
 		for _, mi := range match.MatchItems {
 			dgp.populateMatchRecord(mi, *match, &mr, parser, verifMap)
@@ -138,10 +133,10 @@ func processAuthorship(au *pb.Authorship) ([]string, int) {
 	return authors, year
 }
 
-func (dgp *DataGrabberPG) populateMatchRecord(
+func (dgp *verifierpg) populateMatchRecord(
 	mi mlib.MatchItem,
 	m mlib.Match,
-	mr *data.MatchRecord,
+	mr *verifier.MatchRecord,
 	parser gnparser.GNparser,
 	verifMap map[string][]*verif,
 ) {
@@ -174,22 +169,22 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 		sources[verifRec.DataSourceID] = struct{}{}
 
 		ds := dgp.DataSourcesMap[verifRec.DataSourceID]
-		curationLevel := ds.CurationLevel
+		curation := ds.Curation
 
-		if mr.CurationLevel < curationLevel {
-			mr.CurationLevel = curationLevel
+		if mr.Curation < curation {
+			mr.Curation = curation
 		}
 
-		var dsID, matchCard, currCard, edDist, edDistStem *int
+		var dsID, matchCard, currCard, edDist, edDistStem int
 		if m.MatchType != vlib.NoMatch {
 			matchedCardinality := int(parsed.Cardinality)
 			currentCardinality := int(parsedCurrent.Cardinality)
 
-			dsID = &verifRec.DataSourceID
-			matchCard = &matchedCardinality
-			currCard = &currentCardinality
-			edDist = &mi.EditDistance
-			edDistStem = &mi.EditDistanceStem
+			dsID = verifRec.DataSourceID
+			matchCard = matchedCardinality
+			currCard = currentCardinality
+			edDist = mi.EditDistance
+			edDistStem = mi.EditDistanceStem
 		}
 
 		resData := vlib.ResultData{
@@ -197,9 +192,8 @@ func (dgp *DataGrabberPG) populateMatchRecord(
 			LocalID:                verifRec.LocalID.String,
 			Outlink:                verifRec.OutlinkID.String,
 			DataSourceID:           dsID,
-			DataSrouceTitleShort:   ds.TitleShort,
-			CurationLevel:          curationLevel,
-			CurationLevelString:    curationLevel.String(),
+			DataSourceTitleShort:   ds.TitleShort,
+			Curation:               curation,
 			EntryDate:              ds.UpdatedAt.Format("2006-01-02"),
 			MatchedName:            verifRec.Name.String,
 			MatchedCardinality:     matchCard,
@@ -243,7 +237,7 @@ func nameQuery(db *sql.DB, canMatches []*mlib.Match) ([]*verif, error) {
 
 	ids := getUUIDs(canMatches)
 	idStr := "'" + strings.Join(ids, "','") + "'"
-	q := fmt.Sprintf(names_q, "canonical_id", idStr)
+	q := fmt.Sprintf(namesQ, "canonical_id", idStr)
 	ctx := context.Background()
 	err := sqlscan.Select(ctx, db, &res, q)
 	return res, err

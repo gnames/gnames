@@ -1,12 +1,13 @@
 package rest
 
 import (
+	"github.com/gnames/gnames"
 	"github.com/gnames/gnlib/domain/entity/gn"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	"github.com/gnames/gnlib/encode"
 )
 
-type VerificationService interface {
+// VerifierService interface is the API behing RESTful service.
+type VerifierService interface {
 	// Ping checks if the service is alive.
 	Ping() string
 
@@ -16,7 +17,7 @@ type VerificationService interface {
 	// Port returns port of the HTTP/1 service.
 	Port() int
 
-	vlib.Verifier
+	gnames.GNames
 
 	encode.Encoder
 }

@@ -11,39 +11,39 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const url = "http://:8888/"
+const url = "http://:8888/api/v1/"
 
 var bugs = []struct {
 	name           string
-	matchType      vlib.MatchType
+	matchType      vlib.MatchTypeValue
 	matchCanonical string
 	desc           string
 }{
-	// {
-	// 	name:           "Tillaudsia utriculata",
-	// 	matchType:      vlib.Fuzzy,
-	// 	matchCanonical: "Tillandsia utriculata",
-	// 	desc:           "Misspelling of Tillandsia",
-	// },
-	// {
-	// 	name:           "Drosohila melanogaster",
-	// 	matchType:      vlib.Fuzzy,
-	// 	matchCanonical: "Drosophila melanogaster",
-	// 	desc:           "Misspelling of Drosophila",
-	// },
-	// {
-	// 	name:           "Acacia nur",
-	// 	matchType:      vlib.PartialExact,
-	// 	matchCanonical: "Acacia",
-	// 	desc:           "Should not match 'Acacia dura', ep. is too short",
-	// },
+	{
+		name:           "Tillaudsia utriculata",
+		matchType:      vlib.Fuzzy,
+		matchCanonical: "Tillandsia utriculata",
+		desc:           "Misspelling of Tillandsia",
+	},
+	{
+		name:           "Drosohila melanogaster",
+		matchType:      vlib.Fuzzy,
+		matchCanonical: "Drosophila melanogaster",
+		desc:           "Misspelling of Drosophila",
+	},
+	{
+		name:           "Acacia nur",
+		matchType:      vlib.PartialExact,
+		matchCanonical: "Acacia",
+		desc:           "Should not match 'Acacia dura', ep. is too short",
+	},
 }
 
 func TestBugs(t *testing.T) {
 	req, err := encode.GNjson{}.Encode(params())
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verification", "application/json", r)
+	resp, err := http.Post(url+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)

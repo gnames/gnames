@@ -3,13 +3,13 @@ package matcher_test
 import (
 	"testing"
 
-	"github.com/gnames/gnames/matcher"
+	"github.com/gnames/gnames/io/matcher"
 	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	"github.com/gnames/gnmatcher"
 	"github.com/stretchr/testify/assert"
 )
 
-const url = "http://:8080/"
+const url = "https://matcher.globalnames.org/api/v1/"
 
 func TestVer(t *testing.T) {
 	var m gnmatcher.GNMatcher
