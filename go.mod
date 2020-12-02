@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/georgysavva/scany v0.2.5
-	github.com/gnames/gnlib v0.0.15
+	github.com/gnames/gnlib v0.1.0
 	github.com/gnames/gnmatcher v0.3.8
 	github.com/jinzhu/gorm v1.9.16
 	github.com/labstack/echo/v4 v4.1.17
