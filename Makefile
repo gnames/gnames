@@ -30,7 +30,7 @@ build:
 dc: build
 	docker-compose build;
 
-release:
+release: dockerhub
 	cd gnames; \
 	$(GOCLEAN); \
 	$(FLAGS_SHARED) GOOS=linux $(GOBUILD); \
@@ -41,4 +41,12 @@ install:
 	$(GOGENERATE)
 	cd gnames; \
 	$(FLAGS_SHARED) $(GOINSTALL);
+
+docker: build
+	docker build -t gnames/gnames:latest -t gnames/gnames:${VERSION} .; \
+	cd gnames; \
+
+dockerhub: docker
+	docker push gnames/gnames; \
+	docker push gnames/gnames:${VERSION}
 
