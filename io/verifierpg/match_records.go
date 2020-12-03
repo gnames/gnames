@@ -194,7 +194,7 @@ func (dgp *verifierpg) populateMatchRecord(
 			DataSourceID:           dsID,
 			DataSourceTitleShort:   ds.TitleShort,
 			Curation:               curation,
-			EntryDate:              ds.UpdatedAt.Format("2006-01-02"),
+			EntryDate:              ds.UpdatedAt,
 			MatchedName:            verifRec.Name.String,
 			MatchedCardinality:     matchCard,
 			MatchedCanonicalSimple: parsed.Canonical.Simple,

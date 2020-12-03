@@ -9,6 +9,7 @@ import (
 
 	"github.com/georgysavva/scany/sqlscan"
 	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	"github.com/gofrs/uuid"
 )
 
 type dataSource struct {
@@ -32,7 +33,7 @@ type dataSource struct {
 func (ds dataSource) convert() vlib.DataSource {
 	res := vlib.DataSource{
 		ID:           ds.ID,
-		UUID:         ds.UUID,
+		UUID:         "",
 		Title:        ds.Title,
 		TitleShort:   ds.TitleShort,
 		Version:      ds.Version,
@@ -40,9 +41,13 @@ func (ds dataSource) convert() vlib.DataSource {
 		DOI:          ds.DOI,
 		Citation:     ds.Citation,
 		Authors:      ds.Authors,
+		WebsiteURL:   ds.WebsiteURL,
 		Description:  ds.Description,
 		RecordCount:  ds.RecordCount,
-		UpdatedAt:    ds.UpdatedAt,
+		UpdatedAt:    ds.UpdatedAt.Format("2006-01-02"),
+	}
+	if ds.UUID != uuid.Nil.String() {
+		res.UUID = ds.UUID
 	}
 	if ds.IsCurated {
 		res.Curation = vlib.Curated
