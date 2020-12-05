@@ -17,7 +17,7 @@ func Run(vs VerifierService) {
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
-	e.Use(middleware.Logger())
+	// e.Use(middleware.Logger())
 
 	e.GET("/api/v1/ping", ping(vs))
 	e.GET("/api/v1/version", ver(vs))

@@ -203,6 +203,7 @@ func TestOneDataSource(t *testing.T) {
 	err = encode.GNjson{}.Decode(respBytes, &ds)
 	assert.Nil(t, err)
 	assert.Equal(t, ds.Title, "Encyclopedia of Life")
+	assert.True(t, ds.IsOutlinkReady)
 	assert.Equal(t, ds.WebsiteURL, "https://eol.org")
 	assert.Equal(t, ds.UUID, "dba5f880-a40d-479b-a1ad-a646835edde4")
 }

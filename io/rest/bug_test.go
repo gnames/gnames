@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -37,6 +38,12 @@ var bugs = []struct {
 		matchCanonical: "Acacia",
 		desc:           "Should not match 'Acacia dura', ep. is too short",
 	},
+	{
+		name:           "Bubo",
+		matchType:      vlib.Exact,
+		matchCanonical: "Bubo",
+		desc:           "Uninomials should match correctly #32 gnmatcher",
+	},
 }
 
 func TestBugs(t *testing.T) {
@@ -53,8 +60,9 @@ func TestBugs(t *testing.T) {
 	assert.Nil(t, err)
 
 	for i, v := range bugs {
+		msg := fmt.Sprintf("%s -> %s", v.name, v.matchCanonical)
 		assert.Equal(t, verif[i].BestResult.MatchedCanonicalSimple, v.matchCanonical)
-		assert.Equal(t, verif[i].MatchType, v.matchType)
+		assert.Equal(t, verif[i].MatchType, v.matchType, msg)
 	}
 }
 

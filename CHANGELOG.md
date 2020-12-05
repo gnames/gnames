@@ -2,8 +2,33 @@
 
 ## Unreleased
 
-- Add [#34]: Add UUIDv5 library to generate IDs for globalnames.org
-- Fix [#32]: Set false positives from gnmatcher as NoMatch
+- Add [#47]: Add isOutlinkReady field for DataSources.
+- Add [#45]: Tidy up DataSource output.
+
+## [v0.1.2]
+
+- Add web service at `https://verifier.globalnames.org`
+- Add dockerhub for releases
+
+## [v0.1.1]
+
+- Add compaibility to most recent gnlib
+
+## [v0.1.0]
+
+- Add [#42]: improve architecture, add OpenAPI.
+- Add [#41]: make compatible with gnmatcher v0.3.6.
+- Add [#40]: Refactor entities, move some of them to gnlib.
+
+## [v0.0.4]
+
+- Add [#35]: Give higher priority for authors score.
+- Add [#34]: Add UUIDv5 library to generate IDs for globalnames.org.
+- Fix [#38]: PartialExact instead of Fuzzy matchtype for
+             'Acacia vestita may'.
+- Fix [#36]: 'edit distance' score for fuzzy matches.
+- Fix [#33]: Process unparseable accepted names.
+- Fix [#32]: Set false positives from gnmatcher as NoMatch.
 
 ## [v0.0.3]
 
@@ -36,10 +61,39 @@
 
 This document follows [changelog guidelines]
 
+[v0.1.3]: https://github.com/gnames/gnfinder/compare/v0.1.2...v0.1.3
+[v0.1.2]: https://github.com/gnames/gnfinder/compare/v0.1.1...v0.1.2
+[v0.1.1]: https://github.com/gnames/gnfinder/compare/v0.1.0...v0.1.1
+[v0.1.0]: https://github.com/gnames/gnfinder/compare/v0.0.4...v0.1.0
+[v0.0.4]: https://github.com/gnames/gnfinder/compare/v0.0.3...v0.0.4
 [v0.0.3]: https://github.com/gnames/gnfinder/compare/v0.0.2...v0.0.3
 [v0.0.2]: https://github.com/gnames/gnfinder/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.1
 
+[#54]: https://github.com/gnames/gnames/issues/54
+[#53]: https://github.com/gnames/gnames/issues/53
+[#52]: https://github.com/gnames/gnames/issues/52
+[#51]: https://github.com/gnames/gnames/issues/51
+[#50]: https://github.com/gnames/gnames/issues/50
+[#49]: https://github.com/gnames/gnames/issues/49
+[#48]: https://github.com/gnames/gnames/issues/48
+[#47]: https://github.com/gnames/gnames/issues/47
+[#46]: https://github.com/gnames/gnames/issues/46
+[#45]: https://github.com/gnames/gnames/issues/45
+[#44]: https://github.com/gnames/gnames/issues/44
+[#43]: https://github.com/gnames/gnames/issues/43
+[#42]: https://github.com/gnames/gnames/issues/42
+[#41]: https://github.com/gnames/gnames/issues/41
+[#40]: https://github.com/gnames/gnames/issues/40
+[#39]: https://github.com/gnames/gnames/issues/39
+[#38]: https://github.com/gnames/gnames/issues/38
+[#37]: https://github.com/gnames/gnames/issues/37
+[#36]: https://github.com/gnames/gnames/issues/36
+[#35]: https://github.com/gnames/gnames/issues/35
+[#34]: https://github.com/gnames/gnames/issues/34
+[#33]: https://github.com/gnames/gnames/issues/33
+[#32]: https://github.com/gnames/gnames/issues/32
+[#31]: https://github.com/gnames/gnames/issues/31
 [#30]: https://github.com/gnames/gnames/issues/30
 [#29]: https://github.com/gnames/gnames/issues/29
 [#28]: https://github.com/gnames/gnames/issues/28

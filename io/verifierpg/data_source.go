@@ -13,38 +13,40 @@ import (
 )
 
 type dataSource struct {
-	ID            int
-	UUID          string
-	Title         string
-	TitleShort    string
-	Version       string
-	RevisionDate  string
-	DOI           string
-	Citation      string
-	Authors       string
-	Description   string
-	WebsiteURL    string
-	IsCurated     bool
-	IsAutoCurated bool
-	RecordCount   int
-	UpdatedAt     time.Time
+	ID             int
+	UUID           string
+	Title          string
+	TitleShort     string
+	Version        string
+	RevisionDate   string
+	DOI            string
+	Citation       string
+	Authors        string
+	Description    string
+	WebsiteURL     string
+	IsOutlinkReady bool
+	IsCurated      bool
+	IsAutoCurated  bool
+	RecordCount    int
+	UpdatedAt      time.Time
 }
 
 func (ds dataSource) convert() vlib.DataSource {
 	res := vlib.DataSource{
-		ID:           ds.ID,
-		UUID:         "",
-		Title:        ds.Title,
-		TitleShort:   ds.TitleShort,
-		Version:      ds.Version,
-		RevisionDate: ds.RevisionDate,
-		DOI:          ds.DOI,
-		Citation:     ds.Citation,
-		Authors:      ds.Authors,
-		WebsiteURL:   ds.WebsiteURL,
-		Description:  ds.Description,
-		RecordCount:  ds.RecordCount,
-		UpdatedAt:    ds.UpdatedAt.Format("2006-01-02"),
+		ID:             ds.ID,
+		UUID:           "",
+		Title:          ds.Title,
+		TitleShort:     ds.TitleShort,
+		Version:        ds.Version,
+		RevisionDate:   ds.RevisionDate,
+		DOI:            ds.DOI,
+		Citation:       ds.Citation,
+		Authors:        ds.Authors,
+		WebsiteURL:     ds.WebsiteURL,
+		IsOutlinkReady: ds.IsOutlinkReady,
+		Description:    ds.Description,
+		RecordCount:    ds.RecordCount,
+		UpdatedAt:      ds.UpdatedAt.Format("2006-01-02"),
 	}
 	if ds.UUID != uuid.Nil.String() {
 		res.UUID = ds.UUID
@@ -61,7 +63,7 @@ func (ds dataSource) convert() vlib.DataSource {
 
 var dataSourcesQ = `
 SELECT id, uuid, title, title_short, version, revision_date,
-    doi, citation, authors, description, website_url,
+    doi, citation, authors, description, website_url, is_outlink_ready,
     is_curated, is_auto_curated, record_count, updated_at
   FROM data_sources`
 

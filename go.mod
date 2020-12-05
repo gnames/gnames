@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/georgysavva/scany v0.2.5
-	github.com/gnames/gnlib v0.1.0
+	github.com/gnames/gnlib v0.1.2
 	github.com/gnames/gnmatcher v0.4.0
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/jinzhu/gorm v1.9.16
@@ -17,5 +17,3 @@ require (
 	github.com/stretchr/testify v1.6.1
 	gitlab.com/gogna/gnparser v0.14.2
 )
-
-replace github.com/gnames/gnlib => ../gnlib
