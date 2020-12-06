@@ -1,5 +1,8 @@
 # gnames
 
+[![API](https://img.shields.io/badge/OpenAPI3-1.0.0-89bf04)](https://app.swaggerhub.com/apis-docs/dimus/gnames/1.0.0)
+[![GoDoc](https://godoc.org/github.com/gnames/gnames?status.svg)](https://pkg.go.dev/github.com/gnames/gnames)
+
 The goal of the ``gnames`` project is to provide accurate and fast verification
 of scientific names in unlimited quantities. The verification should be fast
 (at least 1000 names per second) and include exact and fuzzy matching to data
