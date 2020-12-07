@@ -92,8 +92,8 @@ github.com/georgysavva/scany v0.2.5/go.mod h1:bcxPhzeQFQqAUmjlZVwTGlu6AnWFSOiHpa
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gnames/gnlib v0.0.3/go.mod h1:k7Wsdx6zTzyhbxH2JcoCVFvgOQzA4iwehRxa8eEOfF8=
 github.com/gnames/gnlib v0.1.0/go.mod h1:eCtWvSi5VtmegqAjba9Td84X5yUbnKBlssHqxHhrGew=
-github.com/gnames/gnlib v0.1.2 h1:3bYZKYyTO0WIJUYJkZnDVvsKy+yAOKGvJAU5FwsBoI4=
-github.com/gnames/gnlib v0.1.2/go.mod h1:eCtWvSi5VtmegqAjba9Td84X5yUbnKBlssHqxHhrGew=
+github.com/gnames/gnlib v0.1.4 h1:hk8iDsbDE7MdqnVOnUd4YOdP44+8grT+qcVMoZRuSHM=
+github.com/gnames/gnlib v0.1.4/go.mod h1:eCtWvSi5VtmegqAjba9Td84X5yUbnKBlssHqxHhrGew=
 github.com/gnames/gnmatcher v0.4.0 h1:w0M4Qws8nyWj0omfAxaOfIX06ZhGwTU2xPiTLA2QyCs=
 github.com/gnames/gnmatcher v0.4.0/go.mod h1:q4PaCNwnHy8y2arQjaQYDlkv1IvO39doxxtjrIvP2Vk=
 github.com/gnames/levenshtein v0.1.0 h1:mTQPdJn66XJW6kn9rFpojhjJOhqoYJw/n8hkW2R3txk=

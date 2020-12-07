@@ -144,6 +144,7 @@ func TestPrefDS(t *testing.T) {
 	assert.Equal(t, binom.Input, "Bubo bubo")
 	assert.NotNil(t, binom.BestResult)
 	assert.Equal(t, binom.BestResult.DataSourceID, 1)
+	assert.Contains(t, binom.BestResult.Outlink, "64b85a62c9d2db4c4b737f66d5f8789b")
 	assert.Equal(t, binom.BestResult.MatchType, vlib.Exact)
 	assert.Equal(t, binom.Curation, vlib.Curated)
 	assert.Equal(t, len(binom.PreferredResults), 3)

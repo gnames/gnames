@@ -187,10 +187,15 @@ func (dgp *verifierpg) populateMatchRecord(
 			edDistStem = mi.EditDistanceStem
 		}
 
+		var outlink string
+		if ds.OutlinkURL != "" && verifRec.OutlinkID.String != "" {
+			outlink = strings.Replace(ds.OutlinkURL, "{}", verifRec.OutlinkID.String, 1)
+		}
+
 		resData := vlib.ResultData{
 			ID:                     verifRec.RecordID.String,
 			LocalID:                verifRec.LocalID.String,
-			Outlink:                verifRec.OutlinkID.String,
+			Outlink:                outlink,
 			DataSourceID:           dsID,
 			DataSourceTitleShort:   ds.TitleShort,
 			Curation:               curation,

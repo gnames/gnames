@@ -24,6 +24,7 @@ type dataSource struct {
 	Authors        string
 	Description    string
 	WebsiteURL     string
+	OutlinkURL     string
 	IsOutlinkReady bool
 	IsCurated      bool
 	IsAutoCurated  bool
@@ -43,6 +44,7 @@ func (ds dataSource) convert() vlib.DataSource {
 		Citation:       ds.Citation,
 		Authors:        ds.Authors,
 		WebsiteURL:     ds.WebsiteURL,
+		OutlinkURL:     ds.OutlinkURL,
 		IsOutlinkReady: ds.IsOutlinkReady,
 		Description:    ds.Description,
 		RecordCount:    ds.RecordCount,
@@ -63,8 +65,8 @@ func (ds dataSource) convert() vlib.DataSource {
 
 var dataSourcesQ = `
 SELECT id, uuid, title, title_short, version, revision_date,
-    doi, citation, authors, description, website_url, is_outlink_ready,
-    is_curated, is_auto_curated, record_count, updated_at
+    doi, citation, authors, description, website_url, outlink_url,
+    is_outlink_ready, is_curated, is_auto_curated, record_count, updated_at
   FROM data_sources`
 
 func (vf verifierpg) DataSources(ids ...int) ([]*vlib.DataSource, error) {
