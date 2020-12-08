@@ -16,7 +16,7 @@ func Calculate(mr *verifier.MatchRecord) {
 			mr.Cardinality, rd.MatchedCardinality).
 			curation(rd.DataSourceID, rd.Curation).
 			auth(mr.Authors, rd.MatchedAuthors, mr.Year, rd.MatchedYear).
-			accepted(rd.ID, rd.CurrentRecordID).
+			accepted(rd.RecordID, rd.CurrentRecordID).
 			fuzzy(rd.EditDistance)
 
 		rd.Score = score.Value

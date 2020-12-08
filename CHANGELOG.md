@@ -2,7 +2,10 @@
 
 ## Unreleased
 
+## [v0.1.3]
+
 - Add [#47]: Add isOutlinkReady field for DataSources.
+- Add [#46]: Add Outlink field to results.
 - Add [#45]: Tidy up DataSource output.
 
 ## [v0.1.2]

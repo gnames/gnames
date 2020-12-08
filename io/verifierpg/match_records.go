@@ -193,7 +193,7 @@ func (dgp *verifierpg) populateMatchRecord(
 		}
 
 		resData := vlib.ResultData{
-			ID:                     verifRec.RecordID.String,
+			RecordID:               verifRec.RecordID.String,
 			LocalID:                verifRec.LocalID.String,
 			Outlink:                outlink,
 			DataSourceID:           dsID,

@@ -61,7 +61,7 @@ func TestBugs(t *testing.T) {
 
 	for i, v := range bugs {
 		msg := fmt.Sprintf("%s -> %s", v.name, v.matchCanonical)
-		assert.Equal(t, verif[i].BestResult.MatchedCanonicalSimple, v.matchCanonical)
+		assert.Equal(t, verif[i].BestResult.MatchedCanonicalSimple, v.matchCanonical, msg)
 		assert.Equal(t, verif[i].MatchType, v.matchType, msg)
 	}
 }
