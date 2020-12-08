@@ -55,6 +55,12 @@
 // 00000000_0x000000_00000000_00000000: accepted name
 // 0 - name is a synonym
 // 1 - name is currently accepted
+//
+// 00000000_00xx0000_00000000_00000000: parsing quality of a match
+// 00 - parsing failed
+// 01 - significant parsing problems
+// 10 - some parsing problems
+// 11 - clean parsing
 package score
 
 import (
@@ -185,6 +191,22 @@ func (s Score) accepted(recordID, acceptedID string) Score {
 	var i uint32 = 0
 	if acceptedID == "" || recordID == acceptedID {
 		i = 1
+	}
+	s.Value = (s.Value | uint32(i<<shift))
+	return s
+}
+
+// parsingQuality
+func (s Score) parsingQuality(quality int) Score {
+	shift := 20
+	var i uint32 = 0
+	switch quality {
+	case 3:
+		i = 0b01
+	case 2:
+		i = 0b10
+	case 1:
+		i = 0b11
 	}
 	s.Value = (s.Value | uint32(i<<shift))
 	return s

@@ -34,6 +34,7 @@ type verif struct {
 	AcceptedName        sql.NullString
 	Classification      sql.NullString
 	ClassificationRanks sql.NullString
+	ParseQuality        int
 }
 
 type matchSplit struct {
@@ -44,7 +45,7 @@ type matchSplit struct {
 var namesQ = `
   SELECT canonical_id, name, data_source_id, record_id, name_string_id,
       local_id, outlink_id, accepted_record_id, accepted_name_id,
-      accepted_name, classification, classification_ranks
+      accepted_name, classification, classification_ranks, parse_quality
     FROM verification where %s in (%s)`
 
 // MatchRecords takes matches from gnmatcher and returns back data from
@@ -217,6 +218,7 @@ func (dgp *verifierpg) populateMatchRecord(
 			EditDistance:           edDist,
 			StemEditDistance:       edDistStem,
 			MatchType:              m.MatchType,
+			ParsingQuality:         verifRec.ParseQuality,
 		}
 		mr.MatchResults = append(mr.MatchResults, &resData)
 		if i == 0 {

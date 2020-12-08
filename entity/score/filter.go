@@ -17,7 +17,8 @@ func Calculate(mr *verifier.MatchRecord) {
 			curation(rd.DataSourceID, rd.Curation).
 			auth(mr.Authors, rd.MatchedAuthors, mr.Year, rd.MatchedYear).
 			accepted(rd.RecordID, rd.CurrentRecordID).
-			fuzzy(rd.EditDistance)
+			fuzzy(rd.EditDistance).
+			parsingQuality(rd.ParsingQuality)
 
 		rd.Score = score.Value
 	}

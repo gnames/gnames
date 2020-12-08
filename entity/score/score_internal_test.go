@@ -81,6 +81,23 @@ func TestCuration(t *testing.T) {
 	}
 }
 
+func TestParserQuality(t *testing.T) {
+	testData := []struct {
+		desc    string
+		quality int
+		score   string
+	}{
+		{"no parse", 0, "00000000_00000000_00000000_00000000"},
+		{"clean", 1, "00000000_00110000_00000000_00000000"},
+		{"some problems", 2, "00000000_00100000_00000000_00000000"},
+		{"big problems", 3, "00000000_00010000_00000000_00000000"},
+	}
+	for _, v := range testData {
+		s := Score{}
+		assert.Equal(t, s.parsingQuality(v.quality).String(), v.score, v.desc)
+	}
+}
+
 func TestAuth(t *testing.T) {
 	testData := []struct {
 		desc         string

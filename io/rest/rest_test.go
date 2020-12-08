@@ -179,6 +179,29 @@ func TestBugs(t *testing.T) {
 	assert.Equal(t, len(response), len(names))
 }
 
+// NCBI used to return "Homo sapiens subsp. Denisova" as the best result
+// for "Homo sapiens" match. With #52 we introduced scoring by parsing quality
+// and it should fix the match. This test is brittle, as it depends on
+// NCBI keeping non-standard "Homo sapiens substp. Denisova" name-string.
+func TestHomoNCBI(t *testing.T) {
+	var response []vlib.Verification
+	request := vlib.VerifyParams{
+		NameStrings:      []string{"Homo sapiens"},
+		PreferredSources: []int{4},
+	}
+	req, err := encode.GNjson{}.Encode(request)
+	assert.Nil(t, err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(url+"verifications", "application/json", r)
+	assert.Nil(t, err)
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	assert.Nil(t, err)
+	err = encode.GNjson{}.Decode(respBytes, &response)
+	assert.Nil(t, err)
+	homo := response[0]
+	assert.NotContains(t, homo.PreferredResults[0].MatchedName, "Denisova")
+}
+
 func TestDataSources(t *testing.T) {
 	var response []vlib.DataSource
 	resp, err := http.Get(url + "data_sources")
