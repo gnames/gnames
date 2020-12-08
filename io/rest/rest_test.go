@@ -199,6 +199,21 @@ func TestHomoNCBI(t *testing.T) {
 	err = encode.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	homo := response[0]
+	assert.Equal(t, homo.BestResult.MatchedCanonicalSimple, "Homo sapiens")
+	assert.NotContains(t, homo.PreferredResults[0].MatchedName, "Denisova")
+}
+
+func TestGetVerifications(t *testing.T) {
+	var response []vlib.Verification
+	resp, err := http.Get(url + "verifications/Homo+sapiens?pref_sources=4")
+	assert.Nil(t, err)
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	assert.Nil(t, err)
+
+	err = encode.GNjson{}.Decode(respBytes, &response)
+	assert.Nil(t, err)
+	homo := response[0]
+	assert.Equal(t, homo.BestResult.MatchedCanonicalSimple, "Homo sapiens")
 	assert.NotContains(t, homo.PreferredResults[0].MatchedName, "Denisova")
 }
 

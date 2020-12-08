@@ -3,7 +3,9 @@ package rest
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 
 	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	"github.com/labstack/echo/v4"
@@ -24,6 +26,7 @@ func Run(vs VerifierService) {
 	e.GET("/api/v1/data_sources", dataSources(vs))
 	e.GET("/api/v1/data_sources/:id", oneDataSource(vs))
 	e.POST("/api/v1/verifications", verification(vs))
+	e.GET("/api/v1/verifications/:names", getVerification(vs))
 
 	addr := fmt.Sprintf(":%d", vs.Port())
 	e.Logger.Fatal(e.Start(addr))
@@ -76,6 +79,29 @@ func verification(vs VerifierService) func(echo.Context) error {
 		var params vlib.VerifyParams
 		if err := c.Bind(&params); err != nil {
 			return err
+		}
+		verified, err := vs.Verify(params)
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, verified)
+	}
+}
+
+func getVerification(vs VerifierService) func(echo.Context) error {
+	return func(c echo.Context) error {
+		nameStr, _ := url.QueryUnescape(c.Param("names"))
+		names := strings.Split(nameStr, "|")
+		var prefs []int
+		prefsStr, _ := url.QueryUnescape(c.QueryParam("pref_sources"))
+		for _, v := range strings.Split(prefsStr, "|") {
+			if id, err := strconv.Atoi(v); err == nil {
+				prefs = append(prefs, id)
+			}
+		}
+		params := vlib.VerifyParams{
+			NameStrings:      names,
+			PreferredSources: prefs,
 		}
 		verified, err := vs.Verify(params)
 		if err != nil {
