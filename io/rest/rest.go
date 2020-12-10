@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	vlib "github.com/gnames/gnlib/domain/entity/verifier"
 	"github.com/labstack/echo/v4"
@@ -29,7 +30,12 @@ func Run(vs VerifierService) {
 	e.GET("/api/v1/verifications/:names", getVerification(vs))
 
 	addr := fmt.Sprintf(":%d", vs.Port())
-	e.Logger.Fatal(e.Start(addr))
+	s := &http.Server{
+		Addr:         addr,
+		ReadTimeout:  5 * time.Minute,
+		WriteTimeout: 5 * time.Minute,
+	}
+	e.Logger.Fatal(e.StartServer(s))
 }
 
 func ping(vs VerifierService) func(echo.Context) error {
