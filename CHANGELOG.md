@@ -2,79 +2,119 @@
 
 ## Unreleased
 
-- Add [#59] refactor score to use interface.
+## [v0.1.6] - 2020-12-15
 
-## [v0.1.5]
+### Added
 
-- Add server read/write timeout at 5 min.
+- The score entity is now based on an interface [#59].
+- Reduce impact of names with huge number of instances that slowed down
+  name verification significantly [#56].
+- Improve documentation [#54].
 
-## [v0.1.4]
+## [v0.1.5] - 2020-12-09
 
-- Add [#53]: Add GET for verificaitons for easy API querying.
-- Add [#52]: Add parse quality to score calculation.
+### Added
 
-## [v0.1.3]
+- Change server timeout for reading and writing to 5 min.
 
-- Add [#47]: Add isOutlinkReady field for DataSources.
-- Add [#46]: Add Outlink field to results.
-- Add [#45]: Tidy up DataSource output.
+## [v0.1.4] - 2020-12-08
 
-## [v0.1.2]
+### Added
 
-- Add web service at `https://verifier.globalnames.org`
-- Add dockerhub for releases
+- Introduce GET method to make ad-hoc verifications easier [#53].
+- Score calculation uses parse quality. That helps push names that parsed
+  better to the top [#52].
 
-## [v0.1.1]
+## [v0.1.3] - 2020-12-07
 
-- Add compaibility to most recent gnlib
+### Added
 
-## [v0.1.0]
+- New field `isOutlinkReady` for DataSources. This field marks data-sources
+  that are prepared to be used as outlinks (for example at BHL) [#47].
+- Outlink URLs are now provided in the results [#46].
+- DataSource output cleaned up [#45].
 
-- Add [#42]: improve architecture, add OpenAPI.
-- Add [#41]: make compatible with gnmatcher v0.3.6.
-- Add [#40]: Refactor entities, move some of them to gnlib.
+## [v0.1.2] - 2020-12-02
 
-## [v0.0.4]
+### Added
 
-- Add [#35]: Give higher priority for authors score.
-- Add [#34]: Add UUIDv5 library to generate IDs for globalnames.org.
-- Fix [#38]: PartialExact instead of Fuzzy matchtype for
-             'Acacia vestita may'.
-- Fix [#36]: 'edit distance' score for fuzzy matches.
-- Fix [#33]: Process unparseable accepted names.
-- Fix [#32]: Set false positives from gnmatcher as NoMatch.
+- Set the gnames web service at `https://verifier.globalnames.org`.
+- Set dockerhub for releases.
 
-## [v0.0.3]
+## [v0.1.1] - 2020-12-02
 
-- Add [#24]: Get reasonable preferred matches from real data.
-- Add [#28]: Get reasonable best matches from real data.
-- Add [#19]: Fuzzy matching with higher edit distance score lower.
-- Add [#20]: Currently accepted names score higher than synonyms.
-- Add [#15]: Use curation level for scoring results.
-- Add [#16]: Use authorship for scoring results.
-- Add [#17]: Use infraspecies ranks for scoring results.
-- Add [#18]: Develop a ranking system.
-- Add [#23]: Make gnmatcher access more flexible.
+### Added
 
-## [v0.0.2]
+- Update depenency to `gnlib`.
 
-- Add [#21]: Clean up architecture.
+## [v0.1.0] - 2020-11-22
 
-## [v0.0.1]
+### Added
 
-- Add [#14]: Return complete result.
-- Add [#13]: Get DataSource metadata out of API.
-- Add [#8]: Make decode/encode accept either Gob or JSON.
-- Add [#6]: Migrate from protobuf to Go.
-- Add [#5]: Incorporate gnmatcher service.
-- Add [#4]: Send names via HTTP API.
-- Add [#3]: Setup testing framework.
-- Add [#1]: Develop a draft ot output format as a protobuffer.
+- Improve architecture, add OpenAPI [#42].
+- Make the code compatible with gnmatcher v0.3.6 [#41].
+- Refactor entities, move some of them to gnlib [#40].
+
+## [v0.0.4] - 2020-10-25
+
+### Added
+
+- Increase priority for the authors score [#35].
+
+### Fixed
+
+- 'Acacia vestita may' matches with `PartialExact` to 'Acacia vestita'. Now
+  to register Fuzzy there is a limit of 5 characters in a word per edit
+  distan event [#38].
+- Score calculation uses `edit distance` correctly for fuzzy matches [#36].
+- Provide processing of unparseable accepted names [#33].
+- Set false positive from gnmatcher as NoMatch. Bloom filters create rare
+  false positives. Check every returned name for correctness using Levenshtein
+  automata [#32].
+
+## [v0.0.3] - 2020-09-16
+
+### Added
+
+- Get reasonable preferred matches from the real data [#24].
+- Reasonable BestMatch from the real data [#28].
+- Decrease score for higher edit distance fuzzy matching [#19].
+- Currently accepted names generate higher score than synonyms [#20].
+- Use curation level for scoring results [#15].
+- Use authorship for score calculation [#16].
+- Use infrapecific ranks for score calculation [#17].
+- Develop a ranking system for score calculation [#18].
+- Make gnmatcher functionality interface-based. This allows to choose to
+  use gnmatcher as a service or as a library in the future [#23].
+
+## [v0.0.2] - 2020-09-11
+
+### Added
+
+- Improve the code architecture using 'clean architecture' principles [#21].
+
+## [v0.0.1] - 2020-09-05
+
+### Added
+
+- Return complete result [#14].
+- Get DataSource metadata out of API [#13].
+- Make decode/encode accept either Gob or JSON [#8].
+- Migrate from protobuf to Go [#6].
+- Incorporate gnmatcher service [#5].
+- Send names via HTTP API [#4].
+- Setup testing framework [#3].
+- Develop a draft ot output format as a protobuffer [#1].
+
+## [v0.0.0] - 2020-05-25
+
+- Add initial commit
 
 ## Footnotes
 
 This document follows [changelog guidelines]
 
+[v0.1.6]: https://github.com/gnames/gnfinder/compare/v0.1.5...v0.1.6
 [v0.1.5]: https://github.com/gnames/gnfinder/compare/v0.1.4...v0.1.5
 [v0.1.4]: https://github.com/gnames/gnfinder/compare/v0.1.3...v0.1.4
 [v0.1.3]: https://github.com/gnames/gnfinder/compare/v0.1.2...v0.1.3
@@ -84,7 +124,8 @@ This document follows [changelog guidelines]
 [v0.0.4]: https://github.com/gnames/gnfinder/compare/v0.0.3...v0.0.4
 [v0.0.3]: https://github.com/gnames/gnfinder/compare/v0.0.2...v0.0.3
 [v0.0.2]: https://github.com/gnames/gnfinder/compare/v0.0.1...v0.0.2
-[v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.1
+[v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.0...v0.0.1
+[v0.0.0]: https://github.com/gnames/gnames/tree/v0.0.0
 
 [#60]: https://github.com/gnames/gnames/issues/60
 [#59]: https://github.com/gnames/gnames/issues/59
