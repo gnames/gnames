@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## [v0.1.5]
+
+- Add server read/write timeout at 5 min.
+
 ## [v0.1.4]
 
 - Add [#53]: Add GET for verificaitons for easy API querying.
