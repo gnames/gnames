@@ -47,15 +47,16 @@ func (g gnames) Verify(params vlib.VerifyParams) ([]*vlib.Verification, error) {
 
 	for i, v := range matches {
 		if mr, ok := matchRecords[v.ID]; ok {
-			score.Calculate(mr)
+			s := score.NewScore()
+			s.SortResults(mr)
 			item := vlib.Verification{
 				InputID:          mr.InputID,
 				Input:            mr.Input,
 				MatchType:        mr.MatchType,
 				Curation:         mr.Curation,
 				DataSourcesNum:   mr.DataSourcesNum,
-				BestResult:       score.BestResult(mr),
-				PreferredResults: score.PreferredResults(params.PreferredSources, mr),
+				BestResult:       s.BestResult(mr),
+				PreferredResults: s.PreferredResults(params.PreferredSources, mr),
 				Error:            errString,
 			}
 

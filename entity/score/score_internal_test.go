@@ -9,39 +9,22 @@ import (
 )
 
 func TestString(t *testing.T) {
-	s := Score{}
+	s := score{}
 	assert.Equal(t, s.String(), "00000000_00000000_00000000_00000000")
 }
 
-func TestAccepted(t *testing.T) {
-	testData := []struct{ desc, recordID, acceptedID, score string }{
-		{"synonym", "123", "234", "00000000_00000000_00000000_00000000"},
-		{"accepted1", "123", "123", "00000000_01000000_00000000_00000000"},
-		{"accepted2", "123", "", "00000000_01000000_00000000_00000000"},
-	}
-	for _, v := range testData {
-		s := Score{}
-		assert.Equal(t,
-			s.accepted(v.recordID, v.acceptedID).String(), v.score, v.desc)
-	}
-}
-
-func TestFuzzy(t *testing.T) {
-	testData := []struct {
-		desc     string
-		editDist int
-		score    string
-	}{
-		{"fuzzy1", 1, "00100000_00000000_00000000_00000000"},
-		{"fuzzy2", 2, "00010000_00000000_00000000_00000000"},
-		{"fuzzy3", 3, "00000000_00000000_00000000_00000000"},
-		{"fuzzy4", 13, "00000000_00000000_00000000_00000000"},
-		{"exact", 0, "00110000_00000000_00000000_00000000"},
-	}
-	for _, v := range testData {
-		s := Score{}
-		assert.Equal(t, s.fuzzy(v.editDist).String(), v.score, v.desc)
-	}
+func TestChain(t *testing.T) {
+	s := score{}.
+		rank("Aus bus var. cus", "Aus bus var. cus", 3, 3).
+		fuzzy(2).
+		curation(2, vlib.Curated).
+		auth(
+			[]string{"Hopkins", "L.", "Thomson"},
+			[]string{"Thomson", "Linn."}, 1758, 1757,
+		).
+		accepted("12", "12").
+		parsingQuality(3)
+	assert.Equal(t, s.String(), "10011010_11010000_00000000_00000000")
 }
 
 func TestRank(t *testing.T) {
@@ -58,8 +41,26 @@ func TestRank(t *testing.T) {
 		{"n/a", "Aus bus f. cus", "Aus bus cus", 3, 3, "01000000_00000000_00000000_00000000"},
 	}
 	for _, v := range testData {
-		s := Score{}
+		s := score{}
 		assert.Equal(t, s.rank(v.can1, v.can2, v.card1, v.card2).String(), v.score, v.desc)
+	}
+}
+
+func TestFuzzy(t *testing.T) {
+	testData := []struct {
+		desc     string
+		editDist int
+		score    string
+	}{
+		{"fuzzy1", 1, "00100000_00000000_00000000_00000000"},
+		{"fuzzy2", 2, "00010000_00000000_00000000_00000000"},
+		{"fuzzy3", 3, "00000000_00000000_00000000_00000000"},
+		{"fuzzy4", 13, "00000000_00000000_00000000_00000000"},
+		{"exact", 0, "00110000_00000000_00000000_00000000"},
+	}
+	for _, v := range testData {
+		s := score{}
+		assert.Equal(t, s.fuzzy(v.editDist).String(), v.score, v.desc)
 	}
 }
 
@@ -76,25 +77,8 @@ func TestCuration(t *testing.T) {
 		{"CoL", 1, vlib.Curated, "00001100_00000000_00000000_00000000"},
 	}
 	for _, v := range testData {
-		s := Score{}
+		s := score{}
 		assert.Equal(t, s.curation(v.dsID, v.curLev).String(), v.score, v.desc)
-	}
-}
-
-func TestParserQuality(t *testing.T) {
-	testData := []struct {
-		desc    string
-		quality int
-		score   string
-	}{
-		{"no parse", 0, "00000000_00000000_00000000_00000000"},
-		{"clean", 1, "00000000_00110000_00000000_00000000"},
-		{"some problems", 2, "00000000_00100000_00000000_00000000"},
-		{"big problems", 3, "00000000_00010000_00000000_00000000"},
-	}
-	for _, v := range testData {
-		s := Score{}
-		assert.Equal(t, s.parsingQuality(v.quality).String(), v.score, v.desc)
 	}
 }
 
@@ -123,8 +107,38 @@ func TestAuth(t *testing.T) {
 		{"match, bad yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1750, 1755, "00000001_10000000_00000000_00000000"},
 	}
 	for _, v := range testData {
-		s := Score{}
+		s := score{}
 		assert.Equal(t, s.auth(v.auth1, v.auth2, v.year1, v.year2).String(), v.score, v.desc)
+	}
+}
+
+func TestAccepted(t *testing.T) {
+	testData := []struct{ desc, recordID, acceptedID, score string }{
+		{"synonym", "123", "234", "00000000_00000000_00000000_00000000"},
+		{"accepted1", "123", "123", "00000000_01000000_00000000_00000000"},
+		{"accepted2", "123", "", "00000000_01000000_00000000_00000000"},
+	}
+	for _, v := range testData {
+		s := score{}
+		assert.Equal(t,
+			s.accepted(v.recordID, v.acceptedID).String(), v.score, v.desc)
+	}
+}
+
+func TestParserQuality(t *testing.T) {
+	testData := []struct {
+		desc    string
+		quality int
+		score   string
+	}{
+		{"no parse", 0, "00000000_00000000_00000000_00000000"},
+		{"clean", 1, "00000000_00110000_00000000_00000000"},
+		{"some problems", 2, "00000000_00100000_00000000_00000000"},
+		{"big problems", 3, "00000000_00010000_00000000_00000000"},
+	}
+	for _, v := range testData {
+		s := score{}
+		assert.Equal(t, s.parsingQuality(v.quality).String(), v.score, v.desc)
 	}
 }
 

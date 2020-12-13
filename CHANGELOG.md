@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add [#59] refactor score to use interface.
+
 ## [v0.1.5]
 
 - Add server read/write timeout at 5 min.
@@ -73,6 +75,7 @@
 
 This document follows [changelog guidelines]
 
+[v0.1.5]: https://github.com/gnames/gnfinder/compare/v0.1.4...v0.1.5
 [v0.1.4]: https://github.com/gnames/gnfinder/compare/v0.1.3...v0.1.4
 [v0.1.3]: https://github.com/gnames/gnfinder/compare/v0.1.2...v0.1.3
 [v0.1.2]: https://github.com/gnames/gnfinder/compare/v0.1.1...v0.1.2
@@ -83,6 +86,12 @@ This document follows [changelog guidelines]
 [v0.0.2]: https://github.com/gnames/gnfinder/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.1
 
+[#60]: https://github.com/gnames/gnames/issues/60
+[#59]: https://github.com/gnames/gnames/issues/59
+[#58]: https://github.com/gnames/gnames/issues/58
+[#57]: https://github.com/gnames/gnames/issues/57
+[#56]: https://github.com/gnames/gnames/issues/56
+[#55]: https://github.com/gnames/gnames/issues/55
 [#54]: https://github.com/gnames/gnames/issues/54
 [#53]: https://github.com/gnames/gnames/issues/53
 [#52]: https://github.com/gnames/gnames/issues/52
