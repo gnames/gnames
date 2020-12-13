@@ -92,10 +92,6 @@ github.com/georgysavva/scany v0.2.5/go.mod h1:bcxPhzeQFQqAUmjlZVwTGlu6AnWFSOiHpa
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gnames/gnlib v0.0.3/go.mod h1:k7Wsdx6zTzyhbxH2JcoCVFvgOQzA4iwehRxa8eEOfF8=
 github.com/gnames/gnlib v0.1.0/go.mod h1:eCtWvSi5VtmegqAjba9Td84X5yUbnKBlssHqxHhrGew=
-github.com/gnames/gnlib v0.1.4 h1:hk8iDsbDE7MdqnVOnUd4YOdP44+8grT+qcVMoZRuSHM=
-github.com/gnames/gnlib v0.1.4/go.mod h1:eCtWvSi5VtmegqAjba9Td84X5yUbnKBlssHqxHhrGew=
-github.com/gnames/gnlib v0.1.5 h1:2zNMxB9ebUHMZERQQMp13e9noZ2eZjjktOT2hGiLwE8=
-github.com/gnames/gnlib v0.1.5/go.mod h1:eCtWvSi5VtmegqAjba9Td84X5yUbnKBlssHqxHhrGew=
 github.com/gnames/gnlib v0.1.6 h1:3kRobEbhUTbdQY4t57SCmgDZaKjIslhctGoLgJCcZxQ=
 github.com/gnames/gnlib v0.1.6/go.mod h1:eCtWvSi5VtmegqAjba9Td84X5yUbnKBlssHqxHhrGew=
 github.com/gnames/gnmatcher v0.4.0 h1:w0M4Qws8nyWj0omfAxaOfIX06ZhGwTU2xPiTLA2QyCs=
@@ -480,6 +476,8 @@ github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
 gitlab.com/gogna/gnparser v0.14.2 h1:ID23apWqJ2JNWqCPRlBaMRy1+OPLOzEGkihrn5AWRfs=
 gitlab.com/gogna/gnparser v0.14.2/go.mod h1:2U0eWnGUcRdcfypwF6HIhBTgrARBAHBC0xt0Pn7D8HY=
+gitlab.com/gogna/gnparser v0.14.4 h1:+6Dddyv45ubOdkO/2wk0tTXQjlg+DHg+I221Kxf6Rqw=
+gitlab.com/gogna/gnparser v0.14.4/go.mod h1:2U0eWnGUcRdcfypwF6HIhBTgrARBAHBC0xt0Pn7D8HY=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=

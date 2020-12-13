@@ -14,13 +14,17 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const withLogs = true
+
 // Run starts HTTP/1 service for scientific names verification.
 func Run(vs VerifierService) {
 	log.Printf("Starting the HTTP API server on port %d.", vs.Port())
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
-	// e.Use(middleware.Logger())
+	if withLogs {
+		e.Use(middleware.Logger())
+	}
 
 	e.GET("/api/v1/ping", ping(vs))
 	e.GET("/api/v1/version", ver(vs))

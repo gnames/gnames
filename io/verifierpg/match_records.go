@@ -16,6 +16,13 @@ import (
 	"gitlab.com/gogna/gnparser/pb"
 )
 
+const (
+	// resultsThreshold is the number of returned results for a match after
+	// which we remove results with worst ParsingQuality. This step allows
+	// to get rid of names of bacterial strains, 'sec.' names etc.
+	resultsThreshold = 200
+)
+
 // MatchRecords connects result data to input name-string. Input name-string
 // is a key.
 type verif struct {
@@ -148,7 +155,27 @@ func (dgp *verifierpg) populateMatchRecord(
 	}
 
 	sources := make(map[int]struct{})
+	recsNum := len(verifRecs)
+	var discardedExample string
+	var discardedNum int
 	for i, verifRec := range verifRecs {
+		// all match types are the same, so we just take the first one to
+		// expose it one level higher.
+		if i == 0 {
+			mr.MatchType = m.MatchType
+		}
+
+		// if there is a lot of records, most likely may of them are surrogates
+		// that parser is not able to catch. Surrogates would parse with worst
+		// parsing quality (3)
+		if recsNum > resultsThreshold && verifRec.ParseQuality == 3 {
+			if discardedExample == "" {
+				discardedExample = verifRec.Name.String
+			}
+			discardedNum++
+			continue
+		}
+
 		parsed := parser.ParseToObject(verifRec.Name.String)
 		authors, year := processAuthorship(parsed.Authorship)
 
@@ -220,10 +247,13 @@ func (dgp *verifierpg) populateMatchRecord(
 			MatchType:              m.MatchType,
 			ParsingQuality:         verifRec.ParseQuality,
 		}
+
 		mr.MatchResults = append(mr.MatchResults, &resData)
-		if i == 0 {
-			mr.MatchType = m.MatchType
-		}
+
+	}
+	if discardedNum > 0 {
+		log.Infof("Skipped %d low parsing quality names (e.g. '%s')", discardedNum,
+			discardedExample)
 	}
 	mr.DataSourcesNum = len(sources)
 }
@@ -247,7 +277,10 @@ func nameQuery(db *sql.DB, canMatches []*mlib.Match) ([]*verif, error) {
 	q := fmt.Sprintf(namesQ, "canonical_id", idStr)
 	ctx := context.Background()
 	err := sqlscan.Select(ctx, db, &res, q)
-	return res, err
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func getUUIDs(matches []*mlib.Match) []string {
