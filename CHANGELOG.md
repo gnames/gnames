@@ -1,5 +1,7 @@
 # Changelog
 
+The `gnames` project follows [Semantic Versioning guidelines].
+
 ## Unreleased
 
 ## [v0.1.6] - 2020-12-15
@@ -114,16 +116,16 @@
 
 This document follows [changelog guidelines]
 
-[v0.1.6]: https://github.com/gnames/gnfinder/compare/v0.1.5...v0.1.6
-[v0.1.5]: https://github.com/gnames/gnfinder/compare/v0.1.4...v0.1.5
-[v0.1.4]: https://github.com/gnames/gnfinder/compare/v0.1.3...v0.1.4
-[v0.1.3]: https://github.com/gnames/gnfinder/compare/v0.1.2...v0.1.3
-[v0.1.2]: https://github.com/gnames/gnfinder/compare/v0.1.1...v0.1.2
-[v0.1.1]: https://github.com/gnames/gnfinder/compare/v0.1.0...v0.1.1
-[v0.1.0]: https://github.com/gnames/gnfinder/compare/v0.0.4...v0.1.0
-[v0.0.4]: https://github.com/gnames/gnfinder/compare/v0.0.3...v0.0.4
-[v0.0.3]: https://github.com/gnames/gnfinder/compare/v0.0.2...v0.0.3
-[v0.0.2]: https://github.com/gnames/gnfinder/compare/v0.0.1...v0.0.2
+[v0.1.6]: https://github.com/gnames/gnames/compare/v0.1.5...v0.1.6
+[v0.1.5]: https://github.com/gnames/gnames/compare/v0.1.4...v0.1.5
+[v0.1.4]: https://github.com/gnames/gnames/compare/v0.1.3...v0.1.4
+[v0.1.3]: https://github.com/gnames/gnames/compare/v0.1.2...v0.1.3
+[v0.1.2]: https://github.com/gnames/gnames/compare/v0.1.1...v0.1.2
+[v0.1.1]: https://github.com/gnames/gnames/compare/v0.1.0...v0.1.1
+[v0.1.0]: https://github.com/gnames/gnames/compare/v0.0.4...v0.1.0
+[v0.0.4]: https://github.com/gnames/gnames/compare/v0.0.3...v0.0.4
+[v0.0.3]: https://github.com/gnames/gnames/compare/v0.0.2...v0.0.3
+[v0.0.2]: https://github.com/gnames/gnames/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.0...v0.0.1
 [v0.0.0]: https://github.com/gnames/gnames/tree/v0.0.0
 
@@ -189,5 +191,4 @@ This document follows [changelog guidelines]
 [#1]: https://github.com/gnames/gnames/issues/1
 
 [changelog guidelines]: https://github.com/olivierlacan/keep-a-changelog
-[gnindex]: https://index.globalnames.org
-[Ruby gem gndinder]: https://github.com/GlobalNamesArchitecture/gnfinder
+[Semantic Versioning guidelines]: https://semver.org/
