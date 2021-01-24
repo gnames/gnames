@@ -18,5 +18,5 @@ type Verifier interface {
 	// MatchRecords function returns unsorted records corresponding to Input
 	// matches.  Matches contain an input name-string, and strings that matched
 	// that input.
-	MatchRecords(matches []*mlib.Match) (map[string]*MatchRecord, error)
+	MatchRecords(matches []mlib.Match) (map[string]*MatchRecord, error)
 }

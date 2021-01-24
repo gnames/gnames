@@ -4,6 +4,12 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.1.7] - 2021-01-24
+
+### Added
+
+- Update gnparser to v1.0.4 [#62]
+
 ## [v0.1.6] - 2020-12-15
 
 ### Added
@@ -116,6 +122,7 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.1.7]: https://github.com/gnames/gnames/compare/v0.1.6...v0.1.7
 [v0.1.6]: https://github.com/gnames/gnames/compare/v0.1.5...v0.1.6
 [v0.1.5]: https://github.com/gnames/gnames/compare/v0.1.4...v0.1.5
 [v0.1.4]: https://github.com/gnames/gnames/compare/v0.1.3...v0.1.4
@@ -129,6 +136,16 @@ This document follows [changelog guidelines]
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.0...v0.0.1
 [v0.0.0]: https://github.com/gnames/gnames/tree/v0.0.0
 
+[#70]: https://github.com/gnames/gnames/issues/70
+[#69]: https://github.com/gnames/gnames/issues/69
+[#68]: https://github.com/gnames/gnames/issues/68
+[#67]: https://github.com/gnames/gnames/issues/67
+[#66]: https://github.com/gnames/gnames/issues/66
+[#65]: https://github.com/gnames/gnames/issues/65
+[#64]: https://github.com/gnames/gnames/issues/64
+[#63]: https://github.com/gnames/gnames/issues/63
+[#62]: https://github.com/gnames/gnames/issues/62
+[#61]: https://github.com/gnames/gnames/issues/61
 [#60]: https://github.com/gnames/gnames/issues/60
 [#59]: https://github.com/gnames/gnames/issues/59
 [#58]: https://github.com/gnames/gnames/issues/58

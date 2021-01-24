@@ -11,9 +11,10 @@ import (
 	"github.com/gnames/gnames/entity/verifier"
 	mlib "github.com/gnames/gnlib/domain/entity/matcher"
 	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	"github.com/gnames/gnparser"
+	gnpcfg "github.com/gnames/gnparser/config"
+	"github.com/gnames/gnparser/entity/parsed"
 	log "github.com/sirupsen/logrus"
-	"gitlab.com/gogna/gnparser"
-	"gitlab.com/gogna/gnparser/pb"
 )
 
 const (
@@ -57,8 +58,9 @@ var namesQ = `
 
 // MatchRecords takes matches from gnmatcher and returns back data from
 // the database that organizes data from database into matched records.
-func (dgp verifierpg) MatchRecords(matches []*mlib.Match) (map[string]*verifier.MatchRecord, error) {
-	parser := gnparser.NewGNparser()
+func (dgp verifierpg) MatchRecords(matches []mlib.Match) (map[string]*verifier.MatchRecord, error) {
+	cfg := gnpcfg.New(gnpcfg.OptWithDetails(true))
+	parser := gnparser.New(cfg)
 	res := make(map[string]*verifier.MatchRecord)
 	splitMatches := partitionMatches(matches)
 
@@ -88,18 +90,18 @@ func (dgp verifierpg) produceResultData(
 
 	verifMap := getVerifMap(v)
 	for _, match := range ms.canonical {
-		parsed := parser.ParseToObject(match.Name)
-		if !parsed.Parsed {
+		prsd := parser.ParseName(match.Name)
+		if !prsd.Parsed {
 			log.Fatalf("Cannot parse input '%s'. Should never happen at this point.", match.Name)
 		}
-		authors, year := processAuthorship(parsed.Authorship)
+		authors, year := processAuthorship(prsd.Authorship)
 
 		mr := verifier.MatchRecord{
 			InputID:         match.ID,
 			Input:           match.Name,
-			Cardinality:     int(parsed.Cardinality),
-			CanonicalSimple: parsed.Canonical.GetSimple(),
-			CanonicalFull:   parsed.Canonical.GetFull(),
+			Cardinality:     int(prsd.Cardinality),
+			CanonicalSimple: prsd.Canonical.Simple,
+			CanonicalFull:   prsd.Canonical.Full,
 			Authors:         authors,
 			Year:            year,
 			MatchType:       match.MatchType,
@@ -113,29 +115,24 @@ func (dgp verifierpg) produceResultData(
 	return mrs
 }
 
-func processAuthorship(au *pb.Authorship) ([]string, int) {
+func processAuthorship(au *parsed.Authorship) ([]string, int) {
 	authors := make([]string, 0, 2)
 	var year int
 	if au == nil {
 		return authors, year
 	}
 
-	authors = au.AllAuthors
+	authors = au.Authors
 
-	if au.Original != nil && au.Original.Year != "" {
-		yr, err := strconv.Atoi(au.Original.Year)
-		if err == nil && !au.Original.ApproximateYear {
-			year = yr
-		}
+	year, err := strconv.Atoi(au.Year)
+	if err == nil && !au.Original.Year.IsApproximate {
+		return authors, year
 	}
-	if au.Combination != nil && au.Combination.Year != "" {
-		if year > 0 {
-			return authors, 0
-		}
 
-		yr, err := strconv.Atoi(au.Original.Year)
-		if err == nil && !au.Original.ApproximateYear {
-			year = yr
+	if au.Combination != nil && au.Combination.Year != nil {
+		year, _ = strconv.Atoi(au.Combination.Year.Value)
+		if au.Combination.Year.IsApproximate {
+			year = 0
 		}
 	}
 	return authors, year
@@ -165,10 +162,10 @@ func (dgp *verifierpg) populateMatchRecord(
 			mr.MatchType = m.MatchType
 		}
 
-		// if there is a lot of records, most likely may of them are surrogates
+		// if there is a lot of records, most likely many of them are surrogates
 		// that parser is not able to catch. Surrogates would parse with worst
-		// parsing quality (3)
-		if recsNum > resultsThreshold && verifRec.ParseQuality == 3 {
+		// parsing quality (4)
+		if recsNum > resultsThreshold && verifRec.ParseQuality == 4 {
 			if discardedExample == "" {
 				discardedExample = verifRec.Name.String
 			}
@@ -176,21 +173,21 @@ func (dgp *verifierpg) populateMatchRecord(
 			continue
 		}
 
-		parsed := parser.ParseToObject(verifRec.Name.String)
-		authors, year := processAuthorship(parsed.Authorship)
+		prsd := parser.ParseName(verifRec.Name.String)
+		authors, year := processAuthorship(prsd.Authorship)
 
 		currentRecordID := verifRec.RecordID.String
 		currentName := verifRec.Name.String
-		parsedCurrent := parsed
+		prsdCurrent := prsd
 		currentCan := ""
 		currentCanFull := ""
 		if verifRec.AcceptedRecordID.Valid {
 			currentRecordID = verifRec.AcceptedRecordID.String
 			currentName = verifRec.AcceptedName.String
-			parsedCurrent = parser.ParseToObject(currentName)
-			if parsedCurrent.Parsed {
-				currentCan = parsedCurrent.Canonical.Simple
-				currentCanFull = parsedCurrent.Canonical.Full
+			prsdCurrent = parser.ParseName(currentName)
+			if prsdCurrent.Parsed {
+				currentCan = prsdCurrent.Canonical.Simple
+				currentCanFull = prsdCurrent.Canonical.Full
 			}
 		}
 
@@ -205,8 +202,8 @@ func (dgp *verifierpg) populateMatchRecord(
 
 		var dsID, matchCard, currCard, edDist, edDistStem int
 		if m.MatchType != vlib.NoMatch {
-			matchedCardinality := int(parsed.Cardinality)
-			currentCardinality := int(parsedCurrent.Cardinality)
+			matchedCardinality := int(prsd.Cardinality)
+			currentCardinality := int(prsdCurrent.Cardinality)
 
 			dsID = verifRec.DataSourceID
 			matchCard = matchedCardinality
@@ -230,8 +227,8 @@ func (dgp *verifierpg) populateMatchRecord(
 			EntryDate:              ds.UpdatedAt,
 			MatchedName:            verifRec.Name.String,
 			MatchedCardinality:     matchCard,
-			MatchedCanonicalSimple: parsed.Canonical.Simple,
-			MatchedCanonicalFull:   parsed.Canonical.Full,
+			MatchedCanonicalSimple: prsd.Canonical.Simple,
+			MatchedCanonicalFull:   prsd.Canonical.Full,
 			MatchedAuthors:         authors,
 			MatchedYear:            year,
 			CurrentRecordID:        currentRecordID,
@@ -302,17 +299,17 @@ func getUUIDs(matches []*mlib.Match) []string {
 	return res
 }
 
-func partitionMatches(matches []*mlib.Match) matchSplit {
+func partitionMatches(matches []mlib.Match) matchSplit {
 	ms := matchSplit{
 		noMatch:   make([]*mlib.Match, 0, len(matches)),
 		canonical: make([]*mlib.Match, 0, len(matches)),
 	}
-	for _, v := range matches {
+	for i := range matches {
 		// TODO: handle v.VirusMatch case too.
-		if v.MatchType == vlib.NoMatch || v.VirusMatch {
-			ms.noMatch = append(ms.noMatch, v)
+		if matches[i].MatchType == vlib.NoMatch || matches[i].VirusMatch {
+			ms.noMatch = append(ms.noMatch, &matches[i])
 		} else {
-			ms.canonical = append(ms.canonical, v)
+			ms.canonical = append(ms.canonical, &matches[i])
 		}
 	}
 	return ms

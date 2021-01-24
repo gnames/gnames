@@ -40,8 +40,8 @@ func (mr matcherREST) GetVersion() gn.Version {
 	return response
 }
 
-func (mr matcherREST) MatchNames(names []string) []*mlib.Match {
-	var response []*mlib.Match
+func (mr matcherREST) MatchNames(names []string) []mlib.Match {
+	var response []mlib.Match
 	req, err := mr.enc.Encode(names)
 	if err != nil {
 		log.Warnf("Cannot encode name-strings: %s.", err)

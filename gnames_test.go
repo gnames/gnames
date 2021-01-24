@@ -34,7 +34,7 @@ func (m mockVerifier) DataSources(ids ...int) ([]*vlib.DataSource, error) {
 	return res, nil
 }
 
-func (m mockVerifier) MatchRecords(matches []*mlib.Match) (map[string]*verifier.MatchRecord, error) {
+func (m mockVerifier) MatchRecords(matches []mlib.Match) (map[string]*verifier.MatchRecord, error) {
 	var res map[string]*verifier.MatchRecord
 	return res, nil
 }
