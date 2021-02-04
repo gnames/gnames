@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/georgysavva/scany/sqlscan"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gofrs/uuid"
 )
 

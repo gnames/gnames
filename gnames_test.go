@@ -5,9 +5,9 @@ import (
 
 	"github.com/gnames/gnames"
 	"github.com/gnames/gnames/config"
-	"github.com/gnames/gnames/entity/verifier"
-	mlib "github.com/gnames/gnlib/domain/entity/matcher"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	"github.com/gnames/gnames/ent/verifier"
+	mlib "github.com/gnames/gnlib/ent/matcher"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
 

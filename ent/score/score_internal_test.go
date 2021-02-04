@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -29,7 +29,7 @@ import (
 
 	"github.com/gnames/gnames"
 	gncnf "github.com/gnames/gnames/config"
-	"github.com/gnames/gnlib/sys"
+	"github.com/gnames/gnsys"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -209,7 +209,7 @@ func showVersionFlag(cmd *cobra.Command) bool {
 
 // touchConfigFile checks if config file exists, and if not, it gets created.
 func touchConfigFile(configPath string, configFile string) {
-	if sys.FileExists(configPath) {
+	if ok, err := gnsys.FileExists(configPath); ok && err == nil {
 		return
 	}
 
@@ -219,7 +219,7 @@ func touchConfigFile(configPath string, configFile string) {
 
 // createConfig creates config file.
 func createConfig(path string, file string) {
-	err := sys.MakeDir(filepath.Dir(path))
+	err := gnsys.MakeDir(filepath.Dir(path))
 	if err != nil {
 		log.Fatalf("Cannot create dir %s: %s.", path, err)
 	}

@@ -1,7 +1,7 @@
 package verifier
 
 import (
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 
 // MatchRecord contains information necessary for generating final

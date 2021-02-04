@@ -4,16 +4,17 @@ import (
 	"testing"
 
 	"github.com/gnames/gnames/config"
-	"github.com/gnames/gnlib/sys"
+	"github.com/gnames/gnsys"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNew(t *testing.T) {
 	cnf := config.NewConfig()
+	workDir, _ := gnsys.ConvertTilda("~/.local/share/gnames")
 	deflt := config.Config{
 		GNport:      8888,
-		WorkDir:     sys.ConvertTilda("~/.local/share/gnames"),
+		WorkDir:     workDir,
 		JobsNum:     8,
 		MaxEditDist: 1,
 		PgHost:      "localhost",
@@ -29,9 +30,10 @@ func TestNew(t *testing.T) {
 func TestNewOpts(t *testing.T) {
 	opts := opts()
 	cnf := config.NewConfig(opts...)
+	workDir, _ := gnsys.ConvertTilda("~/.local/share/gnames")
 	updt := config.Config{
 		GNport:      8888,
-		WorkDir:     sys.ConvertTilda("~/.local/share/gnames"),
+		WorkDir:     workDir,
 		JobsNum:     16,
 		MaxEditDist: 2,
 		PgHost:      "mypg",

@@ -8,12 +8,11 @@ import (
 	"strings"
 
 	"github.com/georgysavva/scany/sqlscan"
-	"github.com/gnames/gnames/entity/verifier"
-	mlib "github.com/gnames/gnlib/domain/entity/matcher"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	"github.com/gnames/gnames/ent/verifier"
+	mlib "github.com/gnames/gnlib/ent/matcher"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser"
-	gnpcfg "github.com/gnames/gnparser/config"
-	"github.com/gnames/gnparser/entity/parsed"
+	"github.com/gnames/gnparser/ent/parsed"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -59,7 +58,7 @@ var namesQ = `
 // MatchRecords takes matches from gnmatcher and returns back data from
 // the database that organizes data from database into matched records.
 func (dgp verifierpg) MatchRecords(matches []mlib.Match) (map[string]*verifier.MatchRecord, error) {
-	cfg := gnpcfg.New(gnpcfg.OptWithDetails(true))
+	cfg := gnparser.NewConfig(gnparser.OptWithDetails(true))
 	parser := gnparser.New(cfg)
 	res := make(map[string]*verifier.MatchRecord)
 	splitMatches := partitionMatches(matches)

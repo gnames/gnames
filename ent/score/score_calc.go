@@ -3,7 +3,7 @@ package score
 import (
 	"strings"
 
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 
 // score calculates and stores the score of a match.

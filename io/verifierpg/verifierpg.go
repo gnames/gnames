@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/gnames/gnames/config"
-	"github.com/gnames/gnames/entity/verifier"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	"github.com/gnames/gnames/ent/verifier"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 	log "github.com/sirupsen/logrus"
 
 	// postgres driver

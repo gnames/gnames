@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/gnames/gnlib/sys"
+	"github.com/gnames/gnsys"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,9 +25,10 @@ type Config struct {
 // NewConfig is a Config constructor that takes external options to
 // update default values to external ones.
 func NewConfig(opts ...Option) Config {
+	workDir, _ := gnsys.ConvertTilda("~/.local/share/gnames")
 	cnf := Config{
 		GNport:      8888,
-		WorkDir:     sys.ConvertTilda("~/.local/share/gnames"),
+		WorkDir:     workDir,
 		JobsNum:     8,
 		MaxEditDist: 1,
 		PgHost:      "localhost",
@@ -74,7 +75,7 @@ func OptGNPort(i int) Option {
 // OptWorkDir sets a directory for key-value stores and temporary files.
 func OptWorkDir(s string) Option {
 	return func(cnf *Config) {
-		cnf.WorkDir = sys.ConvertTilda(s)
+		cnf.WorkDir, _ = gnsys.ConvertTilda(s)
 	}
 }
 

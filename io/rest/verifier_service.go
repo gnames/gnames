@@ -2,19 +2,19 @@ package rest
 
 import (
 	"github.com/gnames/gnames"
-	"github.com/gnames/gnlib/domain/entity/gn"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
-	"github.com/gnames/gnlib/encode"
+	"github.com/gnames/gnlib/ent/gnvers"
+	vlib "github.com/gnames/gnlib/ent/verifier"
+	"github.com/gnames/gnfmt"
 )
 
 type verifierService struct {
 	gnames  gnames.GNames
 	port    int
-	encoder encode.Encoder
+	encoder gnfmt.Encoder
 }
 
 // NewVerifierService is a constructor for the implementation of the VerifierService interface.
-func NewVerifierService(g gnames.GNames, port int, enc encode.Encoder) VerifierService {
+func NewVerifierService(g gnames.GNames, port int, enc gnfmt.Encoder) VerifierService {
 	return verifierService{gnames: g, port: port, encoder: enc}
 }
 
@@ -24,7 +24,7 @@ func (vs verifierService) Ping() string {
 }
 
 // Version returns Version of gnames project.
-func (vs verifierService) GetVersion() gn.Version {
+func (vs verifierService) GetVersion() gnvers.Version {
 	return vs.gnames.GetVersion()
 }
 

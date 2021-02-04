@@ -2,11 +2,11 @@ package gnames
 
 import (
 	"github.com/gnames/gnames/config"
-	"github.com/gnames/gnames/entity/score"
-	"github.com/gnames/gnames/entity/verifier"
+	"github.com/gnames/gnames/ent/score"
+	"github.com/gnames/gnames/ent/verifier"
 	"github.com/gnames/gnames/io/matcher"
-	"github.com/gnames/gnlib/domain/entity/gn"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	"github.com/gnames/gnlib/ent/gnvers"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnmatcher"
 	log "github.com/sirupsen/logrus"
 )
@@ -14,7 +14,7 @@ import (
 type gnames struct {
 	cfg     config.Config
 	vf      verifier.Verifier
-	matcher gnmatcher.GNMatcher
+	matcher gnmatcher.GNmatcher
 }
 
 // NewGNames is a constructor that returns implmentation of GNames interface.
@@ -22,12 +22,12 @@ func NewGNames(cnf config.Config, vf verifier.Verifier) GNames {
 	return gnames{
 		cfg:     cnf,
 		vf:      vf,
-		matcher: matcher.NewGNMatcher(cnf.MatcherURL),
+		matcher: matcher.NewGNmatcher(cnf.MatcherURL),
 	}
 }
 
-func (g gnames) GetVersion() gn.Version {
-	return gn.Version{
+func (g gnames) GetVersion() gnvers.Version {
+	return gnvers.Version{
 		Version: Version,
 		Build:   Build,
 	}

@@ -3,9 +3,9 @@ package score_test
 import (
 	"testing"
 
-	"github.com/gnames/gnames/entity/score"
-	"github.com/gnames/gnames/entity/verifier"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	"github.com/gnames/gnames/ent/score"
+	"github.com/gnames/gnames/ent/verifier"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
 

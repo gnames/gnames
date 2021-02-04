@@ -4,8 +4,8 @@
 package verifier
 
 import (
-	mlib "github.com/gnames/gnlib/domain/entity/matcher"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	mlib "github.com/gnames/gnlib/ent/matcher"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 
 // Verifier is an interface that can be implemented by any data provider

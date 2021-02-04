@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"testing"
 
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
-	"github.com/gnames/gnlib/encode"
+	vlib "github.com/gnames/gnlib/ent/verifier"
+	"github.com/gnames/gnfmt"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,7 +47,7 @@ var bugs = []struct {
 }
 
 func TestBugs(t *testing.T) {
-	req, err := encode.GNjson{}.Encode(params())
+	req, err := gnfmt.GNjson{}.Encode(params())
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
 	resp, err := http.Post(urlTest+"verifications", "application/json", r)
@@ -56,7 +56,7 @@ func TestBugs(t *testing.T) {
 	assert.Nil(t, err)
 
 	var verif []vlib.Verification
-	err = encode.GNjson{}.Decode(respBytes, &verif)
+	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
 	assert.Nil(t, err)
 
 	for i, v := range bugs {

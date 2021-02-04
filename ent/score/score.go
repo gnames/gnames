@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/gnames/gnames/entity/verifier"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	"github.com/gnames/gnames/ent/verifier"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 
 // NewScore returns an implementation of the Score interface.

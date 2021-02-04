@@ -28,7 +28,7 @@ import (
 	gncnf "github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/io/rest"
 	"github.com/gnames/gnames/io/verifierpg"
-	"github.com/gnames/gnlib/encode"
+	"github.com/gnames/gnfmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -50,7 +50,7 @@ var restCmd = &cobra.Command{
 		port, _ := cmd.Flags().GetInt("port")
 		opts = append(opts, gncnf.OptGNPort(port))
 
-		var enc encode.Encoder = encode.GNjson{}
+		var enc gnfmt.Encoder = gnfmt.GNjson{}
 
 		cnf := gncnf.NewConfig(opts...)
 		vf := verifierpg.NewVerifier(cnf)

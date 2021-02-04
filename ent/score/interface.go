@@ -4,8 +4,8 @@ package score
 import (
 	"fmt"
 
-	"github.com/gnames/gnames/entity/verifier"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
+	"github.com/gnames/gnames/ent/verifier"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 
 // Score inteface implements methods for finding best-matching record,

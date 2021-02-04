@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/gnames/gnlib/domain/entity/gn"
-	vlib "github.com/gnames/gnlib/domain/entity/verifier"
-	"github.com/gnames/gnlib/encode"
+	"github.com/gnames/gnlib/ent/gnvers"
+	vlib "github.com/gnames/gnlib/ent/verifier"
+	"github.com/gnames/gnfmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	// log "github.com/sirupsen/logrus"
@@ -33,8 +33,8 @@ func TestVer(t *testing.T) {
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
-	enc := encode.GNjson{}
-	var response gn.Version
+	enc := gnfmt.GNjson{}
+	var response gnvers.Version
 	err = enc.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Regexp(t, `^v\d+\.\d+\.\d+`, response.Version)
@@ -50,14 +50,14 @@ func TestVerifyExact(t *testing.T) {
 		"Pisonia grandis", "Acacia vestita may",
 	}
 	request := vlib.VerifyParams{NameStrings: names}
-	req, err := encode.GNjson{}.Encode(request)
+	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
 	resp, err := http.Post(url+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
-	err = encode.GNjson{}.Decode(respBytes, &response)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Equal(t, len(response), len(names))
 
@@ -102,14 +102,14 @@ func TestFuzzy(t *testing.T) {
 		"Abras precatorius",
 	}
 	request := vlib.VerifyParams{NameStrings: names, PreferredSources: []int{1, 12, 169, 182}}
-	req, err := encode.GNjson{}.Encode(request)
+	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
 	resp, err := http.Post(url+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
-	err = encode.GNjson{}.Decode(respBytes, &response)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Equal(t, len(response), len(names))
 
@@ -128,14 +128,14 @@ func TestPrefDS(t *testing.T) {
 		"Pisonia grandis",
 	}
 	request := vlib.VerifyParams{NameStrings: names, PreferredSources: []int{1, 12, 169, 182}}
-	req, err := encode.GNjson{}.Encode(request)
+	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
 	resp, err := http.Post(url+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
-	err = encode.GNjson{}.Decode(respBytes, &response)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Equal(t, len(response), len(names))
 
@@ -167,14 +167,14 @@ func TestBugs(t *testing.T) {
 		"Abacetine",
 	}
 	request := vlib.VerifyParams{NameStrings: names}
-	req, err := encode.GNjson{}.Encode(request)
+	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
 	resp, err := http.Post(url+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
-	err = encode.GNjson{}.Decode(respBytes, &response)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Equal(t, len(response), len(names))
 }
@@ -189,14 +189,14 @@ func TestHomoNCBI(t *testing.T) {
 		NameStrings:      []string{"Homo sapiens"},
 		PreferredSources: []int{4},
 	}
-	req, err := encode.GNjson{}.Encode(request)
+	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
 	resp, err := http.Post(url+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
-	err = encode.GNjson{}.Decode(respBytes, &response)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	homo := response[0]
 	assert.Equal(t, homo.BestResult.MatchedCanonicalSimple, "Homo sapiens")
@@ -210,7 +210,7 @@ func TestGetVerifications(t *testing.T) {
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
-	err = encode.GNjson{}.Decode(respBytes, &response)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	homo := response[0]
 	assert.Equal(t, homo.BestResult.MatchedCanonicalSimple, "Homo sapiens")
@@ -224,7 +224,7 @@ func TestDataSources(t *testing.T) {
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
-	err = encode.GNjson{}.Decode(respBytes, &response)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Greater(t, len(response), 50)
 	log.Printf("%+v", response[0].ID)
@@ -239,7 +239,7 @@ func TestOneDataSource(t *testing.T) {
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
-	err = encode.GNjson{}.Decode(respBytes, &ds)
+	err = gnfmt.GNjson{}.Decode(respBytes, &ds)
 	assert.Nil(t, err)
 	assert.Equal(t, ds.Title, "Encyclopedia of Life")
 	assert.True(t, ds.IsOutlinkReady)

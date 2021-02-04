@@ -5,26 +5,26 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gnames/gnlib/domain/entity/gn"
-	mlib "github.com/gnames/gnlib/domain/entity/matcher"
-	"github.com/gnames/gnlib/encode"
+	"github.com/gnames/gnlib/ent/gnvers"
+	mlib "github.com/gnames/gnlib/ent/matcher"
+	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnmatcher"
 	log "github.com/sirupsen/logrus"
 )
 
 type matcherREST struct {
 	url string
-	enc encode.Encoder
+	enc gnfmt.Encoder
 }
 
-// NewGNMatcher creates an implementation of GNMatcher interface.
-func NewGNMatcher(url string) gnmatcher.GNMatcher {
-	return matcherREST{url: url, enc: encode.GNjson{}}
+// NewGNmatcher creates an implementation of GNmatcher interface.
+func NewGNmatcher(url string) gnmatcher.GNmatcher {
+	return matcherREST{url: url, enc: gnfmt.GNjson{}}
 }
 
-func (mr matcherREST) GetVersion() gn.Version {
+func (mr matcherREST) GetVersion() gnvers.Version {
 	var err error
-	response := gn.Version{}
+	response := gnvers.Version{}
 	resp, err := http.Get(mr.url + "version")
 	if err != nil {
 		log.Warnf("Cannot get gnmatcher version: %s.", err)
