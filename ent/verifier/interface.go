@@ -4,6 +4,8 @@
 package verifier
 
 import (
+	"context"
+
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 )
@@ -18,5 +20,5 @@ type Verifier interface {
 	// MatchRecords function returns unsorted records corresponding to Input
 	// matches.  Matches contain an input name-string, and strings that matched
 	// that input.
-	MatchRecords(matches []mlib.Match) (map[string]*MatchRecord, error)
+	MatchRecords(ctx context.Context, matches []mlib.Match) (map[string]*MatchRecord, error)
 }

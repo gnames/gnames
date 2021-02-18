@@ -1,6 +1,7 @@
 package gnames_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/gnames/gnames"
@@ -14,6 +15,7 @@ import (
 func TestVer(t *testing.T) {
 	var g gnames.GNames
 	cfg := config.NewConfig()
+	ctx := context.Background()
 	vf := mockVerifier{}
 	g = gnames.NewGNames(cfg, vf)
 	testData := []struct {
@@ -22,7 +24,7 @@ func TestVer(t *testing.T) {
 		{"Bubo bubo"},
 	}
 	for _, v := range testData {
-		_, err := g.Verify(vlib.VerifyParams{NameStrings: []string{v.name}})
+		_, err := g.Verify(ctx, vlib.VerifyParams{NameStrings: []string{v.name}})
 		assert.Nil(t, err)
 	}
 }
@@ -34,7 +36,10 @@ func (m mockVerifier) DataSources(ids ...int) ([]*vlib.DataSource, error) {
 	return res, nil
 }
 
-func (m mockVerifier) MatchRecords(matches []mlib.Match) (map[string]*verifier.MatchRecord, error) {
+func (m mockVerifier) MatchRecords(
+	ctx context.Context,
+	fmatches []mlib.Match,
+) (map[string]*verifier.MatchRecord, error) {
 	var res map[string]*verifier.MatchRecord
 	return res, nil
 }

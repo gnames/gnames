@@ -1,6 +1,8 @@
 package gnames
 
 import (
+	"context"
+
 	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/ent/score"
 	"github.com/gnames/gnames/ent/verifier"
@@ -33,14 +35,17 @@ func (g gnames) GetVersion() gnvers.Version {
 	}
 }
 
-func (g gnames) Verify(params vlib.VerifyParams) ([]*vlib.Verification, error) {
+func (g gnames) Verify(
+	ctx context.Context,
+	params vlib.VerifyParams,
+) ([]*vlib.Verification, error) {
 	log.Printf("Verifying %d name-strings.", len(params.NameStrings))
 	res := make([]*vlib.Verification, len(params.NameStrings))
 
 	matches := g.matcher.MatchNames(params.NameStrings)
 
 	var errString string
-	matchRecords, err := g.vf.MatchRecords(matches)
+	matchRecords, err := g.vf.MatchRecords(ctx, matches)
 	if err != nil {
 		errString = err.Error()
 	}

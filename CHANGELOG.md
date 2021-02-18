@@ -6,6 +6,7 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ### Added
 
+- stop processing canceled, or expired requests [#65].
 - updated dependenies to gnparser v1.0.5, gnmatcher v0.5.5.
 
 ## [v0.1.7] - 2021-01-24

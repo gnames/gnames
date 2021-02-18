@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -30,8 +32,8 @@ func Run(vs VerifierService) {
 	e.GET("/api/v1/version", ver(vs))
 	e.GET("/api/v1/data_sources", dataSources(vs))
 	e.GET("/api/v1/data_sources/:id", oneDataSource(vs))
-	e.POST("/api/v1/verifications", verification(vs))
-	e.GET("/api/v1/verifications/:names", getVerification(vs))
+	e.POST("/api/v1/verifications", verificationPOST(vs))
+	e.GET("/api/v1/verifications/:names", erificationGET(vs))
 
 	addr := fmt.Sprintf(":%d", vs.Port())
 	s := &http.Server{
@@ -84,21 +86,45 @@ func oneDataSource(vs VerifierService) func(echo.Context) error {
 	}
 }
 
-func verification(vs VerifierService) func(echo.Context) error {
+func verificationPOST(vs VerifierService) func(echo.Context) error {
 	return func(c echo.Context) error {
-		var params vlib.VerifyParams
-		if err := c.Bind(&params); err != nil {
+		ctx, cancel := getContext(c)
+		defer cancel()
+		chErr := make(chan error)
+
+		go func() {
+			defer close(chErr)
+
+			var err error
+			var verified []*vlib.Verification
+			var params vlib.VerifyParams
+
+			err = c.Bind(&params)
+
+			if err == nil {
+				verified, err = vs.Verify(ctx, params)
+			}
+
+			if err == nil {
+				err = c.JSON(http.StatusOK, verified)
+			}
+
+			chErr <- err
+		}()
+
+		select {
+		case <-ctx.Done():
+			<-chErr
+			return ctx.Err()
+		case err := <-chErr:
 			return err
+		case <-time.After(6 * time.Minute):
+			return errors.New("request took too long")
 		}
-		verified, err := vs.Verify(params)
-		if err != nil {
-			return err
-		}
-		return c.JSON(http.StatusOK, verified)
 	}
 }
 
-func getVerification(vs VerifierService) func(echo.Context) error {
+func erificationGET(vs VerifierService) func(echo.Context) error {
 	return func(c echo.Context) error {
 		nameStr, _ := url.QueryUnescape(c.Param("names"))
 		names := strings.Split(nameStr, "|")
@@ -113,10 +139,16 @@ func getVerification(vs VerifierService) func(echo.Context) error {
 			NameStrings:      names,
 			PreferredSources: prefs,
 		}
-		verified, err := vs.Verify(params)
+		verified, err := vs.Verify(context.Background(), params)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, verified)
 	}
+}
+
+func getContext(c echo.Context) (ctx context.Context, cancel func()) {
+	ctx = c.Request().Context()
+	ctx, cancel = context.WithTimeout(ctx, 5*time.Minute)
+	return ctx, cancel
 }

@@ -57,13 +57,16 @@ var namesQ = `
 
 // MatchRecords takes matches from gnmatcher and returns back data from
 // the database that organizes data from database into matched records.
-func (dgp verifierpg) MatchRecords(matches []mlib.Match) (map[string]*verifier.MatchRecord, error) {
+func (dgp verifierpg) MatchRecords(
+	ctx context.Context,
+	matches []mlib.Match,
+) (map[string]*verifier.MatchRecord, error) {
 	cfg := gnparser.NewConfig(gnparser.OptWithDetails(true))
 	parser := gnparser.New(cfg)
 	res := make(map[string]*verifier.MatchRecord)
 	splitMatches := partitionMatches(matches)
 
-	verifs, err := nameQuery(dgp.DB, splitMatches.canonical)
+	verifs, err := nameQuery(ctx, dgp.DB, splitMatches.canonical)
 	if err != nil {
 		log.Warnf("Cannot get matches data: %s", err)
 		return res, err
@@ -262,7 +265,12 @@ func getVerifMap(vs []*verif) map[string][]*verif {
 	return vm
 }
 
-func nameQuery(db *sql.DB, canMatches []*mlib.Match) ([]*verif, error) {
+func nameQuery(
+	ctx context.Context,
+	db *sql.DB,
+	canMatches []*mlib.Match,
+) ([]*verif, error) {
+
 	var res []*verif
 	if len(canMatches) == 0 {
 		return res, nil
@@ -271,7 +279,6 @@ func nameQuery(db *sql.DB, canMatches []*mlib.Match) ([]*verif, error) {
 	ids := getUUIDs(canMatches)
 	idStr := "'" + strings.Join(ids, "','") + "'"
 	q := fmt.Sprintf(namesQ, "canonical_id", idStr)
-	ctx := context.Background()
 	err := sqlscan.Select(ctx, db, &res, q)
 	if err != nil {
 		return nil, err
