@@ -4,8 +4,11 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.1.8] - 2021-03-22
+
 ### Added
 
+- update gnparser to v1.1.0
 - stop processing canceled, or expired requests [#65].
 - updated dependenies to gnparser v1.0.5, gnmatcher v0.5.5.
 
