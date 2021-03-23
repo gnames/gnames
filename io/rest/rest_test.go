@@ -2,14 +2,13 @@ package rest_test
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
 
+	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnlib/ent/gnvers"
 	vlib "github.com/gnames/gnlib/ent/verifier"
-	"github.com/gnames/gnfmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	// log "github.com/sirupsen/logrus"
@@ -43,11 +42,17 @@ func TestVer(t *testing.T) {
 func TestVerifyExact(t *testing.T) {
 	var response []vlib.Verification
 	names := []string{
-		"Not name", "Bubo bubo", "Pomatomus",
-		"Pardosa moesta", "Plantago major var major",
+		"Not name",
+		"Bubo bubo",
+		"Pomatomus",
+		"Pardosa moesta",
+		"Plantago major var major",
 		"Cytospora ribis mitovirus 2",
-		"A-shaped rods", "Alb. alba",
-		"Pisonia grandis", "Acacia vestita may",
+		"A-shaped rods",
+		"Alb. alba",
+		"Pisonia grandis",
+		"Acacia vestita may",
+		"Candidatus Aenigmarchaeum subterraneum",
 	}
 	request := vlib.VerifyParams{NameStrings: names}
 	req, err := gnfmt.GNjson{}.Encode(request)
@@ -71,8 +76,6 @@ func TestVerifyExact(t *testing.T) {
 	assert.Equal(t, bad.Error, "")
 
 	binom := response[1]
-	fmt.Printf("bubo: %+v\n", binom)
-	fmt.Printf("buboBest: %+v\n", binom.BestResult)
 	assert.Equal(t, binom.InputID, "4431a0f3-e901-519a-886f-9b97e0c99d8e")
 	assert.Equal(t, binom.Input, "Bubo bubo")
 	assert.NotNil(t, binom.BestResult)
@@ -94,6 +97,15 @@ func TestVerifyExact(t *testing.T) {
 	assert.Equal(t, partial.BestResult.DataSourceID, 1)
 	assert.Equal(t, partial.MatchType, vlib.PartialExact)
 	assert.Equal(t, partial.BestResult.CurrentCanonicalSimple, "Acacia vestita")
+
+	cand := response[10]
+	assert.Equal(t, cand.InputID, "1b406033-fc5e-5f90-b3cf-fd1e9a42e282")
+	assert.Equal(t, cand.Input, "Candidatus Aenigmarchaeum subterraneum")
+	assert.NotNil(t, cand.BestResult)
+	assert.Equal(t, cand.BestResult.DataSourceID, 179)
+	assert.Equal(t, cand.BestResult.MatchType, vlib.Exact)
+	assert.Equal(t, cand.Curation, vlib.AutoCurated)
+	assert.Equal(t, cand.Error, "")
 }
 
 func TestFuzzy(t *testing.T) {
