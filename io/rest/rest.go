@@ -33,7 +33,7 @@ func Run(vs VerifierService) {
 	e.GET("/api/v1/data_sources", dataSources(vs))
 	e.GET("/api/v1/data_sources/:id", oneDataSource(vs))
 	e.POST("/api/v1/verifications", verificationPOST(vs))
-	e.GET("/api/v1/verifications/:names", erificationGET(vs))
+	e.GET("/api/v1/verifications/:names", verificationGET(vs))
 
 	addr := fmt.Sprintf(":%d", vs.Port())
 	s := &http.Server{
@@ -124,20 +124,22 @@ func verificationPOST(vs VerifierService) func(echo.Context) error {
 	}
 }
 
-func erificationGET(vs VerifierService) func(echo.Context) error {
+func verificationGET(vs VerifierService) func(echo.Context) error {
 	return func(c echo.Context) error {
 		nameStr, _ := url.QueryUnescape(c.Param("names"))
 		names := strings.Split(nameStr, "|")
 		var prefs []int
 		prefsStr, _ := url.QueryUnescape(c.QueryParam("pref_sources"))
+		capitalize := c.QueryParam("capitalize") == "true"
 		for _, v := range strings.Split(prefsStr, "|") {
 			if id, err := strconv.Atoi(v); err == nil {
 				prefs = append(prefs, id)
 			}
 		}
 		params := vlib.VerifyParams{
-			NameStrings:      names,
-			PreferredSources: prefs,
+			NameStrings:        names,
+			PreferredSources:   prefs,
+			WithCapitalization: capitalize,
 		}
 		verified, err := vs.Verify(context.Background(), params)
 		if err != nil {

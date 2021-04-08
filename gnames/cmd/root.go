@@ -22,6 +22,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	_ "embed"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -37,30 +38,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-const configText = `# GNport is a port to the gnames service
-GNport: 8888
-
-# Path to keep working data and key-value stores
-WorkDir: ~/.local/share/gnames
-
-# Postgresql host for gnames database
-PgHost: localhost
-
-# Postgresql user
-PgUser: postgres
-
-# Postgresql password
-PgPass:
-
-# Postgresql database
-PgDB: gnames
-
-# Number of jobs for parallel tasks
-JobsNum: 4
-
-# MatcherURL is a url to a gnmatcher service.
-MatcherURL: "http://:8080"
-`
+//go:embed gnames.yaml
+var configText string
 
 var (
 	opts []gncnf.Option

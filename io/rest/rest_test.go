@@ -171,6 +171,36 @@ func TestPrefDS(t *testing.T) {
 	assert.Equal(t, len(binom.PreferredResults), 3)
 }
 
+func TestPrefCapitalize(t *testing.T) {
+	var response []vlib.Verification
+	names := []string{
+		"bubo bubo", "pomatomus",
+		"pardosa moesta", "plantago major var major",
+		"cytospora ribis mitovirus 2",
+		"pisonia grandis",
+	}
+	request := vlib.VerifyParams{NameStrings: names, WithCapitalization: true}
+	req, err := gnfmt.GNjson{}.Encode(request)
+	assert.Nil(t, err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(url+"verifications", "application/json", r)
+	assert.Nil(t, err)
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	assert.Nil(t, err)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
+	assert.Nil(t, err)
+	assert.Equal(t, len(response), len(names))
+
+	bubo := response[0]
+	assert.Equal(t, bubo.InputID, "7e4c9a7c-0e90-5d1e-96be-bbea21fcfdd3")
+	assert.Equal(t, bubo.Input, "bubo bubo")
+	assert.True(t, bubo.InputCapitalized)
+	assert.NotNil(t, bubo.BestResult)
+	assert.Equal(t, bubo.BestResult.DataSourceID, 1)
+	assert.Contains(t, bubo.BestResult.Outlink, "64b85a62c9d2db4c4b737f66d5f8789b")
+	assert.Equal(t, bubo.BestResult.MatchType, vlib.Exact)
+}
+
 func TestBugs(t *testing.T) {
 	var response []vlib.Verification
 	names := []string{

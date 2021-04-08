@@ -4,6 +4,16 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.2.0] - 2021-04-09
+
+### Added
+
+- add an option to capitalize the first letter of a
+  names-string [#67]
+- add ClassificationIDs to verification output [#61]
+- update gnparser to v0.2.0
+- update gnmatcher to v0.5.7
+
 ## [v0.1.8] - 2021-03-22
 
 ### Added

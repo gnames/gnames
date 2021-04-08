@@ -1,14 +1,15 @@
 module github.com/gnames/gnames
 
-go 1.15
+go 1.16
 
 require (
 	github.com/georgysavva/scany v0.2.7
 	github.com/gnames/gnfmt v0.1.0
-	github.com/gnames/gnlib v0.2.1
-	github.com/gnames/gnmatcher v0.5.5
-	github.com/gnames/gnparser v1.1.0
+	github.com/gnames/gnlib v0.2.2
+	github.com/gnames/gnmatcher v0.5.7
+	github.com/gnames/gnparser v1.2.0
 	github.com/gnames/gnsys v0.1.1
+	github.com/gnames/gnuuid v0.1.1
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/jinzhu/gorm v1.9.16
 	github.com/labstack/echo/v4 v4.1.17
