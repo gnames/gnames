@@ -67,7 +67,7 @@ var dataSourcesQ = `
 SELECT id, uuid, title, title_short, version, revision_date,
     doi, citation, authors, description, website_url, outlink_url,
     is_outlink_ready, is_curated, is_auto_curated, record_count, updated_at
-  FROM data_sources`
+  FROM data_sources order by id`
 
 func (vf verifierpg) DataSources(ids ...int) ([]*vlib.DataSource, error) {
 	q := dataSourcesQ
