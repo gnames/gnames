@@ -67,7 +67,7 @@ var dataSourcesQ = `
 SELECT id, uuid, title, title_short, version, revision_date,
     doi, citation, authors, description, website_url, outlink_url,
     is_outlink_ready, is_curated, is_auto_curated, record_count, updated_at
-  FROM data_sources order by id`
+  FROM data_sources`
 
 func (vf verifierpg) DataSources(ids ...int) ([]*vlib.DataSource, error) {
 	q := dataSourcesQ
@@ -79,6 +79,7 @@ func (vf verifierpg) DataSources(ids ...int) ([]*vlib.DataSource, error) {
 		idsStr := strings.Join(idsStrings, ",")
 		q = q + fmt.Sprintf(" WHERE id in (%s)", idsStr)
 	}
+	q = q + " order by id"
 	return vf.dataSourcesQuery(q)
 }
 

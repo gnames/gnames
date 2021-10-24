@@ -220,6 +220,12 @@ func (dgp *verifierpg) populateMatchRecord(
 			outlink = strings.Replace(ds.OutlinkURL, "{}", verifRec.OutlinkID.String, 1)
 		}
 
+		var matchedCanonical, matchedCanonicalFull string
+		if prsd.Parsed {
+			matchedCanonical = prsd.Canonical.Simple
+			matchedCanonicalFull = prsd.Canonical.Full
+		}
+
 		resData := vlib.ResultData{
 			RecordID:               verifRec.RecordID.String,
 			LocalID:                verifRec.LocalID.String,
@@ -230,8 +236,8 @@ func (dgp *verifierpg) populateMatchRecord(
 			EntryDate:              ds.UpdatedAt,
 			MatchedName:            verifRec.Name.String,
 			MatchedCardinality:     matchCard,
-			MatchedCanonicalSimple: prsd.Canonical.Simple,
-			MatchedCanonicalFull:   prsd.Canonical.Full,
+			MatchedCanonicalSimple: matchedCanonical,
+			MatchedCanonicalFull:   matchedCanonicalFull,
 			MatchedAuthors:         authors,
 			MatchedYear:            year,
 			CurrentRecordID:        currentRecordID,

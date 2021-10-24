@@ -89,7 +89,7 @@ func TestVerifyExact(t *testing.T) {
 	assert.Equal(t, acceptFilter.Input, "Pisonia grandis")
 	assert.Equal(t, acceptFilter.BestResult.DataSourceID, 1)
 	assert.Equal(t, acceptFilter.BestResult.MatchType, vlib.Exact)
-	assert.Equal(t, acceptFilter.BestResult.CurrentCanonicalSimple, "Pisonia grandis")
+	assert.Equal(t, acceptFilter.BestResult.CurrentCanonicalSimple, "Ceodes grandis")
 
 	partial := response[9]
 	assert.Equal(t, partial.InputID, "0f84ed48-3a57-59ac-ac1a-2e9221439fdc")
@@ -156,7 +156,7 @@ func TestPrefDS(t *testing.T) {
 	assert.Equal(t, binom.Input, "Bubo bubo")
 	assert.NotNil(t, binom.BestResult)
 	assert.Equal(t, binom.BestResult.DataSourceID, 1)
-	assert.Contains(t, binom.BestResult.Outlink, "64b85a62c9d2db4c4b737f66d5f8789b")
+	assert.Contains(t, binom.BestResult.Outlink, "NKSD")
 	assert.Equal(t, binom.BestResult.MatchType, vlib.Exact)
 	assert.Equal(t, binom.Curation, vlib.Curated)
 	assert.Equal(t, len(binom.PreferredResults), 3)
@@ -167,7 +167,7 @@ func TestPrefDS(t *testing.T) {
 	assert.Equal(t, acceptFilter.Input, "Pisonia grandis")
 	assert.Equal(t, acceptFilter.BestResult.DataSourceID, 1)
 	assert.Equal(t, acceptFilter.BestResult.MatchType, vlib.Exact)
-	assert.Equal(t, acceptFilter.BestResult.CurrentCanonicalSimple, "Pisonia grandis")
+	assert.Equal(t, acceptFilter.BestResult.CurrentCanonicalSimple, "Ceodes grandis")
 	assert.Equal(t, len(binom.PreferredResults), 3)
 }
 
@@ -197,7 +197,7 @@ func TestPrefCapitalize(t *testing.T) {
 	assert.True(t, bubo.InputCapitalized)
 	assert.NotNil(t, bubo.BestResult)
 	assert.Equal(t, bubo.BestResult.DataSourceID, 1)
-	assert.Contains(t, bubo.BestResult.Outlink, "64b85a62c9d2db4c4b737f66d5f8789b")
+	assert.Contains(t, bubo.BestResult.Outlink, "NKSD")
 	assert.Equal(t, bubo.BestResult.MatchType, vlib.Exact)
 }
 

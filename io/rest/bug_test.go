@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"testing"
 
-	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnfmt"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
 
