@@ -4,9 +4,21 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.3.1] - 2021-10-25
+
+## Fixed
+
+- remove dependency on `dgrijalva/jwt-go` which has
+  security problems.
+
+## [v0.3.0] - 2021-10-25
+
+- optional parameters for returning all matched sources,
+  all matched results [#69]
+
 ## [v0.2.2] - 2021-10-24
 
-### Added
+### Fixed
 
 - data sources show correctly [#68]
 
@@ -152,6 +164,9 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.3.1]: https://github.com/gnames/gnames/compare/v0.3.0...v0.3.1
+[v0.3.0]: https://github.com/gnames/gnames/compare/v0.2.2...v0.3.0
+[v0.2.2]: https://github.com/gnames/gnames/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/gnames/gnames/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/gnames/gnames/compare/v0.1.8...v0.2.0
 [v0.1.8]: https://github.com/gnames/gnames/compare/v0.1.7...v0.1.8
@@ -169,6 +184,16 @@ This document follows [changelog guidelines]
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.0...v0.0.1
 [v0.0.0]: https://github.com/gnames/gnames/tree/v0.0.0
 
+[#80]: https://github.com/gnames/gnames/issues/80
+[#79]: https://github.com/gnames/gnames/issues/79
+[#78]: https://github.com/gnames/gnames/issues/78
+[#77]: https://github.com/gnames/gnames/issues/77
+[#76]: https://github.com/gnames/gnames/issues/76
+[#75]: https://github.com/gnames/gnames/issues/75
+[#74]: https://github.com/gnames/gnames/issues/74
+[#73]: https://github.com/gnames/gnames/issues/73
+[#72]: https://github.com/gnames/gnames/issues/72
+[#71]: https://github.com/gnames/gnames/issues/71
 [#70]: https://github.com/gnames/gnames/issues/70
 [#69]: https://github.com/gnames/gnames/issues/69
 [#68]: https://github.com/gnames/gnames/issues/68
