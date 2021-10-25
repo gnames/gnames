@@ -80,7 +80,7 @@ func oneDataSource(vs VerifierService) func(echo.Context) error {
 			return err
 		}
 		if len(dataSources) == 0 {
-			return fmt.Errorf("Cannot find DataSource for id '%s'", idStr)
+			return fmt.Errorf("cannot find DataSource for id '%s'", idStr)
 		}
 		return c.JSON(http.StatusOK, dataSources[0])
 	}

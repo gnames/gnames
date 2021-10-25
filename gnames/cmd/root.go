@@ -67,9 +67,9 @@ var rootCmd = &cobra.Command{
 	Long: `Provides reconciliation and resolution services for verification of
 scientific names.
 
-The app has 3 interfaces: graphical web-based user-interface, REST API and
-gRPC API.`,
-	Run: func(cmd *cobra.Command, args []string) {
+The app has provides REST API for GNverifier and stand-alone use.`,
+
+	Run: func(cmd *cobra.Command, _ []string) {
 		if showVersionFlag(cmd) {
 			os.Exit(0)
 		}

@@ -201,6 +201,81 @@ func TestPrefCapitalize(t *testing.T) {
 	assert.Equal(t, bubo.BestResult.MatchType, vlib.Exact)
 }
 
+func TestAllSources(t *testing.T) {
+  var response []vlib.Verification
+  names := []string {
+    "Bubo bubo",
+  }
+	request := vlib.VerifyParams{NameStrings: names, PreferredSources: []int{0}}
+	req, err := gnfmt.GNjson{}.Encode(request)
+	assert.Nil(t, err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(url+"verifications", "application/json", r)
+	assert.Nil(t, err)
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	assert.Nil(t, err)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
+	assert.Nil(t, err)
+	assert.Equal(t, len(response), len(names))
+  bubo :=response[0]
+	assert.Equal(t, bubo.InputID, "4431a0f3-e901-519a-886f-9b97e0c99d8e")
+	assert.Equal(t, bubo.Input, "Bubo bubo")
+	assert.False(t, bubo.InputCapitalized)
+	assert.NotNil(t, bubo.BestResult)
+  assert.Equal(t, len(bubo.PreferredResults), bubo.DataSourcesNum)
+  assert.True(t, bubo.DataSourcesNum > 20)
+}
+
+func TestAllMatches(t *testing.T) {
+  var response []vlib.Verification
+  names := []string {
+    "Solanum tuberosum",
+  }
+	request := vlib.VerifyParams{
+    NameStrings: names,
+    PreferredSources: []int{1},
+    WithAllMatches: true,
+  }
+	req, err := gnfmt.GNjson{}.Encode(request)
+	assert.Nil(t, err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(url+"verifications", "application/json", r)
+	assert.Nil(t, err)
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	assert.Nil(t, err)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
+	assert.Nil(t, err)
+	assert.Equal(t, len(response), len(names))
+  solanum :=response[0]
+	assert.NotNil(t, solanum.BestResult)
+  assert.Greater(t, len(solanum.PreferredResults), 1)
+}
+
+func TestAll(t *testing.T) {
+  var response []vlib.Verification
+  names := []string {
+    "Solanum tuberosum",
+  }
+	request := vlib.VerifyParams{
+    NameStrings: names,
+    PreferredSources: []int{0},
+    WithAllMatches: true,
+  }
+	req, err := gnfmt.GNjson{}.Encode(request)
+	assert.Nil(t, err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(url+"verifications", "application/json", r)
+	assert.Nil(t, err)
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	assert.Nil(t, err)
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
+	assert.Nil(t, err)
+	assert.Equal(t, len(response), len(names))
+  solanum :=response[0]
+	assert.NotNil(t, solanum.BestResult)
+  assert.Greater(t, len(solanum.PreferredResults), 20)
+}
+
 func TestBugs(t *testing.T) {
 	var response []vlib.Verification
 	names := []string{

@@ -69,30 +69,35 @@ func (s score) BestResult(mr *verifier.MatchRecord) *vlib.ResultData {
 // the preffered data-source. From 0 to 1 results per data-source are allowed.
 func (s score) PreferredResults(
 	sources []int,
-	mr *verifier.MatchRecord) []*vlib.ResultData {
-
+	mr *verifier.MatchRecord,
+	allMatches bool,
+) []*vlib.ResultData {
 	if mr.MatchResults == nil || len(mr.MatchResults) == 0 {
 		return nil
 	}
+
+	allSources := len(sources) == 1 && sources[0] == 0
 
 	if !mr.Sorted {
 		s.SortResults(mr)
 	}
 	// maps a data-source ID to corresponding result data.
-	sourceMap := make(map[int]*vlib.ResultData)
+	sourceMap := make(map[int][]*vlib.ResultData)
 	for _, v := range sources {
 		sourceMap[v] = nil
 	}
+	var resLen int
 	for _, v := range mr.MatchResults {
 		dsID := v.DataSourceID
-		if datum, ok := sourceMap[dsID]; ok && datum == nil {
-			sourceMap[dsID] = v
+		if data, ok := sourceMap[dsID]; (ok || allSources) && (allMatches || data == nil) {
+			resLen++
+			sourceMap[dsID] = append(sourceMap[dsID], v)
 		}
 	}
-	res := make([]*vlib.ResultData, 0, len(sources))
+	res := make([]*vlib.ResultData, 0, resLen)
 	for _, v := range sourceMap {
 		if v != nil {
-			res = append(res, v)
+			res = append(res, v...)
 		}
 	}
 	return res

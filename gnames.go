@@ -75,7 +75,7 @@ func (g gnames) Verify(
 				Curation:         mr.Curation,
 				DataSourcesNum:   mr.DataSourcesNum,
 				BestResult:       s.BestResult(mr),
-				PreferredResults: s.PreferredResults(params.PreferredSources, mr),
+				PreferredResults: s.PreferredResults(params.PreferredSources, mr, params.WithAllMatches),
 				Error:            errString,
 			}
 			if params.WithCapitalization {

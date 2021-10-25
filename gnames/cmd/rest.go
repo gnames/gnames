@@ -40,7 +40,7 @@ var restCmd = &cobra.Command{
 	Long: `Runs an HTTP/1 service that takes a list of scientific names,
   normalizes input names and finds them in a variety of biodiversity data
   sources, returning back the results.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		debug, _ := cmd.Flags().GetBool("debug")
 		if debug {
 			log.SetLevel(log.DebugLevel)
