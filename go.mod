@@ -22,7 +22,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gnames/levenshtein v0.2.1 // indirect
 	github.com/gnames/organizer v0.1.1 // indirect
