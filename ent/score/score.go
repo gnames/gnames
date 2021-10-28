@@ -81,6 +81,19 @@ func (s score) PreferredResults(
 	if !mr.Sorted {
 		s.SortResults(mr)
 	}
+
+	if allSources {
+		return getAllSources(mr, allMatches)
+	}
+
+	return getPrefSources(sources, mr, allMatches)
+}
+
+func getPrefSources(
+	sources []int,
+	mr *verifier.MatchRecord,
+	allMatches bool,
+) []*vlib.ResultData {
 	// maps a data-source ID to corresponding result data.
 	sourceMap := make(map[int][]*vlib.ResultData)
 	for _, v := range sources {
@@ -89,15 +102,36 @@ func (s score) PreferredResults(
 	var resLen int
 	for _, v := range mr.MatchResults {
 		dsID := v.DataSourceID
-		if data, ok := sourceMap[dsID]; (ok || allSources) && (allMatches || data == nil) {
+		if data, ok := sourceMap[dsID]; ok && (allMatches || data == nil) {
 			resLen++
 			sourceMap[dsID] = append(sourceMap[dsID], v)
 		}
 	}
 	res := make([]*vlib.ResultData, 0, resLen)
-	for _, v := range sourceMap {
-		if v != nil {
-			res = append(res, v...)
+	for _, v := range sources {
+		if data := sourceMap[v]; data != nil {
+			res = append(res, data...)
+		}
+	}
+	return res
+}
+
+func getAllSources(
+	mr *verifier.MatchRecord,
+	allMatches bool,
+) []*vlib.ResultData {
+	if allMatches {
+		return mr.MatchResults
+	}
+	res := make([]*vlib.ResultData, 0, len(mr.MatchResults))
+	sourceMap := make(map[int]struct{})
+	for i := range mr.MatchResults {
+		dsID := mr.MatchResults[i].DataSourceID
+		if _, ok := sourceMap[dsID]; ok {
+			continue
+		} else {
+			sourceMap[dsID] = struct{}{}
+			res = append(res, mr.MatchResults[i])
 		}
 	}
 	return res

@@ -226,12 +226,17 @@ func (dgp *verifierpg) populateMatchRecord(
 			matchedCanonicalFull = prsd.Canonical.Full
 		}
 
+		titleShort := ds.TitleShort
+		if titleShort == "" {
+			titleShort = ds.Title
+		}
+
 		resData := vlib.ResultData{
 			RecordID:               verifRec.RecordID.String,
 			LocalID:                verifRec.LocalID.String,
 			Outlink:                outlink,
 			DataSourceID:           dsID,
-			DataSourceTitleShort:   ds.TitleShort,
+			DataSourceTitleShort:   titleShort,
 			Curation:               curation,
 			EntryDate:              ds.UpdatedAt,
 			MatchedName:            verifRec.Name.String,
