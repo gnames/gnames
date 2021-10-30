@@ -4,6 +4,12 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.3.3] - 2021-10-30
+
+## Fixed
+
+- missing GET parameter added: all_matches
+
 ## [v0.3.2] - 2021-10-28
 
 ## Added
@@ -170,6 +176,7 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.3.3]: https://github.com/gnames/gnames/compare/v0.3.2...v0.3.3
 [v0.3.2]: https://github.com/gnames/gnames/compare/v0.3.1...v0.3.2
 [v0.3.1]: https://github.com/gnames/gnames/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/gnames/gnames/compare/v0.2.2...v0.3.0

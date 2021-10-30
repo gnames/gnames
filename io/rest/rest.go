@@ -136,10 +136,12 @@ func verificationGET(vs VerifierService) func(echo.Context) error {
 				prefs = append(prefs, id)
 			}
 		}
+		matches := c.QueryParam("all_matches") == "true"
 		params := vlib.VerifyParams{
 			NameStrings:        names,
 			PreferredSources:   prefs,
 			WithCapitalization: capitalize,
+			WithAllMatches:     matches,
 		}
 		verified, err := vs.Verify(context.Background(), params)
 		if err != nil {
