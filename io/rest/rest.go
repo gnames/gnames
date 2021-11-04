@@ -96,7 +96,7 @@ func verificationPOST(vs VerifierService) func(echo.Context) error {
 			defer close(chErr)
 
 			var err error
-			var verified []*vlib.Verification
+			var verified vlib.Verification
 			var params vlib.VerifyParams
 
 			err = c.Bind(&params)

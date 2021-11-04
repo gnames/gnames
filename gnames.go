@@ -8,6 +8,7 @@ import (
 	"github.com/gnames/gnames/ent/score"
 	"github.com/gnames/gnames/ent/verifier"
 	"github.com/gnames/gnames/io/matcher"
+	gnctx "github.com/gnames/gnlib/ent/context"
 	"github.com/gnames/gnlib/ent/gnvers"
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
@@ -42,9 +43,9 @@ func (g gnames) GetVersion() gnvers.Version {
 func (g gnames) Verify(
 	ctx context.Context,
 	params vlib.VerifyParams,
-) ([]*vlib.Verification, error) {
+) (vlib.Verification, error) {
 	log.Printf("Verifying %d name-strings.", len(params.NameStrings))
-	res := make([]*vlib.Verification, len(params.NameStrings))
+	namesRes := make([]*vlib.Name, len(params.NameStrings))
 
 	var matches []mlib.Match
 
@@ -68,7 +69,7 @@ func (g gnames) Verify(
 		if mr, ok := matchRecords[v.ID]; ok {
 			s := score.NewScore()
 			s.SortResults(mr)
-			item := vlib.Verification{
+			item := vlib.Name{
 				InputID:          mr.InputID,
 				Input:            mr.Input,
 				MatchType:        mr.MatchType,
@@ -84,12 +85,39 @@ func (g gnames) Verify(
 				item.InputID = gnuuid.New(item.Input).String()
 			}
 
-			res[i] = &item
+			namesRes[i] = &item
 		} else {
 			log.Warnf("Cannot find record for '%s'.", v.Name)
 		}
 	}
+	log.Printf("%#v", params)
+	res := vlib.Verification{Meta: meta(params, namesRes), Names: namesRes}
 	return res, nil
+}
+
+func meta(params vlib.VerifyParams, names []*vlib.Name) vlib.Meta {
+	allSources := len(params.PreferredSources) == 1 && params.PreferredSources[0] == 0
+	hs := make([]gnctx.Hierarch, len(names))
+	for i := range names {
+		hs[i] = names[i]
+	}
+	c := gnctx.Context{Context: &gnctx.Clade{}, Kingdom: &gnctx.Clade{}}
+	if params.WithContext {
+		c = gnctx.New(hs, params.ContextThreshold)
+	}
+	res := vlib.Meta{
+		NamesNum:          len(params.NameStrings),
+		WithAllSources:    allSources,
+		WithAllMatches:    params.WithAllMatches,
+		WithContext:       params.WithContext,
+		ContextThreshold:  params.ContextThreshold,
+		PreferredSources:  params.PreferredSources,
+		Context:           c.Context.Name,
+		ContextPercentage: c.ContextPercentage,
+		Kingdom:           c.Kingdom.Name,
+		KingdomPercentage: c.KingdomPercentage,
+	}
+	return res
 }
 
 func (g gnames) DataSources(ids ...int) ([]*vlib.DataSource, error) {

@@ -40,7 +40,7 @@ func TestVer(t *testing.T) {
 }
 
 func TestVerifyExact(t *testing.T) {
-	var response []vlib.Verification
+	var response vlib.Verification
 	names := []string{
 		"Not name",
 		"Bubo bubo",
@@ -64,9 +64,9 @@ func TestVerifyExact(t *testing.T) {
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
-	assert.Equal(t, len(response), len(names))
+	assert.Equal(t, len(response.Names), len(names))
 
-	bad := response[0]
+	bad := response.Names[0]
 	assert.Equal(t, bad.InputID, "82dbfb99-fe6c-5882-99f2-17c7d3955599")
 	assert.Equal(t, bad.Input, "Not name")
 	assert.Equal(t, bad.MatchType, vlib.NoMatch)
@@ -75,7 +75,7 @@ func TestVerifyExact(t *testing.T) {
 	assert.Equal(t, bad.Curation, vlib.NotCurated)
 	assert.Equal(t, bad.Error, "")
 
-	binom := response[1]
+	binom := response.Names[1]
 	assert.Equal(t, binom.InputID, "4431a0f3-e901-519a-886f-9b97e0c99d8e")
 	assert.Equal(t, binom.Input, "Bubo bubo")
 	assert.NotNil(t, binom.BestResult)
@@ -84,21 +84,21 @@ func TestVerifyExact(t *testing.T) {
 	assert.Equal(t, binom.Curation, vlib.Curated)
 	assert.Equal(t, binom.Error, "")
 
-	acceptFilter := response[8]
+	acceptFilter := response.Names[8]
 	assert.Equal(t, acceptFilter.InputID, "4c8848f2-7271-588c-ba81-e4d5efcc1e92")
 	assert.Equal(t, acceptFilter.Input, "Pisonia grandis")
 	assert.Equal(t, acceptFilter.BestResult.DataSourceID, 1)
 	assert.Equal(t, acceptFilter.BestResult.MatchType, vlib.Exact)
 	assert.Equal(t, acceptFilter.BestResult.CurrentCanonicalSimple, "Ceodes grandis")
 
-	partial := response[9]
+	partial := response.Names[9]
 	assert.Equal(t, partial.InputID, "0f84ed48-3a57-59ac-ac1a-2e9221439fdc")
 	assert.Equal(t, partial.Input, "Acacia vestita may")
 	assert.Equal(t, partial.BestResult.DataSourceID, 1)
 	assert.Equal(t, partial.MatchType, vlib.PartialExact)
 	assert.Equal(t, partial.BestResult.CurrentCanonicalSimple, "Acacia vestita")
 
-	cand := response[10]
+	cand := response.Names[10]
 	assert.Equal(t, cand.InputID, "1b406033-fc5e-5f90-b3cf-fd1e9a42e282")
 	assert.Equal(t, cand.Input, "Candidatus Aenigmarchaeum subterraneum")
 	assert.NotNil(t, cand.BestResult)
@@ -109,7 +109,7 @@ func TestVerifyExact(t *testing.T) {
 }
 
 func TestFuzzy(t *testing.T) {
-	var response []vlib.Verification
+	var response vlib.Verification
 	names := []string{
 		"Abras precatorius",
 	}
@@ -123,16 +123,16 @@ func TestFuzzy(t *testing.T) {
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
-	assert.Equal(t, len(response), len(names))
+	assert.Equal(t, len(response.Names), len(names))
 
-	fuz1 := response[0]
+	fuz1 := response.Names[0]
 	assert.Equal(t, fuz1.Input, "Abras precatorius")
 	assert.Equal(t, fuz1.BestResult.EditDistance, 1)
 }
 
 // TestPrefDS checks if prefferred data sources works correclty.
 func TestPrefDS(t *testing.T) {
-	var response []vlib.Verification
+	var response vlib.Verification
 	names := []string{
 		"Bubo bubo", "Pomatomus",
 		"Pardosa moesta", "Plantago major var major",
@@ -149,9 +149,9 @@ func TestPrefDS(t *testing.T) {
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
-	assert.Equal(t, len(response), len(names))
+	assert.Equal(t, len(response.Names), len(names))
 
-	binom := response[0]
+	binom := response.Names[0]
 	assert.Equal(t, binom.InputID, "4431a0f3-e901-519a-886f-9b97e0c99d8e")
 	assert.Equal(t, binom.Input, "Bubo bubo")
 	assert.NotNil(t, binom.BestResult)
@@ -162,7 +162,7 @@ func TestPrefDS(t *testing.T) {
 	assert.Equal(t, len(binom.PreferredResults), 3)
 	assert.Equal(t, binom.Error, "")
 
-	acceptFilter := response[5]
+	acceptFilter := response.Names[5]
 	assert.Equal(t, acceptFilter.InputID, "4c8848f2-7271-588c-ba81-e4d5efcc1e92")
 	assert.Equal(t, acceptFilter.Input, "Pisonia grandis")
 	assert.Equal(t, acceptFilter.BestResult.DataSourceID, 1)
@@ -172,7 +172,7 @@ func TestPrefDS(t *testing.T) {
 }
 
 func TestPrefCapitalize(t *testing.T) {
-	var response []vlib.Verification
+	var response vlib.Verification
 	names := []string{
 		"bubo bubo", "pomatomus",
 		"pardosa moesta", "plantago major var major",
@@ -189,9 +189,9 @@ func TestPrefCapitalize(t *testing.T) {
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
-	assert.Equal(t, len(response), len(names))
+	assert.Equal(t, len(response.Names), len(names))
 
-	bubo := response[0]
+	bubo := response.Names[0]
 	assert.Equal(t, bubo.InputID, "7e4c9a7c-0e90-5d1e-96be-bbea21fcfdd3")
 	assert.Equal(t, bubo.Input, "bubo bubo")
 	assert.True(t, bubo.InputCapitalized)
@@ -202,10 +202,10 @@ func TestPrefCapitalize(t *testing.T) {
 }
 
 func TestAllSources(t *testing.T) {
-  var response []vlib.Verification
-  names := []string {
-    "Bubo bubo",
-  }
+	var response vlib.Verification
+	names := []string{
+		"Bubo bubo",
+	}
 	request := vlib.VerifyParams{NameStrings: names, PreferredSources: []int{0}}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
@@ -216,26 +216,26 @@ func TestAllSources(t *testing.T) {
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
-	assert.Equal(t, len(response), len(names))
-  bubo :=response[0]
+	assert.Equal(t, len(response.Names), len(names))
+	bubo := response.Names[0]
 	assert.Equal(t, bubo.InputID, "4431a0f3-e901-519a-886f-9b97e0c99d8e")
 	assert.Equal(t, bubo.Input, "Bubo bubo")
 	assert.False(t, bubo.InputCapitalized)
 	assert.NotNil(t, bubo.BestResult)
-  assert.Equal(t, len(bubo.PreferredResults), bubo.DataSourcesNum)
-  assert.True(t, bubo.DataSourcesNum > 20)
+	assert.Equal(t, len(bubo.PreferredResults), bubo.DataSourcesNum)
+	assert.True(t, bubo.DataSourcesNum > 20)
 }
 
 func TestAllMatches(t *testing.T) {
-  var response []vlib.Verification
-  names := []string {
-    "Solanum tuberosum",
-  }
+	var response vlib.Verification
+	names := []string{
+		"Solanum tuberosum",
+	}
 	request := vlib.VerifyParams{
-    NameStrings: names,
-    PreferredSources: []int{1},
-    WithAllMatches: true,
-  }
+		NameStrings:      names,
+		PreferredSources: []int{1},
+		WithAllMatches:   true,
+	}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
@@ -245,22 +245,22 @@ func TestAllMatches(t *testing.T) {
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
-	assert.Equal(t, len(response), len(names))
-  solanum :=response[0]
+	assert.Equal(t, len(response.Names), len(names))
+	solanum := response.Names[0]
 	assert.NotNil(t, solanum.BestResult)
-  assert.Greater(t, len(solanum.PreferredResults), 1)
+	assert.Greater(t, len(solanum.PreferredResults), 1)
 }
 
 func TestAll(t *testing.T) {
-  var response []vlib.Verification
-  names := []string {
-    "Solanum tuberosum",
-  }
+	var response vlib.Verification
+	names := []string{
+		"Solanum tuberosum",
+	}
 	request := vlib.VerifyParams{
-    NameStrings: names,
-    PreferredSources: []int{0},
-    WithAllMatches: true,
-  }
+		NameStrings:      names,
+		PreferredSources: []int{0},
+		WithAllMatches:   true,
+	}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
@@ -270,14 +270,14 @@ func TestAll(t *testing.T) {
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
-	assert.Equal(t, len(response), len(names))
-  solanum :=response[0]
+	assert.Equal(t, len(response.Names), len(names))
+	solanum := response.Names[0]
 	assert.NotNil(t, solanum.BestResult)
-  assert.Greater(t, len(solanum.PreferredResults), 20)
+	assert.Greater(t, len(solanum.PreferredResults), 20)
 }
 
 func TestBugs(t *testing.T) {
-	var response []vlib.Verification
+	var response vlib.Verification
 	names := []string{
 		"Aceratagallia fuscosscripta (Oman )",
 		"Ampullaria immersa",
@@ -293,7 +293,7 @@ func TestBugs(t *testing.T) {
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
-	assert.Equal(t, len(response), len(names))
+	assert.Equal(t, len(response.Names), len(names))
 }
 
 // NCBI used to return "Homo sapiens subsp. Denisova" as the best result
@@ -301,7 +301,7 @@ func TestBugs(t *testing.T) {
 // and it should fix the match. This test is brittle, as it depends on
 // NCBI keeping non-standard "Homo sapiens substp. Denisova" name-string.
 func TestHomoNCBI(t *testing.T) {
-	var response []vlib.Verification
+	var response vlib.Verification
 	request := vlib.VerifyParams{
 		NameStrings:      []string{"Homo sapiens"},
 		PreferredSources: []int{4},
@@ -315,13 +315,13 @@ func TestHomoNCBI(t *testing.T) {
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
-	homo := response[0]
+	homo := response.Names[0]
 	assert.Equal(t, homo.BestResult.MatchedCanonicalSimple, "Homo sapiens")
 	assert.NotContains(t, homo.PreferredResults[0].MatchedName, "Denisova")
 }
 
 func TestGetVerifications(t *testing.T) {
-	var response []vlib.Verification
+	var response vlib.Verification
 	resp, err := http.Get(url + "verifications/Homo+sapiens?pref_sources=4")
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
@@ -329,7 +329,7 @@ func TestGetVerifications(t *testing.T) {
 
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
-	homo := response[0]
+	homo := response.Names[0]
 	assert.Equal(t, homo.BestResult.MatchedCanonicalSimple, "Homo sapiens")
 	assert.NotContains(t, homo.PreferredResults[0].MatchedName, "Denisova")
 }

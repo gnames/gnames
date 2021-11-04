@@ -55,14 +55,14 @@ func TestBugs(t *testing.T) {
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
-	var verif []vlib.Verification
+	var verif vlib.Verification
 	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
 	assert.Nil(t, err)
 
 	for i, v := range bugs {
 		msg := fmt.Sprintf("%s -> %s", v.name, v.matchCanonical)
-		assert.Equal(t, verif[i].BestResult.MatchedCanonicalSimple, v.matchCanonical, msg)
-		assert.Equal(t, verif[i].MatchType, v.matchType, msg)
+		assert.Equal(t, verif.Names[i].BestResult.MatchedCanonicalSimple, v.matchCanonical, msg)
+		assert.Equal(t, verif.Names[i].MatchType, v.matchType, msg)
 	}
 }
 
