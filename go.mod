@@ -7,7 +7,7 @@ require (
 	github.com/gnames/gnfmt v0.2.0
 	github.com/gnames/gnlib v0.3.2
 	github.com/gnames/gnmatcher v0.5.7
-	github.com/gnames/gnparser v1.5.0
+	github.com/gnames/gnparser v1.5.6
 	github.com/gnames/gnsys v0.2.2
 	github.com/gnames/gnuuid v0.1.1
 	github.com/gofrs/uuid v4.1.0+incompatible
@@ -52,7 +52,7 @@ require (
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/net v0.0.0-20211020060615-d418f374d309 // indirect
-	golang.org/x/sys v0.0.0-20211023085530-d6a326fbbf70 // indirect
+	golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	gopkg.in/ini.v1 v1.63.2 // indirect
