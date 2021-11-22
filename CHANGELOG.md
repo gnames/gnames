@@ -4,6 +4,12 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.4.0] - 2021-11-22
+
+## Added (Backward incompatible)
+
+-- add metadata to verification, optional context calculation [#51]
+
 ## [v0.3.3] - 2021-10-30
 
 ## Fixed
@@ -176,6 +182,7 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.4.0]: https://github.com/gnames/gnames/compare/v0.3.3...v0.4.0
 [v0.3.3]: https://github.com/gnames/gnames/compare/v0.3.2...v0.3.3
 [v0.3.2]: https://github.com/gnames/gnames/compare/v0.3.1...v0.3.2
 [v0.3.1]: https://github.com/gnames/gnames/compare/v0.3.0...v0.3.1
