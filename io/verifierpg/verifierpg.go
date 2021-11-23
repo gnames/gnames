@@ -3,10 +3,10 @@ package verifierpg
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/ent/verifier"
+	"github.com/gnames/gnames/io/internal/dbshare"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	log "github.com/sirupsen/logrus"
 
@@ -15,34 +15,21 @@ import (
 )
 
 type verifierpg struct {
-	DB             *sql.DB
-	DataSourcesMap map[int]*vlib.DataSource
+	db             *sql.DB
+	dataSourcesMap map[int]*vlib.DataSource
 }
 
-// NewVerifier creates a new instance of sql.DB using configuration data.
-func NewVerifier(cnf config.Config) verifier.Verifier {
-	db, err := sql.Open("postgres", dbURL(cnf))
+// New creates a new instance of sqlx.DB using configuration data.
+func New(cnf config.Config) verifier.Verifier {
+	db, err := sql.Open("postgres", dbshare.DBURL(cnf))
 	if err != nil {
 		log.Fatalf("Cannot create PostgreSQL connection: %s.", err)
 	}
-	vf := verifierpg{DB: db}
-	vf.dataSourcesMap()
+	vf := verifierpg{db: db}
+	vf.dataSourcesMap = dbshare.DataSourcesMap(db)
 	return vf
 }
 
-func dbURL(cnf config.Config) string {
-	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
-		cnf.PgUser, cnf.PgPass, cnf.PgHost, cnf.PgPort, cnf.PgDB)
-}
-
-func (vf *verifierpg) dataSourcesMap() {
-	dsm := make(map[int]*vlib.DataSource)
-	dss, err := vf.DataSources()
-	if err != nil {
-		log.Fatalf("Cannot init DataSources data: %s", err)
-	}
-	for _, ds := range dss {
-		dsm[ds.ID] = ds
-	}
-	vf.DataSourcesMap = dsm
+func (vf verifierpg) DataSources(ids ...int) ([]*vlib.DataSource, error) {
+	return dbshare.DataSources(vf.db, ids...)
 }

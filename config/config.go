@@ -22,9 +22,9 @@ type Config struct {
 	MatcherURL  string
 }
 
-// NewConfig is a Config constructor that takes external options to
+// New is a Config constructor that takes external options to
 // update default values to external ones.
-func NewConfig(opts ...Option) Config {
+func New(opts ...Option) Config {
 	workDir, _ := gnsys.ConvertTilda("~/.local/share/gnames")
 	cnf := Config{
 		GNport:      8888,
@@ -34,7 +34,7 @@ func NewConfig(opts ...Option) Config {
 		PgHost:      "localhost",
 		PgPort:      5432,
 		PgUser:      "postgres",
-		PgPass:      "",
+		PgPass:      "postgres",
 		PgDB:        "gnames",
 		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
 	}

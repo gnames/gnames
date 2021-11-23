@@ -10,7 +10,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	cnf := config.NewConfig()
+	cnf := config.New()
 	workDir, _ := gnsys.ConvertTilda("~/.local/share/gnames")
 	deflt := config.Config{
 		GNport:      8888,
@@ -20,7 +20,7 @@ func TestNew(t *testing.T) {
 		PgHost:      "localhost",
 		PgPort:      5432,
 		PgUser:      "postgres",
-		PgPass:      "",
+		PgPass:      "postgres",
 		PgDB:        "gnames",
 		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
 	}
@@ -29,7 +29,7 @@ func TestNew(t *testing.T) {
 
 func TestNewOpts(t *testing.T) {
 	opts := opts()
-	cnf := config.NewConfig(opts...)
+	cnf := config.New(opts...)
 	workDir, _ := gnsys.ConvertTilda("~/.local/share/gnames")
 	updt := config.Config{
 		GNport:      8888,
@@ -48,9 +48,9 @@ func TestNewOpts(t *testing.T) {
 
 func TestMaxED(t *testing.T) {
 	log.SetLevel(log.FatalLevel)
-	cnf := config.NewConfig(config.OptMaxEditDist(5))
+	cnf := config.New(config.OptMaxEditDist(5))
 	assert.Equal(t, cnf.MaxEditDist, 1)
-	cnf = config.NewConfig(config.OptMaxEditDist(0))
+	cnf = config.New(config.OptMaxEditDist(0))
 	assert.Equal(t, cnf.MaxEditDist, 1)
 }
 

@@ -9,22 +9,24 @@ import (
 	"github.com/gnames/gnames/ent/verifier"
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
+	"github.com/gnames/gnquery/ent/search"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestVer(t *testing.T) {
 	var g gnames.GNames
-	cfg := config.NewConfig()
+	cfg := config.New()
 	ctx := context.Background()
 	vf := mockVerifier{}
-	g = gnames.NewGNames(cfg, vf)
+	fct := mockFacet{}
+	g = gnames.NewGNames(cfg, vf, fct)
 	testData := []struct {
 		name string
 	}{
 		{"Bubo bubo"},
 	}
 	for _, v := range testData {
-		_, err := g.Verify(ctx, vlib.VerifyParams{NameStrings: []string{v.name}})
+		_, err := g.Verify(ctx, vlib.Input{NameStrings: []string{v.name}})
 		assert.Nil(t, err)
 	}
 }
@@ -39,6 +41,16 @@ func (m mockVerifier) DataSources(ids ...int) ([]*vlib.DataSource, error) {
 func (m mockVerifier) MatchRecords(
 	ctx context.Context,
 	fmatches []mlib.Match,
+) (map[string]*verifier.MatchRecord, error) {
+	var res map[string]*verifier.MatchRecord
+	return res, nil
+}
+
+type mockFacet struct{}
+
+func (mf mockFacet) Search(
+	ctx context.Context,
+	inp search.Input,
 ) (map[string]*verifier.MatchRecord, error) {
 	var res map[string]*verifier.MatchRecord
 	return res, nil

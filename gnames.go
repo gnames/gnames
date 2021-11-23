@@ -2,9 +2,11 @@ package gnames
 
 import (
 	"context"
+	"sort"
 	"unicode"
 
 	"github.com/gnames/gnames/config"
+	"github.com/gnames/gnames/ent/facet"
 	"github.com/gnames/gnames/ent/score"
 	"github.com/gnames/gnames/ent/verifier"
 	"github.com/gnames/gnames/io/matcher"
@@ -14,6 +16,7 @@ import (
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnmatcher"
 	"github.com/gnames/gnparser/ent/str"
+	"github.com/gnames/gnquery/ent/search"
 	"github.com/gnames/gnuuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -21,14 +24,20 @@ import (
 type gnames struct {
 	cfg     config.Config
 	vf      verifier.Verifier
+	facet   facet.Facet
 	matcher gnmatcher.GNmatcher
 }
 
 // NewGNames is a constructor that returns implmentation of GNames interface.
-func NewGNames(cnf config.Config, vf verifier.Verifier) GNames {
+func NewGNames(
+	cnf config.Config,
+	vf verifier.Verifier,
+	fc facet.Facet,
+) GNames {
 	return gnames{
 		cfg:     cnf,
 		vf:      vf,
+		facet:   fc,
 		matcher: matcher.NewGNmatcher(cnf.MatcherURL),
 	}
 }
@@ -42,8 +51,8 @@ func (g gnames) GetVersion() gnvers.Version {
 
 func (g gnames) Verify(
 	ctx context.Context,
-	params vlib.VerifyParams,
-) (vlib.Verification, error) {
+	params vlib.Input,
+) (vlib.Output, error) {
 	log.Printf("Verifying %d name-strings.", len(params.NameStrings))
 	namesRes := make([]*vlib.Name, len(params.NameStrings))
 
@@ -65,6 +74,8 @@ func (g gnames) Verify(
 		errString = err.Error()
 	}
 
+	log.Printf("REC: %#v", matchRecords)
+
 	for i, v := range matches {
 		if mr, ok := matchRecords[v.ID]; ok {
 			s := score.NewScore()
@@ -80,7 +91,6 @@ func (g gnames) Verify(
 				Error:            errString,
 			}
 			if params.WithCapitalization {
-				item.InputCapitalized = true
 				item.Input = params.NameStrings[i]
 				item.InputID = gnuuid.New(item.Input).String()
 			}
@@ -91,11 +101,48 @@ func (g gnames) Verify(
 		}
 	}
 	log.Printf("%#v", params)
-	res := vlib.Verification{Meta: meta(params, namesRes), Names: namesRes}
+	res := vlib.Output{Meta: meta(params, namesRes), Names: namesRes}
 	return res, nil
 }
 
-func meta(params vlib.VerifyParams, names []*vlib.Name) vlib.Meta {
+func (g gnames) Search(
+	ctx context.Context,
+	inp search.Input,
+) (search.Output, error) {
+	inp.Query = inp.ToQuery()
+	log.Printf("Searching '%s'.", inp.Query)
+
+	res := search.Output{Meta: search.Meta{Input: inp}}
+	matchRecords, err := g.facet.Search(ctx, inp)
+
+	sortedCanonicals := sortCanonicals(matchRecords)
+	resCans := make([]search.Canonical, len(matchRecords))
+	var dss []int
+	var all bool
+	if inp.WithAllResults {
+		dss = []int{0}
+		all = true
+	}
+
+	for i, v := range sortedCanonicals {
+		mr := matchRecords[v]
+		s := score.NewScore()
+		item := search.Canonical{
+			ID:          mr.InputID,
+			Name:        mr.Input,
+			Cardinality: mr.Cardinality,
+			MatchType:   mr.MatchType.String(),
+			BestResult:  s.BestResult(mr),
+			Results:     s.PreferredResults(dss, mr, all),
+		}
+		resCans[i] = item
+	}
+
+	res.Names = resCans
+	return res, err
+}
+
+func meta(params vlib.Input, names []*vlib.Name) vlib.Meta {
 	allSources := len(params.PreferredSources) == 1 && params.PreferredSources[0] == 0
 	hs := make([]gnctx.Hierarch, len(names))
 	for i := range names {
@@ -106,16 +153,17 @@ func meta(params vlib.VerifyParams, names []*vlib.Name) vlib.Meta {
 		c = gnctx.New(hs, params.ContextThreshold)
 	}
 	res := vlib.Meta{
-		NamesNum:          len(params.NameStrings),
-		WithAllSources:    allSources,
-		WithAllMatches:    params.WithAllMatches,
-		WithContext:       params.WithContext,
-		ContextThreshold:  params.ContextThreshold,
-		PreferredSources:  params.PreferredSources,
-		Context:           c.Context.Name,
-		ContextPercentage: c.ContextPercentage,
-		Kingdom:           c.Kingdom.Name,
-		KingdomPercentage: c.KingdomPercentage,
+		NamesNum:           len(params.NameStrings),
+		WithAllSources:     allSources,
+		WithAllMatches:     params.WithAllMatches,
+		WithContext:        params.WithContext,
+		WithCapitalization: params.WithCapitalization,
+		ContextThreshold:   params.ContextThreshold,
+		PreferredSources:   params.PreferredSources,
+		Context:            c.Context.Name,
+		ContextPercentage:  c.ContextPercentage,
+		Kingdom:            c.Kingdom.Name,
+		KingdomPercentage:  c.KingdomPercentage,
 	}
 	return res
 }
@@ -140,4 +188,15 @@ func FirstUpperCase(name string) string {
 	}
 	runes[0] = unicode.ToUpper(one)
 	return string(runes)
+}
+
+func sortCanonicals(mrs map[string]*verifier.MatchRecord) []string {
+	res := make([]string, len(mrs))
+	var count int
+	for k := range mrs {
+		res[count] = k
+		count++
+	}
+	sort.Strings(res)
+	return res
 }

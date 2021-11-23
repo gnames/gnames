@@ -25,10 +25,10 @@ import (
 	"os"
 
 	"github.com/gnames/gnames"
-	gncnf "github.com/gnames/gnames/config"
+	gncfg "github.com/gnames/gnames/config"
+	"github.com/gnames/gnames/io/facetpg"
 	"github.com/gnames/gnames/io/rest"
 	"github.com/gnames/gnames/io/verifierpg"
-	"github.com/gnames/gnfmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -48,16 +48,14 @@ var restCmd = &cobra.Command{
 		}
 
 		port, _ := cmd.Flags().GetInt("port")
-		opts = append(opts, gncnf.OptGNPort(port))
+		opts = append(opts, gncfg.OptGNPort(port))
 
-		var enc gnfmt.Encoder = gnfmt.GNjson{}
+		cfg := gncfg.New(opts...)
+		vf := verifierpg.New(cfg)
+		srch := facetpg.New(cfg)
+		gn := gnames.NewGNames(cfg, vf, srch)
 
-		cnf := gncnf.NewConfig(opts...)
-		vf := verifierpg.NewVerifier(cnf)
-		gn := gnames.NewGNames(cnf, vf)
-
-		service := rest.NewVerifierService(gn, port, enc)
-		rest.Run(service)
+		rest.Run(gn, port)
 		os.Exit(0)
 	},
 }

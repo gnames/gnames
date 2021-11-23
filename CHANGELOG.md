@@ -4,6 +4,12 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.5.0] - 2021-12-01
+
+### Added
+
+- faceted search API [#71]
+
 ## [v0.4.0] - 2021-11-22
 
 ## Added (Backward incompatible)
@@ -12,19 +18,19 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## [v0.3.3] - 2021-10-30
 
-## Fixed
+### Fixed
 
 - missing GET parameter added: all_matches
 
 ## [v0.3.2] - 2021-10-28
 
-## Added
+### Added
 
 - all sources/all matches results are sorted by score [#70]
 
 ## [v0.3.1] - 2021-10-25
 
-## Fixed
+### Fixed
 
 - remove dependency on `dgrijalva/jwt-go` which has
   security problems.

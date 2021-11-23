@@ -1,9 +1,9 @@
-package rest
+package rest_test
 
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const urlTest = "http://:8888/api/v1/"
+const urlTest = "http://:8888/api/v0/"
 
 var bugs = []struct {
 	name           string
@@ -46,16 +46,16 @@ var bugs = []struct {
 	},
 }
 
-func TestBugs(t *testing.T) {
+func TestMoreBugs(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(params())
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
 	resp, err := http.Post(urlTest+"verifications", "application/json", r)
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
-	var verif vlib.Verification
+	var verif vlib.Output
 	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
 	assert.Nil(t, err)
 
@@ -66,10 +66,10 @@ func TestBugs(t *testing.T) {
 	}
 }
 
-func params() vlib.VerifyParams {
+func params() vlib.Input {
 	ns := make([]string, len(bugs))
 	for i, v := range bugs {
 		ns[i] = v.name
 	}
-	return vlib.VerifyParams{NameStrings: ns}
+	return vlib.Input{NameStrings: ns}
 }

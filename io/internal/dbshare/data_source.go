@@ -1,15 +1,15 @@
-package verifierpg
+package dbshare
 
 import (
 	"context"
-	"fmt"
-	"strconv"
-	"strings"
+	"database/sql"
+	"log"
 	"time"
 
 	"github.com/georgysavva/scany/sqlscan"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 )
 
 type dataSource struct {
@@ -30,6 +30,18 @@ type dataSource struct {
 	IsAutoCurated  bool
 	RecordCount    int
 	UpdatedAt      time.Time
+}
+
+func DataSourcesMap(db *sql.DB) map[int]*vlib.DataSource {
+	res := make(map[int]*vlib.DataSource)
+	dss, err := DataSources(db)
+	if err != nil {
+		log.Fatalf("Cannot init DataSources data: %s", err)
+	}
+	for _, ds := range dss {
+		res[ds.ID] = ds
+	}
+	return res
 }
 
 func (ds dataSource) convert() vlib.DataSource {
@@ -69,24 +81,24 @@ SELECT id, uuid, title, title_short, version, revision_date,
     is_outlink_ready, is_curated, is_auto_curated, record_count, updated_at
   FROM data_sources`
 
-func (vf verifierpg) DataSources(ids ...int) ([]*vlib.DataSource, error) {
+func DataSources(db *sql.DB, ids ...int) ([]*vlib.DataSource, error) {
 	q := dataSourcesQ
 	if len(ids) > 0 {
-		idsStrings := make([]string, len(ids))
-		for i, v := range ids {
-			idsStrings[i] = strconv.Itoa(v)
-		}
-		idsStr := strings.Join(idsStrings, ",")
-		q = q + fmt.Sprintf(" WHERE id in (%s)", idsStr)
+		q += " WHERE id = any($1)"
 	}
-	q = q + " order by id"
-	return vf.dataSourcesQuery(q)
+	q += " order by id"
+	return dataSourcesQuery(db, q, ids)
 }
 
-func (vf verifierpg) dataSourcesQuery(q string) ([]*vlib.DataSource, error) {
+func dataSourcesQuery(db *sql.DB, q string, ids []int) ([]*vlib.DataSource, error) {
 	var dss []*dataSource
+	var err error
 	ctx := context.Background()
-	err := sqlscan.Select(ctx, vf.DB, &dss, q)
+	if len(ids) > 0 {
+		err = sqlscan.Select(ctx, db, &dss, q, pq.Array(ids))
+	} else {
+		err = sqlscan.Select(ctx, db, &dss, q)
+	}
 	res := make([]*vlib.DataSource, len(dss))
 	for i, ds := range dss {
 		dsItem := ds.convert()

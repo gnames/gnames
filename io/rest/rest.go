@@ -10,7 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gnames/gnames"
 	vlib "github.com/gnames/gnlib/ent/verifier"
+	"github.com/gnames/gnquery"
+	"github.com/gnames/gnquery/ent/search"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
@@ -18,9 +21,11 @@ import (
 
 const withLogs = true
 
-// Run starts HTTP/1 service for scientific names verification.
-func Run(vs VerifierService) {
-	log.Printf("Starting the HTTP API server on port %d.", vs.Port())
+var apiPath = "/api/v0/"
+
+// Run starts HTTP/1 service on given port for scientific names verification.
+func Run(gn gnames.GNames, port int) {
+	log.Printf("Starting the HTTP API server on port %d.", port)
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
@@ -28,14 +33,16 @@ func Run(vs VerifierService) {
 		e.Use(middleware.Logger())
 	}
 
-	e.GET("/api/v1/ping", ping(vs))
-	e.GET("/api/v1/version", ver(vs))
-	e.GET("/api/v1/data_sources", dataSources(vs))
-	e.GET("/api/v1/data_sources/:id", oneDataSource(vs))
-	e.POST("/api/v1/verifications", verificationPOST(vs))
-	e.GET("/api/v1/verifications/:names", verificationGET(vs))
+	e.GET(apiPath+"ping", ping())
+	e.GET(apiPath+"version", ver(gn))
+	e.GET(apiPath+"data_sources", dataSources(gn))
+	e.GET(apiPath+"data_sources/:id", oneDataSource(gn))
+	e.POST(apiPath+"verifications", verificationPOST(gn))
+	e.GET(apiPath+"verifications/:names", verificationGET(gn))
+	e.POST(apiPath+"search", searchPOST(gn))
+	e.GET(apiPath+"search/:query", searchGET(gn))
 
-	addr := fmt.Sprintf(":%d", vs.Port())
+	addr := fmt.Sprintf(":%d", port)
 	s := &http.Server{
 		Addr:         addr,
 		ReadTimeout:  5 * time.Minute,
@@ -44,23 +51,22 @@ func Run(vs VerifierService) {
 	e.Logger.Fatal(e.StartServer(s))
 }
 
-func ping(vs VerifierService) func(echo.Context) error {
+func ping() func(echo.Context) error {
 	return func(c echo.Context) error {
-		result := vs.Ping()
-		return c.String(http.StatusOK, result)
+		return c.String(http.StatusOK, "pong")
 	}
 }
 
-func ver(vs VerifierService) func(echo.Context) error {
+func ver(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
-		result := vs.GetVersion()
+		result := gn.GetVersion()
 		return c.JSON(http.StatusOK, result)
 	}
 }
 
-func dataSources(vs VerifierService) func(echo.Context) error {
+func dataSources(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
-		dataSources, err := vs.DataSources()
+		dataSources, err := gn.DataSources()
 		if err != nil {
 			return err
 		}
@@ -68,14 +74,14 @@ func dataSources(vs VerifierService) func(echo.Context) error {
 	}
 }
 
-func oneDataSource(vs VerifierService) func(echo.Context) error {
+func oneDataSource(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
 		idStr := c.Param("id")
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
 			return err
 		}
-		dataSources, err := vs.DataSources(id)
+		dataSources, err := gn.DataSources(id)
 		if err != nil {
 			return err
 		}
@@ -86,7 +92,7 @@ func oneDataSource(vs VerifierService) func(echo.Context) error {
 	}
 }
 
-func verificationPOST(vs VerifierService) func(echo.Context) error {
+func verificationPOST(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
 		ctx, cancel := getContext(c)
 		defer cancel()
@@ -96,15 +102,16 @@ func verificationPOST(vs VerifierService) func(echo.Context) error {
 			defer close(chErr)
 
 			var err error
-			var verified vlib.Verification
-			var params vlib.VerifyParams
+			var verified vlib.Output
+			var params vlib.Input
 
 			err = c.Bind(&params)
 
 			if err == nil {
-				verified, err = vs.Verify(ctx, params)
+				verified, err = gn.Verify(ctx, params)
 			}
 
+			log.Printf("VERIF: %#v", verified)
 			if err == nil {
 				err = c.JSON(http.StatusOK, verified)
 			}
@@ -124,30 +131,88 @@ func verificationPOST(vs VerifierService) func(echo.Context) error {
 	}
 }
 
-func verificationGET(vs VerifierService) func(echo.Context) error {
+func verificationGET(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
 		nameStr, _ := url.QueryUnescape(c.Param("names"))
 		names := strings.Split(nameStr, "|")
-		var prefs []int
 		prefsStr, _ := url.QueryUnescape(c.QueryParam("pref_sources"))
 		capitalize := c.QueryParam("capitalize") == "true"
+		txContext := c.QueryParam("context") == "true"
+		matches := c.QueryParam("all_matches") == "true"
+
+		var prefs []int
 		for _, v := range strings.Split(prefsStr, "|") {
 			if id, err := strconv.Atoi(v); err == nil {
 				prefs = append(prefs, id)
 			}
 		}
-		matches := c.QueryParam("all_matches") == "true"
-		params := vlib.VerifyParams{
+
+		params := vlib.Input{
 			NameStrings:        names,
 			PreferredSources:   prefs,
 			WithCapitalization: capitalize,
 			WithAllMatches:     matches,
+			WithContext:        txContext,
 		}
-		verified, err := vs.Verify(context.Background(), params)
+		verified, err := gn.Verify(context.Background(), params)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, verified)
+	}
+}
+
+func searchGET(gn gnames.GNames) func(echo.Context) error {
+	return func(c echo.Context) error {
+		q, _ := url.QueryUnescape(c.Param("query"))
+		gnq := gnquery.New()
+		inp := gnq.Parse(q)
+		res, err := gn.Search(context.Background(), inp)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func searchPOST(gn gnames.GNames) func(echo.Context) error {
+	return func(c echo.Context) error {
+		ctx, cancel := getContext(c)
+		defer cancel()
+		chErr := make(chan error)
+
+		go func() {
+			defer close(chErr)
+
+			var err error
+			var res search.Output
+			var params search.Input
+
+			err = c.Bind(&params)
+
+			params = gnquery.New().Process(params)
+
+			if err == nil {
+				res, err = gn.Search(ctx, params)
+			}
+
+			if err == nil {
+				err = c.JSON(http.StatusOK, res)
+			}
+
+			chErr <- err
+		}()
+
+		select {
+		case <-ctx.Done():
+			<-chErr
+			return ctx.Err()
+		case err := <-chErr:
+			return err
+		case <-time.After(6 * time.Minute):
+			return errors.New("request took too long")
+		}
 	}
 }
 

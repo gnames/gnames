@@ -4,15 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/georgysavva/scany/sqlscan"
 	"github.com/gnames/gnames/ent/verifier"
+	"github.com/gnames/gnames/io/internal/dbshare"
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser"
-	"github.com/gnames/gnparser/ent/parsed"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,38 +22,16 @@ const (
 	resultsThreshold = 200
 )
 
-// MatchRecords connects result data to input name-string. Input name-string
-// is a key.
-type verif struct {
-	CanonicalID         sql.NullString
-	Canonical           sql.NullString
-	CanonicalFull       sql.NullString
-	Name                sql.NullString
-	Cardinality         int
-	RecordID            sql.NullString
-	NameStringID        sql.NullString
-	DataSourceID        int
-	LocalID             sql.NullString
-	OutlinkID           sql.NullString
-	AcceptedRecordID    sql.NullString
-	AcceptedNameID      sql.NullString
-	AcceptedName        sql.NullString
-	Classification      sql.NullString
-	ClassificationRanks sql.NullString
-	ClassificationIds   sql.NullString
-	ParseQuality        int
-}
 type matchSplit struct {
 	noMatch   []*mlib.Match
 	canonical []*mlib.Match
 }
 
-var namesQ = `
-  SELECT canonical_id, name, data_source_id, record_id, name_string_id,
-      local_id, outlink_id, accepted_record_id, accepted_name_id,
-      accepted_name, classification, classification_ranks,
-      classification_ids, parse_quality
-    FROM verification where %s in (%s)`
+var namesQ = fmt.Sprintf(`
+SELECT %s
+FROM verification v
+WHERE canonical_id = ANY($1::uuid[])
+`, dbshare.QueryFields)
 
 // MatchRecords takes matches from gnmatcher and returns back data from
 // the database that organizes data from database into matched records.
@@ -67,7 +44,7 @@ func (dgp verifierpg) MatchRecords(
 	res := make(map[string]*verifier.MatchRecord)
 	splitMatches := partitionMatches(matches)
 
-	verifs, err := nameQuery(ctx, dgp.DB, splitMatches.canonical)
+	verifs, err := nameQuery(ctx, dgp.db, splitMatches.canonical)
 	if err != nil {
 		log.Warnf("Cannot get matches data: %s", err)
 		return res, err
@@ -79,7 +56,7 @@ func (dgp verifierpg) MatchRecords(
 func (dgp verifierpg) produceResultData(
 	ms matchSplit,
 	parser gnparser.GNparser,
-	v []*verif,
+	v []*dbshare.VerifSQL,
 ) map[string]*verifier.MatchRecord {
 
 	// deal with NoMatch first
@@ -97,7 +74,7 @@ func (dgp verifierpg) produceResultData(
 		if !prsd.Parsed {
 			log.Fatalf("Cannot parse input '%s'. Should never happen at this point.", match.Name)
 		}
-		authors, year := processAuthorship(prsd.Authorship)
+		authors, year := dbshare.ProcessAuthorship(prsd.Authorship)
 
 		mr := verifier.MatchRecord{
 			InputID:         match.ID,
@@ -118,35 +95,12 @@ func (dgp verifierpg) produceResultData(
 	return mrs
 }
 
-func processAuthorship(au *parsed.Authorship) ([]string, int) {
-	authors := make([]string, 0, 2)
-	var year int
-	if au == nil {
-		return authors, year
-	}
-
-	authors = au.Authors
-
-	year, err := strconv.Atoi(au.Year)
-	if err == nil && !au.Original.Year.IsApproximate {
-		return authors, year
-	}
-
-	if au.Combination != nil && au.Combination.Year != nil {
-		year, _ = strconv.Atoi(au.Combination.Year.Value)
-		if au.Combination.Year.IsApproximate {
-			year = 0
-		}
-	}
-	return authors, year
-}
-
 func (dgp *verifierpg) populateMatchRecord(
 	mi mlib.MatchItem,
 	m mlib.Match,
 	mr *verifier.MatchRecord,
 	parser gnparser.GNparser,
-	verifMap map[string][]*verif,
+	verifMap map[string][]*dbshare.VerifSQL,
 ) {
 	verifRecs, ok := verifMap[mi.ID]
 	if !ok {
@@ -177,7 +131,7 @@ func (dgp *verifierpg) populateMatchRecord(
 		}
 
 		prsd := parser.ParseName(verifRec.Name.String)
-		authors, year := processAuthorship(prsd.Authorship)
+		authors, year := dbshare.ProcessAuthorship(prsd.Authorship)
 
 		currentRecordID := verifRec.RecordID.String
 		currentName := verifRec.Name.String
@@ -196,7 +150,7 @@ func (dgp *verifierpg) populateMatchRecord(
 
 		sources[verifRec.DataSourceID] = struct{}{}
 
-		ds := dgp.DataSourcesMap[verifRec.DataSourceID]
+		ds := dgp.dataSourcesMap[verifRec.DataSourceID]
 		curation := ds.Curation
 
 		if mr.Curation < curation {
@@ -270,8 +224,8 @@ func (dgp *verifierpg) populateMatchRecord(
 	mr.DataSourcesNum = len(sources)
 }
 
-func getVerifMap(vs []*verif) map[string][]*verif {
-	vm := make(map[string][]*verif)
+func getVerifMap(vs []*dbshare.VerifSQL) map[string][]*dbshare.VerifSQL {
+	vm := make(map[string][]*dbshare.VerifSQL)
 	for _, v := range vs {
 		vm[v.CanonicalID.String] = append(vm[v.CanonicalID.String], v)
 	}
@@ -282,17 +236,16 @@ func nameQuery(
 	ctx context.Context,
 	db *sql.DB,
 	canMatches []*mlib.Match,
-) ([]*verif, error) {
+) ([]*dbshare.VerifSQL, error) {
 
-	var res []*verif
+	var res []*dbshare.VerifSQL
 	if len(canMatches) == 0 {
 		return res, nil
 	}
 
 	ids := getUUIDs(canMatches)
-	idStr := "'" + strings.Join(ids, "','") + "'"
-	q := fmt.Sprintf(namesQ, "canonical_id", idStr)
-	err := sqlscan.Select(ctx, db, &res, q)
+	idsStr := "{" + strings.Join(ids, ",") + "}"
+	err := sqlscan.Select(ctx, db, &res, namesQ, idsStr)
 	if err != nil {
 		return nil, err
 	}
@@ -318,6 +271,8 @@ func getUUIDs(matches []*mlib.Match) []string {
 	return res
 }
 
+// partitionMatches partitions matches into two categories:
+// no match, match by canonical.
 func partitionMatches(matches []mlib.Match) matchSplit {
 	ms := matchSplit{
 		noMatch:   make([]*mlib.Match, 0, len(matches)),

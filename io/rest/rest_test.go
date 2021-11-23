@@ -2,7 +2,7 @@ package rest_test
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -14,22 +14,22 @@ import (
 	// log "github.com/sirupsen/logrus"
 )
 
-const url = "http://:8888/api/v1/"
+const restURL = "http://:8888/api/v0/"
 
 func TestPing(t *testing.T) {
-	resp, err := http.Get(url + "ping")
+	resp, err := http.Get(restURL + "ping")
 	assert.Nil(t, err)
 
-	response, err := ioutil.ReadAll(resp.Body)
+	response, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
 	assert.Equal(t, string(response), "pong")
 }
 
 func TestVer(t *testing.T) {
-	resp, err := http.Get(url + "version")
+	resp, err := http.Get(restURL + "version")
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
 	enc := gnfmt.GNjson{}
@@ -40,7 +40,7 @@ func TestVer(t *testing.T) {
 }
 
 func TestVerifyExact(t *testing.T) {
-	var response vlib.Verification
+	var response vlib.Output
 	names := []string{
 		"Not name",
 		"Bubo bubo",
@@ -54,13 +54,13 @@ func TestVerifyExact(t *testing.T) {
 		"Acacia vestita may",
 		"Candidatus Aenigmarchaeum subterraneum",
 	}
-	request := vlib.VerifyParams{NameStrings: names}
+	request := vlib.Input{NameStrings: names}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
@@ -109,17 +109,17 @@ func TestVerifyExact(t *testing.T) {
 }
 
 func TestFuzzy(t *testing.T) {
-	var response vlib.Verification
+	var response vlib.Output
 	names := []string{
 		"Abras precatorius",
 	}
-	request := vlib.VerifyParams{NameStrings: names, PreferredSources: []int{1, 12, 169, 182}}
+	request := vlib.Input{NameStrings: names, PreferredSources: []int{1, 12, 169, 182}}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
@@ -132,20 +132,20 @@ func TestFuzzy(t *testing.T) {
 
 // TestPrefDS checks if prefferred data sources works correclty.
 func TestPrefDS(t *testing.T) {
-	var response vlib.Verification
+	var response vlib.Output
 	names := []string{
 		"Bubo bubo", "Pomatomus",
 		"Pardosa moesta", "Plantago major var major",
 		"Cytospora ribis mitovirus 2",
 		"Pisonia grandis",
 	}
-	request := vlib.VerifyParams{NameStrings: names, PreferredSources: []int{1, 12, 169, 182}}
+	request := vlib.Input{NameStrings: names, PreferredSources: []int{1, 12, 169, 182}}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
@@ -172,29 +172,29 @@ func TestPrefDS(t *testing.T) {
 }
 
 func TestPrefCapitalize(t *testing.T) {
-	var response vlib.Verification
+	var response vlib.Output
 	names := []string{
 		"bubo bubo", "pomatomus",
 		"pardosa moesta", "plantago major var major",
 		"cytospora ribis mitovirus 2",
 		"pisonia grandis",
 	}
-	request := vlib.VerifyParams{NameStrings: names, WithCapitalization: true}
+	request := vlib.Input{NameStrings: names, WithCapitalization: true}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Equal(t, len(response.Names), len(names))
+	assert.True(t, response.WithCapitalization)
 
 	bubo := response.Names[0]
 	assert.Equal(t, bubo.InputID, "7e4c9a7c-0e90-5d1e-96be-bbea21fcfdd3")
 	assert.Equal(t, bubo.Input, "bubo bubo")
-	assert.True(t, bubo.InputCapitalized)
 	assert.NotNil(t, bubo.BestResult)
 	assert.Equal(t, bubo.BestResult.DataSourceID, 1)
 	assert.Contains(t, bubo.BestResult.Outlink, "NKSD")
@@ -202,36 +202,36 @@ func TestPrefCapitalize(t *testing.T) {
 }
 
 func TestAllSources(t *testing.T) {
-	var response vlib.Verification
+	var response vlib.Output
 	names := []string{
 		"Bubo bubo",
 	}
-	request := vlib.VerifyParams{NameStrings: names, PreferredSources: []int{0}}
+	request := vlib.Input{NameStrings: names, PreferredSources: []int{0}}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Equal(t, len(response.Names), len(names))
+	assert.False(t, response.WithCapitalization)
 	bubo := response.Names[0]
 	assert.Equal(t, bubo.InputID, "4431a0f3-e901-519a-886f-9b97e0c99d8e")
 	assert.Equal(t, bubo.Input, "Bubo bubo")
-	assert.False(t, bubo.InputCapitalized)
 	assert.NotNil(t, bubo.BestResult)
 	assert.Equal(t, len(bubo.PreferredResults), bubo.DataSourcesNum)
 	assert.True(t, bubo.DataSourcesNum > 20)
 }
 
 func TestAllMatches(t *testing.T) {
-	var response vlib.Verification
+	var response vlib.Output
 	names := []string{
 		"Solanum tuberosum",
 	}
-	request := vlib.VerifyParams{
+	request := vlib.Input{
 		NameStrings:      names,
 		PreferredSources: []int{1},
 		WithAllMatches:   true,
@@ -239,9 +239,9 @@ func TestAllMatches(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
@@ -252,11 +252,11 @@ func TestAllMatches(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	var response vlib.Verification
+	var response vlib.Output
 	names := []string{
 		"Solanum tuberosum",
 	}
-	request := vlib.VerifyParams{
+	request := vlib.Input{
 		NameStrings:      names,
 		PreferredSources: []int{0},
 		WithAllMatches:   true,
@@ -264,9 +264,9 @@ func TestAll(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
@@ -277,19 +277,19 @@ func TestAll(t *testing.T) {
 }
 
 func TestBugs(t *testing.T) {
-	var response vlib.Verification
+	var response vlib.Output
 	names := []string{
 		"Aceratagallia fuscosscripta (Oman )",
 		"Ampullaria immersa",
 		"Abacetine",
 	}
-	request := vlib.VerifyParams{NameStrings: names}
+	request := vlib.Input{NameStrings: names}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
@@ -301,17 +301,17 @@ func TestBugs(t *testing.T) {
 // and it should fix the match. This test is brittle, as it depends on
 // NCBI keeping non-standard "Homo sapiens substp. Denisova" name-string.
 func TestHomoNCBI(t *testing.T) {
-	var response vlib.Verification
-	request := vlib.VerifyParams{
+	var response vlib.Output
+	request := vlib.Input{
 		NameStrings:      []string{"Homo sapiens"},
 		PreferredSources: []int{4},
 	}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
@@ -321,10 +321,10 @@ func TestHomoNCBI(t *testing.T) {
 }
 
 func TestGetVerifications(t *testing.T) {
-	var response vlib.Verification
-	resp, err := http.Get(url + "verifications/Homo+sapiens?pref_sources=4")
+	var response vlib.Output
+	resp, err := http.Get(restURL + "verifications/Homo+sapiens?pref_sources=4")
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
@@ -334,11 +334,26 @@ func TestGetVerifications(t *testing.T) {
 	assert.NotContains(t, homo.PreferredResults[0].MatchedName, "Denisova")
 }
 
+func TestContext(t *testing.T) {
+	var response vlib.Output
+	resp, err := http.Get(restURL + "verifications/Homo+sapiens|Pan+troglodytes?context=true")
+	assert.Nil(t, err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
+	assert.Nil(t, err)
+	homo := response.Names[0]
+	assert.Equal(t, homo.BestResult.MatchedCanonicalSimple, "Homo sapiens")
+	assert.Equal(t, response.Context, "Hominidae")
+	assert.Equal(t, response.ContextPercentage, float32(1.0))
+}
+
 func TestDataSources(t *testing.T) {
 	var response []vlib.DataSource
-	resp, err := http.Get(url + "data_sources")
+	resp, err := http.Get(restURL + "data_sources")
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
@@ -351,9 +366,9 @@ func TestDataSources(t *testing.T) {
 
 func TestOneDataSource(t *testing.T) {
 	var ds vlib.DataSource
-	resp, err := http.Get(url + "data_sources/12")
+	resp, err := http.Get(restURL + "data_sources/12")
 	assert.Nil(t, err)
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
 
 	err = gnfmt.GNjson{}.Decode(respBytes, &ds)

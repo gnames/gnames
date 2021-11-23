@@ -12,8 +12,7 @@ import (
 const url = "https://matcher.globalnames.org/api/v1/"
 
 func TestVer(t *testing.T) {
-	var m gnmatcher.GNmatcher
-	m = matcher.NewGNmatcher(url)
+	m := matcher.NewGNmatcher(url)
 	ver := m.GetVersion()
 	assert.Regexp(t, `^v\d+\.\d+\.\d+`, ver.Version)
 }
