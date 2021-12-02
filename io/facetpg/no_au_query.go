@@ -11,7 +11,7 @@ func (f *facetpg) noAuQuery(
 	args []interface{},
 ) (string, []interface{}) {
 	noAuQ := fmt.Sprintf(`
-SELECT %s FROM verification v
+SELECT distinct %s FROM verification v
   RIGHT JOIN sp ON v.name_string_id = sp.name_string_id
   WHERE 1=1`, dbshare.QueryFields)
 

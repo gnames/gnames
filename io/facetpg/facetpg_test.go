@@ -13,7 +13,7 @@ import (
 func TestSearchPG(t *testing.T) {
 	cfg := config.New()
 	fct := facetpg.New(cfg)
-	inp := gnquery.New().Parse("g:Bubo sp+:bub. yr:1700- tx:Aves")
+	inp := gnquery.New().Parse("g:Bubo asp:bub. yr:1700- tx:Aves")
 
 	res, err := fct.Search(context.Background(), inp)
 	assert.Nil(t, err)

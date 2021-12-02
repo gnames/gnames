@@ -53,8 +53,9 @@ func ProcessAuthorship(au *parsed.Authorship) ([]string, int) {
 
 	authors = au.Authors
 
-	year, err := strconv.Atoi(au.Year)
-	if err == nil && !au.Original.Year.IsApproximate {
+	year, _ = strconv.Atoi(au.Year)
+	if year > 0 && au.Original != nil &&
+		au.Original.Year != nil && !au.Original.Year.IsApproximate {
 		return authors, year
 	}
 

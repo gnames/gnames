@@ -108,12 +108,16 @@ func (g gnames) Verify(
 func (g gnames) Search(
 	ctx context.Context,
 	inp search.Input,
-) (search.Output, error) {
+) search.Output {
 	inp.Query = inp.ToQuery()
 	log.Printf("Searching '%s'.", inp.Query)
 
 	res := search.Output{Meta: search.Meta{Input: inp}}
 	matchRecords, err := g.facet.Search(ctx, inp)
+	if err != nil {
+		res.Error = err.Error()
+	}
+	res.NamesNum = len(matchRecords)
 
 	sortedCanonicals := sortCanonicals(matchRecords)
 	resCans := make([]search.Canonical, len(matchRecords))
@@ -127,6 +131,7 @@ func (g gnames) Search(
 	for i, v := range sortedCanonicals {
 		mr := matchRecords[v]
 		s := score.NewScore()
+		s.SortResults(mr)
 		item := search.Canonical{
 			ID:          mr.InputID,
 			Name:        mr.Input,
@@ -139,7 +144,7 @@ func (g gnames) Search(
 	}
 
 	res.Names = resCans
-	return res, err
+	return res
 }
 
 func meta(params vlib.Input, names []*vlib.Name) vlib.Meta {

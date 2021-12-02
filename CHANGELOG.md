@@ -4,6 +4,12 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.5.1] - 2021-12-02
+
+### Added
+
+- improve output, bug fixes
+
 ## [v0.5.0] - 2021-12-01
 
 ### Added

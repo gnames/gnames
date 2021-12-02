@@ -41,7 +41,7 @@ func (f *facetpg) Search(
 	log.Printf("INPUT: %#v", inp)
 	f.spWordIDs, f.spWord = f.spInput()
 	if f.spWordIDs == nil {
-		return res, errors.New("cannot run query without species epithet input")
+		return res, errors.New("cannot run search without species epithet data")
 	}
 	q, args := f.setQuery()
 

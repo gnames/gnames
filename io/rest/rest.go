@@ -167,10 +167,7 @@ func searchGET(gn gnames.GNames) func(echo.Context) error {
 		q, _ := url.QueryUnescape(c.Param("query"))
 		gnq := gnquery.New()
 		inp := gnq.Parse(q)
-		res, err := gn.Search(context.Background(), inp)
-		if err != nil {
-			return err
-		}
+		res := gn.Search(context.Background(), inp)
 
 		return c.JSON(http.StatusOK, res)
 	}
@@ -194,10 +191,7 @@ func searchPOST(gn gnames.GNames) func(echo.Context) error {
 			params = gnquery.New().Process(params)
 
 			if err == nil {
-				res, err = gn.Search(ctx, params)
-			}
-
-			if err == nil {
+				res = gn.Search(ctx, params)
 				err = c.JSON(http.StatusOK, res)
 			}
 

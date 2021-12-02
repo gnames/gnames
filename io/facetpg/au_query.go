@@ -23,7 +23,7 @@ au AS (
     WHERE w.modified %s
     AND w.type_id = $%d
 )
-SELECT %s 
+SELECT distinct %s
   FROM verification v
     RIGHT JOIN au ON v.name_string_id = au.name_string_id
     WHERE 1=1`, auStr, len(args), dbshare.QueryFields)

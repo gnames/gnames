@@ -22,7 +22,7 @@ type GNames interface {
 	Verify(ctx context.Context, params verifier.Input) (verifier.Output, error)
 
 	// Search takes
-	Search(ctx context.Context, srch search.Input) (search.Output, error)
+	Search(ctx context.Context, srch search.Input) search.Output
 
 	// Datasources take IDs of data-sourses and return back list of corresponding
 	// metadata. If no IDs are given, it returns metadata for all data-sources.

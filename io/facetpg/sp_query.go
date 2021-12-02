@@ -58,7 +58,7 @@ func (f *facetpg) prepareSpWord() (string, string) {
 
 func (f *facetpg) prepareGenWord() string {
 	g := f.Genus
-	if len(g) < 3 {
+	if len(g) < 2 {
 		return ""
 	}
 
