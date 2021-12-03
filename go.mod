@@ -8,7 +8,7 @@ require (
 	github.com/gnames/gnlib v0.5.4
 	github.com/gnames/gnmatcher v0.5.10
 	github.com/gnames/gnparser v1.5.7
-	github.com/gnames/gnquery v0.1.8
+	github.com/gnames/gnquery v0.1.11
 	github.com/gnames/gnsys v0.2.2
 	github.com/gnames/gnuuid v0.1.1
 	github.com/gofrs/uuid v4.2.0+incompatible

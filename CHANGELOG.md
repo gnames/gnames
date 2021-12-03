@@ -4,6 +4,12 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.5.2] - 2021-12-03
+
+### Added
+
+- allow multiple data sources [#73]
+
 ## [v0.5.1] - 2021-12-02
 
 ### Added
@@ -194,6 +200,9 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.5.2]: https://github.com/gnames/gnames/compare/v0.5.1...v0.5.2
+[v0.5.1]: https://github.com/gnames/gnames/compare/v0.5.0...v0.5.1
+[v0.5.0]: https://github.com/gnames/gnames/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://github.com/gnames/gnames/compare/v0.3.3...v0.4.0
 [v0.3.3]: https://github.com/gnames/gnames/compare/v0.3.2...v0.3.3
 [v0.3.2]: https://github.com/gnames/gnames/compare/v0.3.1...v0.3.2

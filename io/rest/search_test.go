@@ -16,7 +16,7 @@ import (
 const searchURL = "http://:8888/api/v0/search"
 
 func TestGetSearch(t *testing.T) {
-	query := url.PathEscape("n:Bubo bubo tx:Aves all:t au:Linn.")
+	query := url.PathEscape("n:Bubo bubo tx:Aves ds:1,2 all:t au:Linn.")
 	resp, err := http.Get(searchURL + "/" + query)
 	assert.Nil(t, err)
 	var response search.Output
@@ -27,10 +27,11 @@ func TestGetSearch(t *testing.T) {
 	assert.Nil(t, err)
 	meta := response.Meta
 	names := response.Names
-	assert.True(t, meta.WithAllResults)
-	assert.Equal(t, meta.Author, "Linn.")
+	assert.True(t, meta.Input.WithAllResults)
+	assert.Equal(t, meta.Input.DataSourceIDs, []int{1, 2})
+	assert.Equal(t, meta.Input.Author, "Linn.")
 	assert.True(t, len(names) > 1)
-	assert.True(t, len(names[0].Results) > 5)
+	assert.True(t, len(names[0].Results) > 1)
 }
 
 func TestPostSearch(t *testing.T) {

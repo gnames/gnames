@@ -13,6 +13,7 @@ import (
 	"github.com/gnames/gnparser"
 	"github.com/gnames/gnparser/ent/parsed"
 	"github.com/gnames/gnuuid"
+	"github.com/lib/pq"
 )
 
 func (f *facetpg) setQuery() (string, []interface{}) {
@@ -30,9 +31,9 @@ func (f *facetpg) queryEnd(
 	q string,
 	args []interface{},
 ) (string, []interface{}) {
-	if f.DataSourceID > 0 {
-		args = append(args, f.DataSourceID)
-		q += fmt.Sprintf("\n    AND data_source_id = $%d", len(args))
+	if len(f.DataSourceIDs) > 0 {
+		args = append(args, pq.Array(f.DataSourceIDs))
+		q += fmt.Sprintf("\n    AND data_source_id = any($%d::int[])", len(args))
 	}
 
 	if f.Year > 0 {

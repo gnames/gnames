@@ -24,17 +24,20 @@ WITH sp AS (
 	spQ := []string{q}
 	gen := f.prepareGenWord()
 	if gen != "" {
-		spQ = append(spQ, "      AND c.name LIKE $3")
 		args = append(args, gen)
+		genQ := fmt.Sprintf("      AND c.name LIKE $%d", len(args))
+		spQ = append(spQ, genQ)
 	}
 
 	tx, ds := f.prepareTxWord()
 	if ds > 0 {
 		args = append(args, ds)
-		spQ = append(spQ, "      AND v.data_source_id = $4")
+		dsQ := fmt.Sprintf("      AND v.data_source_id = $%d", len(args))
+		spQ = append(spQ, dsQ)
 		if tx != "" {
 			args = append(args, tx)
-			spQ = append(spQ, "      AND v.classification LIKE $5")
+			clQ := fmt.Sprintf("      AND v.classification LIKE $%d", len(args))
+			spQ = append(spQ, clQ)
 		}
 	}
 	spQ = append(spQ, ")")
@@ -73,14 +76,17 @@ func (f *facetpg) prepareGenWord() string {
 }
 
 func (f *facetpg) prepareTxWord() (string, int) {
-	ds := f.DataSourceID
 	tx := f.ParentTaxon
+	if tx == "" {
+		return "", 0
+	}
 
-	if tx != "" {
-		tx = "%" + tx + "%"
-		if ds == 0 {
-			ds = 1
-		}
+	ds := 1
+	tx = "%" + tx + "%"
+
+	ids := f.DataSourceIDs
+	if len(ids) > 0 {
+		ds = ids[0]
 	}
 
 	return tx, ds
