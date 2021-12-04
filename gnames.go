@@ -81,18 +81,18 @@ func (g gnames) Verify(
 			s := score.NewScore()
 			s.SortResults(mr)
 			item := vlib.Name{
-				InputID:          mr.InputID,
-				Input:            mr.Input,
-				MatchType:        mr.MatchType,
-				Curation:         mr.Curation,
-				DataSourcesNum:   mr.DataSourcesNum,
-				BestResult:       s.BestResult(mr),
-				PreferredResults: s.PreferredResults(params.PreferredSources, mr, params.WithAllMatches),
-				Error:            errString,
+				ID:             mr.InputID,
+				Name:           mr.Input,
+				MatchType:      mr.MatchType,
+				Curation:       mr.Curation,
+				DataSourcesNum: mr.DataSourcesNum,
+				BestResult:     s.BestResult(mr),
+				Results:        s.Results(params.DataSources, mr, params.WithAllMatches),
+				Error:          errString,
 			}
 			if params.WithCapitalization {
-				item.Input = params.NameStrings[i]
-				item.InputID = gnuuid.New(item.Input).String()
+				item.Name = params.NameStrings[i]
+				item.ID = gnuuid.New(item.Name).String()
 			}
 
 			namesRes[i] = &item
@@ -117,10 +117,10 @@ func (g gnames) Search(
 	if err != nil {
 		res.Error = err.Error()
 	}
-	res.NamesNum = len(matchRecords)
+	res.NamesNumber = len(matchRecords)
 
 	sortedCanonicals := sortCanonicals(matchRecords)
-	resCans := make([]search.Canonical, len(matchRecords))
+	resCans := make([]*vlib.Name, len(matchRecords))
 	var dss []int
 	var all bool
 	if inp.WithAllResults {
@@ -132,15 +132,14 @@ func (g gnames) Search(
 		mr := matchRecords[v]
 		s := score.NewScore()
 		s.SortResults(mr)
-		item := search.Canonical{
-			ID:          mr.InputID,
-			Name:        mr.Input,
-			Cardinality: mr.Cardinality,
-			MatchType:   mr.MatchType.String(),
-			BestResult:  s.BestResult(mr),
-			Results:     s.PreferredResults(dss, mr, all),
+		item := vlib.Name{
+			ID:         mr.InputID,
+			Name:       mr.Input,
+			MatchType:  mr.MatchType,
+			BestResult: s.BestResult(mr),
+			Results:    s.Results(dss, mr, all),
 		}
-		resCans[i] = item
+		resCans[i] = &item
 	}
 
 	res.Names = resCans
@@ -148,7 +147,7 @@ func (g gnames) Search(
 }
 
 func meta(params vlib.Input, names []*vlib.Name) vlib.Meta {
-	allSources := len(params.PreferredSources) == 1 && params.PreferredSources[0] == 0
+	allSources := len(params.DataSources) == 1 && params.DataSources[0] == 0
 	hs := make([]gnctx.Hierarch, len(names))
 	for i := range names {
 		hs[i] = names[i]
@@ -158,13 +157,13 @@ func meta(params vlib.Input, names []*vlib.Name) vlib.Meta {
 		c = gnctx.New(hs, params.ContextThreshold)
 	}
 	res := vlib.Meta{
-		NamesNum:           len(params.NameStrings),
+		NamesNumber:        len(params.NameStrings),
 		WithAllSources:     allSources,
 		WithAllMatches:     params.WithAllMatches,
 		WithContext:        params.WithContext,
 		WithCapitalization: params.WithCapitalization,
 		ContextThreshold:   params.ContextThreshold,
-		PreferredSources:   params.PreferredSources,
+		DataSources:        params.DataSources,
 		Context:            c.Context.Name,
 		ContextPercentage:  c.ContextPercentage,
 		Kingdom:            c.Kingdom.Name,

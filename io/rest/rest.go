@@ -140,16 +140,16 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		txContext := c.QueryParam("context") == "true"
 		matches := c.QueryParam("all_matches") == "true"
 
-		var prefs []int
+		var ds []int
 		for _, v := range strings.Split(prefsStr, "|") {
 			if id, err := strconv.Atoi(v); err == nil {
-				prefs = append(prefs, id)
+				ds = append(ds, id)
 			}
 		}
 
 		params := vlib.Input{
 			NameStrings:        names,
-			PreferredSources:   prefs,
+			DataSources:        ds,
 			WithCapitalization: capitalize,
 			WithAllMatches:     matches,
 			WithContext:        txContext,

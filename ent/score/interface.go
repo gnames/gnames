@@ -10,7 +10,7 @@ import (
 
 // Score inteface implements methods for finding best-matching record,
 // according to its score, as well as return best matching records from the
-// preferred data-sources.
+// selected data-sources.
 type Score interface {
 	fmt.Stringer
 
@@ -24,7 +24,7 @@ type Score interface {
 	// altorithm.
 	BestResult(*verifier.MatchRecord) *vlib.ResultData
 
-	// PreferredResults returns the best-scoring result for each of the
-	// given preferred data-sources.
-	PreferredResults(sources []int, mr *verifier.MatchRecord, allMatches bool) []*vlib.ResultData
+	// Results returns the best-scoring result for each of the
+	// given selected data-sources.
+	Results(sources []int, mr *verifier.MatchRecord, allMatches bool) []*vlib.ResultData
 }

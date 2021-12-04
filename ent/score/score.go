@@ -65,9 +65,9 @@ func (s score) BestResult(mr *verifier.MatchRecord) *vlib.ResultData {
 	return mr.MatchResults[0]
 }
 
-// PreferredResults returns the best scoring vlib.ResultData for each of
+// Results returns the best scoring vlib.ResultData for each of
 // the preffered data-source. From 0 to 1 results per data-source are allowed.
-func (s score) PreferredResults(
+func (s score) Results(
 	sources []int,
 	mr *verifier.MatchRecord,
 	allMatches bool,
