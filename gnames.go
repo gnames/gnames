@@ -90,6 +90,7 @@ func (g gnames) Verify(
 				Results:        s.Results(params.DataSources, mr, params.WithAllMatches),
 				Error:          errString,
 			}
+			item.Curation = item.BestResult.Curation
 			if params.WithCapitalization {
 				item.Name = params.NameStrings[i]
 				item.ID = gnuuid.New(item.Name).String()
