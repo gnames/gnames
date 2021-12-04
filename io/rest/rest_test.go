@@ -322,7 +322,7 @@ func TestHomoNCBI(t *testing.T) {
 
 func TestGetVerifications(t *testing.T) {
 	var response vlib.Output
-	resp, err := http.Get(restURL + "verifications/Homo+sapiens?pref_sources=4")
+	resp, err := http.Get(restURL + "verifications/Homo+sapiens?data_sources=4")
 	assert.Nil(t, err)
 	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)

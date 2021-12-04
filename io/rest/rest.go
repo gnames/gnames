@@ -135,13 +135,13 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
 		nameStr, _ := url.QueryUnescape(c.Param("names"))
 		names := strings.Split(nameStr, "|")
-		prefsStr, _ := url.QueryUnescape(c.QueryParam("pref_sources"))
+		dsStr, _ := url.QueryUnescape(c.QueryParam("data_sources"))
 		capitalize := c.QueryParam("capitalize") == "true"
 		txContext := c.QueryParam("context") == "true"
 		matches := c.QueryParam("all_matches") == "true"
 
 		var ds []int
-		for _, v := range strings.Split(prefsStr, "|") {
+		for _, v := range strings.Split(dsStr, "|") {
 			if id, err := strconv.Atoi(v); err == nil {
 				ds = append(ds, id)
 			}
