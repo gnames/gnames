@@ -138,8 +138,10 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		dsStr, _ := url.QueryUnescape(c.QueryParam("data_sources"))
 		capitalize := c.QueryParam("capitalize") == "true"
 		txContext := c.QueryParam("context") == "true"
+		ctxThresholdStr := c.QueryParam("context_threshold")
 		matches := c.QueryParam("all_matches") == "true"
 
+		ctxThreshold, _ := strconv.ParseFloat(ctxThresholdStr, 32)
 		var ds []int
 		for _, v := range strings.Split(dsStr, "|") {
 			if id, err := strconv.Atoi(v); err == nil {
@@ -153,6 +155,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 			WithCapitalization: capitalize,
 			WithAllMatches:     matches,
 			WithContext:        txContext,
+			ContextThreshold:   ctxThreshold,
 		}
 		verified, err := gn.Verify(context.Background(), params)
 		if err != nil {
