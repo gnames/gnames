@@ -54,7 +54,7 @@ func (g gnames) Verify(
 	input vlib.Input,
 ) (vlib.Output, error) {
 	log.Printf("Verifying %d name-strings.", len(input.NameStrings))
-	namesRes := make([]*vlib.Name, len(input.NameStrings))
+	namesRes := make([]vlib.Name, len(input.NameStrings))
 
 	var matches []mlib.Match
 
@@ -93,7 +93,7 @@ func (g gnames) Verify(
 				item.ID = gnuuid.New(item.Name).String()
 			}
 
-			namesRes[i] = &item
+			namesRes[i] = item
 		} else {
 			log.Warnf("Cannot find record for '%s'.", v.Name)
 		}
@@ -144,7 +144,7 @@ func (g gnames) Search(
 	return res
 }
 
-func meta(input vlib.Input, names []*vlib.Name) vlib.Meta {
+func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 	allSources := len(input.DataSources) == 1 && input.DataSources[0] == 0
 	hs := make([]gnctx.Hierarch, len(names))
 	for i := range names {

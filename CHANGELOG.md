@@ -4,6 +4,12 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.5.7] - 2021-12-06
+
+### Added
+
+- dereferenced slice of names in verification.Output
+
 ## [v0.5.6] - 2021-12-05
 
 ### Fixed
