@@ -66,6 +66,37 @@ func TestMoreBugs(t *testing.T) {
 	}
 }
 
+func TestSortBugs(t *testing.T) {
+	tests := []struct {
+		msg, name, matchName string
+	}{
+		{"Willd", "Trichomanes bifidum Willd", "Trichomanes bifidum Vent. ex Willd."},
+	}
+
+	ns := make([]string, len(tests))
+	for i := range tests {
+		ns[i] = tests[i].name
+	}
+	inp := vlib.Input{NameStrings: ns}
+
+	req, err := gnfmt.GNjson{}.Encode(inp)
+	assert.Nil(t, err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(urlTest+"verifications", "application/json", r)
+	assert.Nil(t, err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+
+	var verif vlib.Output
+	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
+	assert.Nil(t, err)
+
+	for i, v := range tests {
+		assert.Equal(t, verif.Names[i].BestResult.MatchedName, v.matchName, v.msg)
+	}
+
+}
+
 func params() vlib.Input {
 	ns := make([]string, len(bugs))
 	for i, v := range bugs {

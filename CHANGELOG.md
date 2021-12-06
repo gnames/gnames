@@ -4,6 +4,30 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.5.6] - 2021-12-05
+
+### Fixed
+
+- fixes in context/kingdoms stats
+
+## [v0.5.5] - 2021-12-04
+
+### Fixed
+
+- fixes in verificaton GET parameters
+
+## [v0.5.4] - 2021-12-04
+
+### Added
+
+- modifications in input/output format
+
+## [v0.5.3] - 2021-12-04
+
+### Added
+
+- modifications in input/output formats
+
 ## [v0.5.2] - 2021-12-03
 
 ### Added
@@ -200,6 +224,10 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.5.6]: https://github.com/gnames/gnames/compare/v0.5.5...v0.5.6
+[v0.5.5]: https://github.com/gnames/gnames/compare/v0.5.4...v0.5.5
+[v0.5.4]: https://github.com/gnames/gnames/compare/v0.5.3...v0.5.4
+[v0.5.3]: https://github.com/gnames/gnames/compare/v0.5.2...v0.5.3
 [v0.5.2]: https://github.com/gnames/gnames/compare/v0.5.1...v0.5.2
 [v0.5.1]: https://github.com/gnames/gnames/compare/v0.5.0...v0.5.1
 [v0.5.0]: https://github.com/gnames/gnames/compare/v0.4.0...v0.5.0

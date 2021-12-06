@@ -38,7 +38,6 @@ func (f *facetpg) Search(
 	var err error
 	res := make(map[string]*verifier.MatchRecord)
 	f.Input = inp
-	log.Printf("INPUT: %#v", inp)
 	f.spWordIDs, f.spWord = f.spInput()
 	if f.spWordIDs == nil {
 		return res, errors.New("cannot run search without species epithet data")

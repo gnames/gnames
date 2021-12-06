@@ -111,7 +111,6 @@ func verificationPOST(gn gnames.GNames) func(echo.Context) error {
 				verified, err = gn.Verify(ctx, params)
 			}
 
-			log.Printf("VERIF: %#v", verified)
 			if err == nil {
 				err = c.JSON(http.StatusOK, verified)
 			}
@@ -141,7 +140,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		ctxThresholdStr := c.QueryParam("context_threshold")
 		matches := c.QueryParam("all_matches") == "true"
 
-		ctxThreshold, _ := strconv.ParseFloat(ctxThresholdStr, 32)
+		ctxThreshold, _ := strconv.ParseFloat(ctxThresholdStr, 64)
 		var ds []int
 		for _, v := range strings.Split(dsStr, "|") {
 			if id, err := strconv.Atoi(v); err == nil {
@@ -155,7 +154,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 			WithCapitalization: capitalize,
 			WithAllMatches:     matches,
 			WithContext:        txContext,
-			ContextThreshold:   ctxThreshold,
+			ContextThreshold:   float32(ctxThreshold),
 		}
 		verified, err := gn.Verify(context.Background(), params)
 		if err != nil {

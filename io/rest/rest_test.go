@@ -9,7 +9,6 @@ import (
 	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnlib/ent/gnvers"
 	vlib "github.com/gnames/gnlib/ent/verifier"
-	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	// log "github.com/sirupsen/logrus"
 )
@@ -359,7 +358,6 @@ func TestDataSources(t *testing.T) {
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Greater(t, len(response), 50)
-	log.Printf("%+v", response[0].ID)
 	col := response[0]
 	assert.Equal(t, col.Title, "Catalogue of Life")
 }

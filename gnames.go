@@ -51,21 +51,21 @@ func (g gnames) GetVersion() gnvers.Version {
 
 func (g gnames) Verify(
 	ctx context.Context,
-	params vlib.Input,
+	input vlib.Input,
 ) (vlib.Output, error) {
-	log.Printf("Verifying %d name-strings.", len(params.NameStrings))
-	namesRes := make([]*vlib.Name, len(params.NameStrings))
+	log.Printf("Verifying %d name-strings.", len(input.NameStrings))
+	namesRes := make([]*vlib.Name, len(input.NameStrings))
 
 	var matches []mlib.Match
 
-	if params.WithCapitalization {
-		names := make([]string, len(params.NameStrings))
-		for i := range params.NameStrings {
-			names[i] = str.CapitalizeName(params.NameStrings[i])
+	if input.WithCapitalization {
+		names := make([]string, len(input.NameStrings))
+		for i := range input.NameStrings {
+			names[i] = str.CapitalizeName(input.NameStrings[i])
 		}
 		matches = g.matcher.MatchNames(names)
 	} else {
-		matches = g.matcher.MatchNames(params.NameStrings)
+		matches = g.matcher.MatchNames(input.NameStrings)
 	}
 
 	var errString string
@@ -73,8 +73,6 @@ func (g gnames) Verify(
 	if err != nil {
 		errString = err.Error()
 	}
-
-	log.Printf("REC: %#v", matchRecords)
 
 	for i, v := range matches {
 		if mr, ok := matchRecords[v.ID]; ok {
@@ -87,11 +85,11 @@ func (g gnames) Verify(
 				Curation:       mr.Curation,
 				DataSourcesNum: mr.DataSourcesNum,
 				BestResult:     s.BestResult(mr),
-				Results:        s.Results(params.DataSources, mr, params.WithAllMatches),
+				Results:        s.Results(input.DataSources, mr, input.WithAllMatches),
 				Error:          errString,
 			}
-			if params.WithCapitalization {
-				item.Name = params.NameStrings[i]
+			if input.WithCapitalization {
+				item.Name = input.NameStrings[i]
 				item.ID = gnuuid.New(item.Name).String()
 			}
 
@@ -100,8 +98,7 @@ func (g gnames) Verify(
 			log.Warnf("Cannot find record for '%s'.", v.Name)
 		}
 	}
-	log.Printf("%#v", params)
-	res := vlib.Output{Meta: meta(params, namesRes), Names: namesRes}
+	res := vlib.Output{Meta: meta(input, namesRes), Names: namesRes}
 	return res, nil
 }
 
@@ -147,28 +144,39 @@ func (g gnames) Search(
 	return res
 }
 
-func meta(params vlib.Input, names []*vlib.Name) vlib.Meta {
-	allSources := len(params.DataSources) == 1 && params.DataSources[0] == 0
+func meta(input vlib.Input, names []*vlib.Name) vlib.Meta {
+	allSources := len(input.DataSources) == 1 && input.DataSources[0] == 0
 	hs := make([]gnctx.Hierarch, len(names))
 	for i := range names {
 		hs[i] = names[i]
 	}
-	c := gnctx.Context{Context: &gnctx.Clade{}, Kingdom: &gnctx.Clade{}}
-	if params.WithContext {
-		c = gnctx.New(hs, params.ContextThreshold)
+	var c gnctx.Context
+	var ks []vlib.Kingdom
+
+	if input.WithContext {
+		c = gnctx.New(hs, input.ContextThreshold)
+		ks = make([]vlib.Kingdom, len(c.Kingdoms))
+		for i, v := range c.Kingdoms {
+			ks[i] = vlib.Kingdom{
+				KingdomName: v.Name,
+				NamesNumber: v.NamesNum,
+				Percentage:  v.Percentage,
+			}
+		}
 	}
 	res := vlib.Meta{
-		NamesNumber:        len(params.NameStrings),
+		NamesNumber:        len(input.NameStrings),
 		WithAllSources:     allSources,
-		WithAllMatches:     params.WithAllMatches,
-		WithContext:        params.WithContext,
-		WithCapitalization: params.WithCapitalization,
-		ContextThreshold:   params.ContextThreshold,
-		DataSources:        params.DataSources,
+		WithAllMatches:     input.WithAllMatches,
+		WithContext:        input.WithContext,
+		WithCapitalization: input.WithCapitalization,
+		ContextThreshold:   input.ContextThreshold,
+		DataSources:        input.DataSources,
 		Context:            c.Context.Name,
 		ContextPercentage:  c.ContextPercentage,
 		Kingdom:            c.Kingdom.Name,
 		KingdomPercentage:  c.KingdomPercentage,
+		Kingdoms:           ks,
 	}
 	return res
 }
