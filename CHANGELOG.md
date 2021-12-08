@@ -4,6 +4,12 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.5.8] - 2021-12-07
+
+### Added
+
+- add score details to JSON output [#75]
+
 ## [v0.5.7] - 2021-12-06
 
 ### Added
@@ -230,6 +236,8 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.5.8]: https://github.com/gnames/gnames/compare/v0.5.7...v0.5.8
+[v0.5.7]: https://github.com/gnames/gnames/compare/v0.5.6...v0.5.7
 [v0.5.6]: https://github.com/gnames/gnames/compare/v0.5.5...v0.5.6
 [v0.5.5]: https://github.com/gnames/gnames/compare/v0.5.4...v0.5.5
 [v0.5.4]: https://github.com/gnames/gnames/compare/v0.5.3...v0.5.4

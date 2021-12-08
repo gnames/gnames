@@ -11,8 +11,8 @@ type authMatch int
 const (
 	// noOverlap: authors do not overlap.
 	noOverlap authMatch = iota
-	// uncomparable: cannot compare because one or both author sets are empty.
-	uncomparable
+	// incomparable: cannot compare because one or both author sets are empty.
+	incomparable
 	// noAuthVsAuth means that authors cannot be compared, and input has
 	// no authorship, but matched name does provide authorship.
 	noAuthVsAuth
@@ -51,10 +51,10 @@ func findAuthMatch(auth1, auth2 []string) authMatch {
 	auth1 = authorsNormalize(auth1)
 	auth2 = authorsNormalize(auth2)
 	if len(auth1) == 0 && len(auth2) == 0 {
-		return uncomparable
+		return incomparable
 	}
 	if len(auth2) == 0 {
-		return uncomparable
+		return incomparable
 	}
 	if len(auth1) == 0 && len(auth2) > 0 {
 		return noAuthVsAuth

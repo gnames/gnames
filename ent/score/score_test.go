@@ -9,25 +9,85 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestScoreDetails(t *testing.T) {
+	tests := []struct {
+		msg                                    string
+		score                                  uint32
+		rank, fuzzy, curat, auth, accept, pars float32
+	}{
+		{
+			"empty",
+			uint32(0b00000000_00000000_00000000_00000000),
+			0, 0, 0, 0, 0, 0,
+		},
+		{
+			"full",
+			uint32(0b10111111_11111111_11111111_11111111),
+			1, 1, 1, 1, 1, 1,
+		},
+		{
+			"rank",
+			uint32(0b01000000_00000000_00000000_00000000),
+			0.5, 0, 0, 0, 0, 0,
+		},
+		{
+			"fuzzy",
+			uint32(0b00010000_00000000_00000000_00000000),
+			0, 0.33, 0, 0, 0, 0,
+		},
+		{
+			"curated",
+			uint32(0b00000100_00000000_00000000_00000000),
+			0, 0, 0.33, 0, 0, 0,
+		},
+		{
+			"auth",
+			uint32(0b00000000_10000000_00000000_00000000),
+			0, 0, 0, 0.1428, 0, 0,
+		},
+		{
+			"accept",
+			uint32(0b00000000_01000000_00000000_00000000),
+			0, 0, 0, 0, 1, 0,
+		},
+		{
+			"parsed",
+			uint32(0b00000000_00010000_00000000_00000000),
+			0, 0, 0, 0, 0, 0.33,
+		},
+	}
+
+	for _, v := range tests {
+		s := score.New(v.score)
+		res := s.Details()
+		assert.Equal(t, res.InfraSpecificRankScore, v.rank, v.msg)
+		assert.InDelta(t, res.FuzzynessScore, v.fuzzy, 0.01, v.msg)
+		assert.InDelta(t, res.CuratedDataScore, v.curat, 0.01, v.msg)
+		assert.InDelta(t, res.AuthorMatchScore, v.auth, 0.01, v.msg)
+		assert.Equal(t, res.AcceptedNameScore, v.accept, v.msg)
+		assert.InDelta(t, res.ParsingQualityScore, v.pars, 0.01, v.msg)
+	}
+}
+
 func TestSortRecords(t *testing.T) {
 	mr := &matchRec
-	s := score.NewScore()
+	s := score.New()
 	s.SortResults(mr)
 	assert.Equal(t, mr.MatchResults[0].DataSourceID, 1)
 	assert.Equal(t, mr.MatchResults[0].RecordID, "3529384")
-	assert.Equal(t, int(mr.MatchResults[0].Score), 2129657856)
+	assert.Equal(t, int(mr.MatchResults[0].Score), 1022361600)
 
 	assert.Equal(t, mr.MatchResults[1].DataSourceID, 1)
 	assert.Equal(t, mr.MatchResults[1].RecordID, "3562751")
-	assert.Equal(t, int(mr.MatchResults[1].Score), 2125463552)
+	assert.Equal(t, int(mr.MatchResults[1].Score), 1018167296)
 
 	assert.Equal(t, mr.MatchResults[2].DataSourceID, 11)
 	assert.Equal(t, mr.MatchResults[2].RecordID, "8638411")
-	assert.Equal(t, int(mr.MatchResults[2].Score), 1995440128)
+	assert.Equal(t, int(mr.MatchResults[2].Score), 888143872)
 
 	assert.Equal(t, mr.MatchResults[3].DataSourceID, 169)
 	assert.Equal(t, mr.MatchResults[3].RecordID, "95877520")
-	assert.Equal(t, int(mr.MatchResults[3].Score), 1919942656)
+	assert.Equal(t, int(mr.MatchResults[3].Score), 821035008)
 }
 
 var matchRec = verifier.MatchRecord{

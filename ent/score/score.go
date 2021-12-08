@@ -8,9 +8,13 @@ import (
 	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 
-// NewScore returns an implementation of the Score interface.
-func NewScore() Score {
-	return score{}
+// New returns an implementation of the Score interface.
+func New(value ...uint32) Score {
+	res := score{}
+	if len(value) == 1 {
+		res.value = value[0]
+	}
+	return res
 }
 
 // String returns a string representation of a score as a set of bits with
@@ -41,6 +45,7 @@ func (s score) SortResults(mr *verifier.MatchRecord) {
 			accepted(rd.RecordID, rd.CurrentRecordID).
 			parsingQuality(rd.ParsingQuality)
 		rd.Score = s.value
+		rd.ScoreDetails = s.Details()
 		s.value = 0
 	}
 	// Sort (in reverse) according to the score. First element has
@@ -87,6 +92,19 @@ func (s score) Results(
 	}
 
 	return getPrefSources(sources, mr, allMatches)
+}
+
+// ScoreDetails converts the scoreinteger to human-readable ScoreDetails.
+func (s score) Details() vlib.ScoreDetails {
+	res := vlib.ScoreDetails{
+		InfraSpecificRankScore: s.rankVal(),
+		FuzzynessScore:         s.fuzzyVal(),
+		CuratedDataScore:       s.curationVal(),
+		AuthorMatchScore:       s.authVal(),
+		AcceptedNameScore:      s.acceptedVal(),
+		ParsingQualityScore:    s.parsingQualityVal(),
+	}
+	return res
 }
 
 func getPrefSources(

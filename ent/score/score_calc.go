@@ -16,7 +16,6 @@ import (
 //    `Aus bus var. cus` vs `Aus bus f. cus`
 // 01 - match is unknown
 //    `Aus bus cus` vs `Aus bus f. cus`
-//    `Aus bus` vs `Aus bus`
 // 10 - rank matches
 //    `Aus bus var. cus` vs `Aus bus var. cus`
 //
@@ -35,29 +34,43 @@ import (
 // 000000xx_x0000000_00000000_00000000: matching authorship
 // 000 - authorship does not match
 //       `Linn.` vs `Banks`
-// 001 - authors overlap, but there are additional authors for both sets. Years
-//       either match somewhat or not available.
-//       `Auth1, Auth2, 1888` vs `Auth1, Auth3, 1887`
-// 010 - one set of authors fully included into other set,
+//
+// 001 - Authorship is not comparable.
+//       `` vs ``
+//
+// 001 - Authorship is not comparable, input has no authorship, but
+//       output has authorship
+//       `Auth1, Auth2, 1880` vs ``
+//
+// 010 - Authors overlap, but years do not match
+//       `Auth1, Auth2 1778` vs `Auth1, Auth3 1785`
+//
+// 011 - one set of authors fully included into other set,
 //       yers do not match.
 //       `Auth1, Auth2, 1880` vs `Auth1, Auth2, Auth3, 1887`
-// 011 - Authors are identical, years do not match.
+//
+// 100 - Authors are identical, years do not match.
 //       `Auth1, Auth2, 1880` vs `Auth1, Auth2, 1887`
-// 100 - Authorship is not comparable.
-//       `Auth1, Auth2, 1880` vs ``
-// 101 - Authorship is not comparable, input has no authorship, but
-//       output has authorship
-// 101 - Authors are identical, year is not comparable.
+//
+// 101 - a,y+: Authors overlap, but there are additional authors
+//       for both sets. Years either match somewhat or not available.
+//       `Auth1, Auth2, 1888` vs `Auth1, Auth3, 1887`
+//
+// 101 - aaa,y?: Authors are identical, year is not comparable.
 //       `Auth1, Auth2` vs `Auth1, Auth2, 1888`
-// 101 - One set of authors is fully included into other,
+//
+// 101 - aa,yy: One set of authors is fully included into other,
 //       years are close.
 //       `Auth1, Auth2, Auth3, 1888` vs `Auth1, Auth2, 1887`
-// 110 - Authors are identical, years are close.
-//       `Auth1, Auth2, 1888` vs `Auth1, Auth2, 1887`
-// 110 - One set of authors is fully included into another,
+//
+// 110 - aa,yyy: One set of authors is fully included into another,
 //       same years.
+//
+// 110 - aaa,yy: Authors are identical, years are close.
+//       `Auth1, Auth2, 1888` vs `Auth1, Auth2, 1887`
 //       `Auth1, Auth2, Auth3, 1888` vs `Auth1, Auth2, 1888`
-// 111 - Authors and years are identical.
+//
+// 111 - aaa,yyy: Authors and years are identical.
 //       `Auth1, Auth2, 1888` vs `Auth1, Auth2, 1888`
 //
 // 00000000_0x000000_00000000_00000000: accepted name
@@ -73,27 +86,41 @@ type score struct {
 	value uint32
 }
 
+var (
+	rankShift           = 30
+	fuzzyShift          = 28
+	curationShift       = 26
+	authShift           = 23
+	acceptedShift       = 22
+	parsingQualityShift = 20
+)
+
 // rank checks if infraspecific canonical forms contain the same ranks. If they
 // do the score is 2, if comparison cannot be done the score is 1, and if the
 // ranks are different, the score is 0. 2 bits, shift 30
 func (s score) rank(can1, can2 string, card1, card2 int) score {
-	shift := 30
-	if card1 < 3 || card1 != card2 ||
-		!strings.Contains(can1, ".") || !strings.Contains(can2, ".") {
-		s.value = (s.value | uint32(0b01<<shift))
+	if card1 < 3 || card2 < 3 {
+		return s
+	}
+
+	if card1 != card2 || !strings.Contains(can1, ".") || !strings.Contains(can2, ".") {
+		s.value = s.value | 0b01<<rankShift
 		return s
 	}
 
 	if can1 == can2 {
-		s.value = (s.value | uint32(0b10<<shift))
+		s.value = s.value | 0b10<<rankShift
 	}
 	return s
+}
+
+func (s score) rankVal() float32 {
+	return s.extractVal(rankShift, 0b11, 2)
 }
 
 // fuzzy matching
 func (s score) fuzzy(editDistance int) score {
 	ed := editDistance
-	shift := 28
 	var i uint32 = 3
 	if ed > int(i) || ed < 0 {
 		i = 0
@@ -101,18 +128,21 @@ func (s score) fuzzy(editDistance int) score {
 		i = i - uint32(ed)
 	}
 
-	s.value = (s.value | uint32(i<<shift))
+	s.value = s.value | i<<fuzzyShift
 	return s
+}
+
+func (s score) fuzzyVal() float32 {
+	return s.extractVal(fuzzyShift, 0b11, 3)
 }
 
 // curation scores by curation level of data-sources.
 func (s score) curation(dataSourceID int,
 	curationLevel vlib.CurationLevel) score {
-	shift := 26
 	var i uint32
 
 	if dataSourceID == 1 {
-		s.value = (s.value | 0b11<<shift)
+		s.value = s.value | 0b11<<curationShift
 		return s
 	}
 
@@ -124,8 +154,12 @@ func (s score) curation(dataSourceID int,
 	case vlib.Curated:
 		i = 0b10
 	}
-	s.value = (s.value | i<<shift)
+	s.value = s.value | i<<curationShift
 	return s
+}
+
+func (s score) curationVal() float32 {
+	return s.extractVal(curationShift, 0b11, 3)
 }
 
 // auth takes two lists of authors, and their corresponding years and
@@ -133,7 +167,6 @@ func (s score) curation(dataSourceID int,
 // authors and years did match.
 // The score takes 3 bits and ranges from 0 to 7.
 func (s score) auth(auth1, auth2 []string, year1, year2 int) score {
-	shift := 23
 	years := findYearsMatch(year1, year2)
 	authors := findAuthMatch(auth1, auth2)
 	var i uint32 = 0
@@ -147,7 +180,7 @@ func (s score) auth(auth1, auth2 []string, year1, year2 int) score {
 		case notAvailable:
 			i = 0b101 //5
 		case noMatch:
-			i = 0b011 //3
+			i = 0b100 //4
 		}
 	} else if authors == fullInclusion {
 		switch years {
@@ -158,38 +191,51 @@ func (s score) auth(auth1, auth2 []string, year1, year2 int) score {
 		case notAvailable:
 			i = 0b100 //4
 		case noMatch:
-			i = 0b010 //2
+			i = 0b011 //3
 		}
 	} else if authors == overlap {
 		switch years {
+		case perfectMatch:
+			i = 0b101 //5
+		case approxMatch:
+			i = 0b100 //4
+		case notAvailable:
+			i = 0b010 //3
 		case noMatch:
-			i = 0b000 //0
-		default:
-			i = 0b001 //1
+			i = 0b010 //2
 		}
 	} else if authors == noAuthVsAuth {
-		i = 0b101 //5
-	} else if authors == uncomparable {
-		i = 0b100 //4
+		i = 0b001 //1
+	} else if authors == incomparable {
+		i = 0b001 //1
 	}
-	s.value = (s.value | i<<shift)
+	// authors do not match so by default:
+	// i = 0b00 //
+
+	s.value = s.value | i<<authShift
 	return s
+}
+
+func (s score) authVal() float32 {
+	return s.extractVal(authShift, 0b111, 7)
 }
 
 // accepted name
 func (s score) accepted(recordID, acceptedID string) score {
-	shift := 22
 	var i uint32 = 0
 	if acceptedID == "" || recordID == acceptedID {
 		i = 1
 	}
-	s.value = (s.value | uint32(i<<shift))
+	s.value = s.value | i<<acceptedShift
 	return s
+}
+
+func (s score) acceptedVal() float32 {
+	return s.extractVal(acceptedShift, 0b1, 1)
 }
 
 // parsingQuality
 func (s score) parsingQuality(quality int) score {
-	shift := 20
 	var i uint32 = 0
 	switch quality {
 	case 3:
@@ -199,6 +245,16 @@ func (s score) parsingQuality(quality int) score {
 	case 1:
 		i = 0b11
 	}
-	s.value = (s.value | uint32(i<<shift))
+	s.value = s.value | i<<parsingQualityShift
 	return s
+}
+
+func (s score) parsingQualityVal() float32 {
+	return s.extractVal(parsingQualityShift, 0b11, 3)
+}
+
+func (s score) extractVal(shift, mask int, max float32) float32 {
+	masked := s.value & uint32(mask<<shift)
+	res := float32(masked>>shift) / max
+	return res
 }

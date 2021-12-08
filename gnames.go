@@ -76,7 +76,7 @@ func (g gnames) Verify(
 
 	for i, v := range matches {
 		if mr, ok := matchRecords[v.ID]; ok {
-			s := score.NewScore()
+			s := score.New()
 			s.SortResults(mr)
 			item := vlib.Name{
 				ID:             mr.InputID,
@@ -127,7 +127,7 @@ func (g gnames) Search(
 
 	for i, v := range sortedCanonicals {
 		mr := matchRecords[v]
-		s := score.NewScore()
+		s := score.New()
 		s.SortResults(mr)
 		item := vlib.Name{
 			ID:         mr.InputID,
