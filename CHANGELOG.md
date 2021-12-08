@@ -4,6 +4,12 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.5.9]
+
+### Fixes
+
+- small changes in scoring algorithm for authors.
+
 ## [v0.5.8] - 2021-12-07
 
 ### Added

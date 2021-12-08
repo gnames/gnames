@@ -32,17 +32,17 @@ import (
 // 11 - Catalogue of Life
 //
 // 000000xx_x0000000_00000000_00000000: matching authorship
-// 000 - authorship does not match
+// 000 - authorship does not match.
 //       `Linn.` vs `Banks`
 //
 // 001 - Authorship is not comparable.
 //       `` vs ``
 //
-// 001 - Authorship is not comparable, input has no authorship, but
-//       output has authorship
-//       `Auth1, Auth2, 1880` vs ``
+// 010 - Authorship is not comparable, input has no authorship, but
+//       output has authorship.
+//       `` vs `Auth1, Auth2, 1880`
 //
-// 010 - Authors overlap, but years do not match
+// 010 - Authors overlap, but years do not match.
 //       `Auth1, Auth2 1778` vs `Auth1, Auth3 1785`
 //
 // 011 - one set of authors fully included into other set,
@@ -205,7 +205,7 @@ func (s score) auth(auth1, auth2 []string, year1, year2 int) score {
 			i = 0b010 //2
 		}
 	} else if authors == noAuthVsAuth {
-		i = 0b001 //1
+		i = 0b010 //2
 	} else if authors == incomparable {
 		i = 0b001 //1
 	}

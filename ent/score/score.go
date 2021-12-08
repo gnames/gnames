@@ -98,7 +98,7 @@ func (s score) Results(
 func (s score) Details() vlib.ScoreDetails {
 	res := vlib.ScoreDetails{
 		InfraSpecificRankScore: s.rankVal(),
-		FuzzynessScore:         s.fuzzyVal(),
+		FuzzyLessScore:         s.fuzzyVal(),
 		CuratedDataScore:       s.curationVal(),
 		AuthorMatchScore:       s.authVal(),
 		AcceptedNameScore:      s.acceptedVal(),

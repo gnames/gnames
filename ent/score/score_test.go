@@ -61,7 +61,7 @@ func TestScoreDetails(t *testing.T) {
 		s := score.New(v.score)
 		res := s.Details()
 		assert.Equal(t, res.InfraSpecificRankScore, v.rank, v.msg)
-		assert.InDelta(t, res.FuzzynessScore, v.fuzzy, 0.01, v.msg)
+		assert.InDelta(t, res.FuzzyLessScore, v.fuzzy, 0.01, v.msg)
 		assert.InDelta(t, res.CuratedDataScore, v.curat, 0.01, v.msg)
 		assert.InDelta(t, res.AuthorMatchScore, v.auth, 0.01, v.msg)
 		assert.Equal(t, res.AcceptedNameScore, v.accept, v.msg)
@@ -75,15 +75,15 @@ func TestSortRecords(t *testing.T) {
 	s.SortResults(mr)
 	assert.Equal(t, mr.MatchResults[0].DataSourceID, 1)
 	assert.Equal(t, mr.MatchResults[0].RecordID, "3529384")
-	assert.Equal(t, int(mr.MatchResults[0].Score), 1022361600)
+	assert.Equal(t, int(mr.MatchResults[0].Score), 1030750208)
 
 	assert.Equal(t, mr.MatchResults[1].DataSourceID, 1)
 	assert.Equal(t, mr.MatchResults[1].RecordID, "3562751")
-	assert.Equal(t, int(mr.MatchResults[1].Score), 1018167296)
+	assert.Equal(t, int(mr.MatchResults[1].Score), 1026555904)
 
 	assert.Equal(t, mr.MatchResults[2].DataSourceID, 11)
 	assert.Equal(t, mr.MatchResults[2].RecordID, "8638411")
-	assert.Equal(t, int(mr.MatchResults[2].Score), 888143872)
+	assert.Equal(t, int(mr.MatchResults[2].Score), 896532480)
 
 	assert.Equal(t, mr.MatchResults[3].DataSourceID, 169)
 	assert.Equal(t, mr.MatchResults[3].RecordID, "95877520")
