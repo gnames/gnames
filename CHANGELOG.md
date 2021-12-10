@@ -4,6 +4,12 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.5.10]
+
+### Added
+
+- update dependency modules
+
 ## [v0.5.9]
 
 ### Fixes
@@ -242,6 +248,8 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.5.10]: https://github.com/gnames/gnames/compare/v0.5.9...v0.5.10
+[v0.5.9]: https://github.com/gnames/gnames/compare/v0.5.8...v0.5.9
 [v0.5.8]: https://github.com/gnames/gnames/compare/v0.5.7...v0.5.8
 [v0.5.7]: https://github.com/gnames/gnames/compare/v0.5.6...v0.5.7
 [v0.5.6]: https://github.com/gnames/gnames/compare/v0.5.5...v0.5.6
