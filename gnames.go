@@ -116,8 +116,8 @@ func (g gnames) Search(
 	}
 	res.NamesNumber = len(matchRecords)
 
-	sortedCanonicals := sortCanonicals(matchRecords)
-	resCans := make([]*vlib.Name, len(matchRecords))
+	sortedNames := sortNames(matchRecords)
+	resNames := make([]vlib.Name, len(matchRecords))
 	var dss []int
 	var all bool
 	if inp.WithAllResults {
@@ -125,7 +125,7 @@ func (g gnames) Search(
 		all = true
 	}
 
-	for i, v := range sortedCanonicals {
+	for i, v := range sortedNames {
 		mr := matchRecords[v]
 		s := score.New()
 		s.SortResults(mr)
@@ -137,10 +137,10 @@ func (g gnames) Search(
 			Results:    s.Results(dss, mr, all),
 		}
 		item.Curation = item.BestResult.Curation
-		resCans[i] = &item
+		resNames[i] = item
 	}
 
-	res.Names = resCans
+	res.Names = resNames
 	return res
 }
 
@@ -203,7 +203,7 @@ func FirstUpperCase(name string) string {
 	return string(runes)
 }
 
-func sortCanonicals(mrs map[string]*verifier.MatchRecord) []string {
+func sortNames(mrs map[string]*verifier.MatchRecord) []string {
 	res := make([]string, len(mrs))
 	var count int
 	for k := range mrs {
