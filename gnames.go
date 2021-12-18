@@ -79,8 +79,8 @@ func (g gnames) Verify(
 			s := score.New()
 			s.SortResults(mr)
 			item := vlib.Name{
-				ID:             mr.InputID,
-				Name:           mr.Input,
+				ID:             mr.ID,
+				Name:           mr.Name,
 				MatchType:      mr.MatchType,
 				Curation:       mr.Curation,
 				DataSourcesNum: mr.DataSourcesNum,
@@ -130,8 +130,8 @@ func (g gnames) Search(
 		s := score.New()
 		s.SortResults(mr)
 		item := vlib.Name{
-			ID:         mr.InputID,
-			Name:       mr.Input,
+			ID:         mr.ID,
+			Name:       mr.Name,
 			MatchType:  mr.MatchType,
 			BestResult: s.BestResult(mr),
 			Results:    s.Results(dss, mr, all),

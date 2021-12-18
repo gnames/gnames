@@ -108,8 +108,8 @@ func (f *facetpg) organizeByCanonicals(
 			res[prsd.Canonical.Full].MatchResults = mr
 		} else {
 			mr := verifier.MatchRecord{
-				InputID:         gnuuid.New(prsd.Canonical.Full).String(),
-				Input:           prsd.Canonical.Full,
+				ID:              gnuuid.New(prsd.Canonical.Full).String(),
+				Name:            prsd.Canonical.Full,
 				Cardinality:     int(prsd.Cardinality),
 				CanonicalSimple: prsd.Canonical.Simple,
 				CanonicalFull:   prsd.Canonical.Full,

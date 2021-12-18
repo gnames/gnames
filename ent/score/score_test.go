@@ -91,8 +91,8 @@ func TestSortRecords(t *testing.T) {
 }
 
 var matchRec = verifier.MatchRecord{
-	InputID:         "4c8848f2-7271-588c-ba81-e4d5efcc1e92",
-	Input:           "Pisonia grandis",
+	ID:              "4c8848f2-7271-588c-ba81-e4d5efcc1e92",
+	Name:            "Pisonia grandis",
 	Cardinality:     2,
 	CanonicalSimple: "Pisonia grandis",
 	CanonicalFull:   "Pisonia grandis",

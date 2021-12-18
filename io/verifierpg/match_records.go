@@ -63,8 +63,8 @@ func (dgp verifierpg) produceResultData(
 	mrs := make(map[string]*verifier.MatchRecord)
 	for _, v := range ms.noMatch {
 		mrs[v.ID] = &verifier.MatchRecord{
-			InputID: v.ID,
-			Input:   v.Name,
+			ID:   v.ID,
+			Name: v.Name,
 		}
 	}
 
@@ -77,8 +77,8 @@ func (dgp verifierpg) produceResultData(
 		authors, year := dbshare.ProcessAuthorship(prsd.Authorship)
 
 		mr := verifier.MatchRecord{
-			InputID:         match.ID,
-			Input:           match.Name,
+			ID:              match.ID,
+			Name:            match.Name,
 			Cardinality:     int(prsd.Cardinality),
 			CanonicalSimple: prsd.Canonical.Simple,
 			CanonicalFull:   prsd.Canonical.Full,

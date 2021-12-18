@@ -8,8 +8,8 @@ import (
 // verification output. Most of its fields has the same semantic meaning as
 // `entity.Verification` fields.
 type MatchRecord struct {
-	InputID         string
-	Input           string
+	ID              string
+	Name            string
 	Cardinality     int
 	CanonicalSimple string
 	CanonicalFull   string
