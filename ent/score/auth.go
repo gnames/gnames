@@ -11,7 +11,7 @@ type authMatch int
 const (
 	// noOverlap: authors do not overlap.
 	noOverlap authMatch = iota
-	// incomparable: cannot compare because one or both author sets are empty.
+	// incomparable: cannot compare because author sets are empty.
 	incomparable
 	// noAuthVsAuth means that authors cannot be compared, and input has
 	// no authorship, but matched name does provide authorship.
