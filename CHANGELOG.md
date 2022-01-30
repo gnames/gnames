@@ -4,6 +4,19 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.5.12]
+
+### Added
+
+- allow searches with one-letter authors
+  (related to https://github.com/gnames/gnverifier/issues/75).
+
+## [v0.5.11]
+
+### Added
+
+- make name field `n:` for faceted searc more powerful.
+
 ## [v0.5.10]
 
 ### Added
@@ -248,6 +261,8 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.5.12]: https://github.com/gnames/gnames/compare/v0.5.11...v0.5.12
+[v0.5.11]: https://github.com/gnames/gnames/compare/v0.5.10...v0.5.11
 [v0.5.10]: https://github.com/gnames/gnames/compare/v0.5.9...v0.5.10
 [v0.5.9]: https://github.com/gnames/gnames/compare/v0.5.8...v0.5.9
 [v0.5.8]: https://github.com/gnames/gnames/compare/v0.5.7...v0.5.8
