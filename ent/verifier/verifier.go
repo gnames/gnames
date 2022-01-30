@@ -18,6 +18,7 @@ type MatchRecord struct {
 	MatchType       vlib.MatchTypeValue
 	Curation        vlib.CurationLevel
 	DataSourcesNum  int
+	Overload        bool
 	// MatchResults contains all matches to Input.
 	MatchResults []*vlib.ResultData
 	// Sorted indicates if MatchResults are already sorted by their Score field.

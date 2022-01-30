@@ -4,6 +4,13 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+
+## [v0.6.0]
+
+### Added
+
+- verification of virus names [#77]
+
 ## [v0.5.12]
 
 ### Added

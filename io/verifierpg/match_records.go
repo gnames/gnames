@@ -19,11 +19,12 @@ const (
 	// resultsThreshold is the number of returned results for a match after
 	// which we remove results with worst ParsingQuality. This step allows
 	// to get rid of names of bacterial strains, 'sec.' names etc.
-	resultsThreshold = 200
+	resultsThreshold = 100
 )
 
 type matchSplit struct {
 	noMatch   []*mlib.Match
+	virus     []*mlib.Match
 	canonical []*mlib.Match
 }
 
@@ -31,6 +32,12 @@ var namesQ = fmt.Sprintf(`
 SELECT %s
 FROM verification v
 WHERE canonical_id = ANY($1::uuid[])
+`, dbshare.QueryFields)
+
+var virusQ = fmt.Sprintf(`
+SELECT %s
+FROM verification v
+  WHERE name_string_id = ANY($1::uuid[])
 `, dbshare.QueryFields)
 
 // MatchRecords takes matches from gnmatcher and returns back data from
@@ -41,22 +48,31 @@ func (dgp verifierpg) MatchRecords(
 ) (map[string]*verifier.MatchRecord, error) {
 	cfg := gnparser.NewConfig(gnparser.OptWithDetails(true))
 	parser := gnparser.New(cfg)
-	res := make(map[string]*verifier.MatchRecord)
+	var res map[string]*verifier.MatchRecord
+
 	splitMatches := partitionMatches(matches)
 
-	verifs, err := nameQuery(ctx, dgp.db, splitMatches.canonical)
+	verCan, err := nameQuery(ctx, dgp.db, splitMatches.canonical)
 	if err != nil {
 		log.Warnf("Cannot get matches data: %s", err)
 		return res, err
 	}
-	res = dgp.produceResultData(splitMatches, parser, verifs)
+	verVir, err := dgp.virusQuery(ctx, splitMatches.virus)
+	if err != nil {
+		log.Warnf("Cannot get virus data: %s", err)
+		return res, err
+	}
+
+	res = dgp.produceResultData(splitMatches, parser, verCan, verVir)
+
 	return res, nil
 }
 
 func (dgp verifierpg) produceResultData(
 	ms matchSplit,
 	parser gnparser.GNparser,
-	v []*dbshare.VerifSQL,
+	verCan []*dbshare.VerifSQL,
+	verVir []*dbshare.VerifSQL,
 ) map[string]*verifier.MatchRecord {
 
 	// deal with NoMatch first
@@ -68,7 +84,26 @@ func (dgp verifierpg) produceResultData(
 		}
 	}
 
-	verifMap := getVerifMap(v)
+	vers := verCan
+	vers = append(vers, verVir...)
+	verifMap := getVerifMap(vers)
+
+	// deal with Viruses
+	for _, match := range ms.virus {
+		mr := verifier.MatchRecord{
+			ID:        match.ID,
+			Name:      match.Name,
+			MatchType: match.MatchType,
+			Curation:  vlib.NotCurated,
+			Overload:  len(match.MatchItems) > 20,
+		}
+		for _, mi := range match.MatchItems {
+			dgp.populateVirusMatchRecord(mi, *match, &mr, verifMap)
+		}
+		mrs[match.ID] = &mr
+	}
+
+	// deal with Canonicals
 	for _, match := range ms.canonical {
 		prsd := parser.ParseName(match.Name)
 		if !prsd.Parsed {
@@ -86,13 +121,66 @@ func (dgp verifierpg) produceResultData(
 			Year:            year,
 			MatchType:       match.MatchType,
 			Curation:        vlib.NotCurated,
+			Overload:        len(verCan) > resultsThreshold,
 		}
+
 		for _, mi := range match.MatchItems {
 			dgp.populateMatchRecord(mi, *match, &mr, parser, verifMap)
 		}
 		mrs[match.ID] = &mr
 	}
 	return mrs
+}
+
+func (dgp *verifierpg) populateVirusMatchRecord(
+	mi mlib.MatchItem,
+	m mlib.Match,
+	mr *verifier.MatchRecord,
+	verifMap map[string][]*dbshare.VerifSQL,
+) {
+	verifRecs, ok := verifMap[mi.ID]
+	if !ok {
+		log.Fatalf("no match for %s", mi.ID)
+	}
+	sources := make(map[int]struct{})
+	for _, verifRec := range verifRecs {
+		sources[verifRec.DataSourceID] = struct{}{}
+
+		ds := dgp.dataSourcesMap[verifRec.DataSourceID]
+		curation := ds.Curation
+
+		if mr.Curation < curation {
+			mr.Curation = curation
+		}
+
+		var outlink string
+		if ds.OutlinkURL != "" && verifRec.OutlinkID.String != "" {
+			outlink = strings.Replace(ds.OutlinkURL, "{}", verifRec.OutlinkID.String, 1)
+		}
+
+		titleShort := ds.TitleShort
+		if titleShort == "" {
+			titleShort = ds.Title
+		}
+
+		resData := vlib.ResultData{
+			RecordID:             verifRec.RecordID.String,
+			LocalID:              verifRec.LocalID.String,
+			Outlink:              outlink,
+			DataSourceID:         verifRec.DataSourceID,
+			DataSourceTitleShort: titleShort,
+			Curation:             curation,
+			EntryDate:            ds.UpdatedAt,
+			MatchedName:          verifRec.Name.String,
+			ClassificationPath:   verifRec.Classification.String,
+			ClassificationRanks:  verifRec.ClassificationRanks.String,
+			ClassificationIDs:    verifRec.ClassificationIds.String,
+			MatchType:            m.MatchType,
+		}
+
+		mr.MatchResults = append(mr.MatchResults, &resData)
+	}
+	mr.DataSourcesNum = len(sources)
 }
 
 func (dgp *verifierpg) populateMatchRecord(
@@ -227,9 +315,33 @@ func (dgp *verifierpg) populateMatchRecord(
 func getVerifMap(vs []*dbshare.VerifSQL) map[string][]*dbshare.VerifSQL {
 	vm := make(map[string][]*dbshare.VerifSQL)
 	for _, v := range vs {
-		vm[v.CanonicalID.String] = append(vm[v.CanonicalID.String], v)
+		if v.CanonicalID.String != "" {
+			vm[v.CanonicalID.String] = append(vm[v.CanonicalID.String], v)
+		} else {
+			// for viruses
+			vm[v.NameStringID.String] = append(vm[v.NameStringID.String], v)
+		}
 	}
 	return vm
+}
+
+func (dgp *verifierpg) virusQuery(
+	ctx context.Context,
+	virMatches []*mlib.Match,
+) ([]*dbshare.VerifSQL, error) {
+	if len(virMatches) == 0 {
+		return nil, nil
+	}
+
+	var res []*dbshare.VerifSQL
+	ids := getUUIDs(virMatches)
+	idsStr := "{" + strings.Join(ids, ",") + "}"
+	err := sqlscan.Select(ctx, dgp.db, &res, virusQ, idsStr)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 func nameQuery(
@@ -276,13 +388,16 @@ func getUUIDs(matches []*mlib.Match) []string {
 func partitionMatches(matches []mlib.Match) matchSplit {
 	ms := matchSplit{
 		noMatch:   make([]*mlib.Match, 0, len(matches)),
+		virus:     make([]*mlib.Match, 0, len(matches)),
 		canonical: make([]*mlib.Match, 0, len(matches)),
 	}
 	for i := range matches {
-		// TODO: handle v.VirusMatch case too.
-		if matches[i].MatchType == vlib.NoMatch || matches[i].VirusMatch {
+		switch matches[i].MatchType {
+		case vlib.NoMatch:
 			ms.noMatch = append(ms.noMatch, &matches[i])
-		} else {
+		case vlib.Virus:
+			ms.virus = append(ms.virus, &matches[i])
+		default:
 			ms.canonical = append(ms.canonical, &matches[i])
 		}
 	}

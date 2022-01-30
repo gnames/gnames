@@ -25,7 +25,7 @@ type gnames struct {
 	cfg     config.Config
 	vf      verifier.Verifier
 	facet   facet.Facet
-	matcher gnmatcher.GNmatcher
+	matcher gnmatcher.NameMatcher
 }
 
 // NewGNames is a constructor that returns implmentation of GNames interface.
@@ -38,7 +38,7 @@ func NewGNames(
 		cfg:     cnf,
 		vf:      vf,
 		facet:   fc,
-		matcher: matcher.NewGNmatcher(cnf.MatcherURL),
+		matcher: matcher.New(cnf.MatcherURL),
 	}
 }
 
@@ -79,14 +79,15 @@ func (g gnames) Verify(
 			s := score.New()
 			s.SortResults(mr)
 			item := vlib.Name{
-				ID:             mr.ID,
-				Name:           mr.Name,
-				MatchType:      mr.MatchType,
-				Curation:       mr.Curation,
-				DataSourcesNum: mr.DataSourcesNum,
-				BestResult:     s.BestResult(mr),
-				Results:        s.Results(input.DataSources, mr, input.WithAllMatches),
-				Error:          errString,
+				ID:               mr.ID,
+				Name:             mr.Name,
+				MatchType:        mr.MatchType,
+				Curation:         mr.Curation,
+				DataSourcesNum:   mr.DataSourcesNum,
+				BestResult:       s.BestResult(mr),
+				Results:          s.Results(input.DataSources, mr, input.WithAllMatches),
+				OverloadDetected: overloadTxt(mr),
+				Error:            errString,
 			}
 			if input.WithCapitalization {
 				item.Name = input.NameStrings[i]
@@ -100,6 +101,17 @@ func (g gnames) Verify(
 	}
 	res := vlib.Output{Meta: meta(input, namesRes), Names: namesRes}
 	return res, nil
+}
+
+func overloadTxt(mr *verifier.MatchRecord) string {
+	if !mr.Overload {
+		return ""
+	}
+	if mr.MatchType == vlib.Virus {
+		return "Too many virus strains, results are truncated"
+	}
+
+	return "To many variants (possibly strains), results are truncated"
 }
 
 func (g gnames) Search(

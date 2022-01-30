@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const restURL = "http://:8080/api/v1/"
+
 func TestVerifyPGExact(t *testing.T) {
 	names := []string{
 		"Not name",
@@ -24,12 +26,13 @@ func TestVerifyPGExact(t *testing.T) {
 		"Acacia vestita may",
 		"Candidatus Aenigmarchaeum subterraneum",
 	}
-	cfg := config.New()
+
+	cfg := config.New(config.OptMatcherURL(restURL))
 	vpg := verifierpg.New(cfg)
-	mtr := matcher.NewGNmatcher(cfg.MatcherURL)
+	mtr := matcher.New(cfg.MatcherURL)
 	matches := mtr.MatchNames(names)
 
 	mrs, err := vpg.MatchRecords(context.Background(), matches)
 	assert.Nil(t, err)
-	assert.Equal(t, len(mrs), 11)
+	assert.Equal(t, 11, len(mrs))
 }

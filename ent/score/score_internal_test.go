@@ -10,7 +10,7 @@ import (
 
 func TestString(t *testing.T) {
 	s := score{}
-	assert.Equal(t, s.String(), "00000000_00000000_00000000_00000000")
+	assert.Equal(t, "00000000_00000000_00000000_00000000", s.String())
 }
 
 func TestChain(t *testing.T) {
@@ -24,7 +24,7 @@ func TestChain(t *testing.T) {
 		).
 		accepted("12", "12").
 		parsingQuality(3)
-	assert.Equal(t, s.String(), "10011010_11010000_00000000_00000000")
+	assert.Equal(t, "10011010_11010000_00000000_00000000", s.String())
 }
 
 func TestRank(t *testing.T) {
@@ -43,7 +43,7 @@ func TestRank(t *testing.T) {
 	}
 	for _, v := range testData {
 		s := score{}
-		assert.Equal(t, s.rank(v.can1, v.can2, v.card1, v.card2).String(), v.score, v.desc)
+		assert.Equal(t, v.score, s.rank(v.can1, v.can2, v.card1, v.card2).String(), v.desc)
 	}
 }
 
@@ -61,7 +61,7 @@ func TestFuzzy(t *testing.T) {
 	}
 	for _, v := range testData {
 		s := score{}
-		assert.Equal(t, s.fuzzy(v.editDist).String(), v.score, v.desc)
+		assert.Equal(t, v.score, s.fuzzy(v.editDist).String(), v.desc)
 	}
 }
 
@@ -79,7 +79,7 @@ func TestCuration(t *testing.T) {
 	}
 	for _, v := range testData {
 		s := score{}
-		assert.Equal(t, s.curation(v.dsID, v.curLev).String(), v.score, v.desc)
+		assert.Equal(t, v.score, s.curation(v.dsID, v.curLev).String(), v.desc)
 	}
 }
 
@@ -109,7 +109,7 @@ func TestAuth(t *testing.T) {
 	}
 	for _, v := range testData {
 		s := score{}
-		assert.Equal(t, s.auth(v.auth1, v.auth2, v.year1, v.year2).String(), v.score, v.desc)
+		assert.Equal(t, v.score, s.auth(v.auth1, v.auth2, v.year1, v.year2).String(), v.desc)
 	}
 }
 
@@ -122,7 +122,7 @@ func TestAccepted(t *testing.T) {
 	for _, v := range testData {
 		s := score{}
 		assert.Equal(t,
-			s.accepted(v.recordID, v.acceptedID).String(), v.score, v.desc)
+			v.score, s.accepted(v.recordID, v.acceptedID).String(), v.desc)
 	}
 }
 
@@ -139,7 +139,7 @@ func TestParserQuality(t *testing.T) {
 	}
 	for _, v := range testData {
 		s := score{}
-		assert.Equal(t, s.parsingQuality(v.quality).String(), v.score, v.desc)
+		assert.Equal(t, v.score, s.parsingQuality(v.quality).String(), v.desc)
 	}
 }
 
@@ -156,7 +156,7 @@ func TestCompareAuth(t *testing.T) {
 	for _, v := range testData {
 		match, giveup := compareAuth(v.au1, v.au2)
 		res := fmt.Sprintf("%v|%v", match, giveup)
-		assert.Equal(t, res, v.res, v.desc)
+		assert.Equal(t, v.res, res, v.desc)
 	}
 }
 
@@ -173,6 +173,6 @@ func TestAuthNormalize(t *testing.T) {
 		{"two words", "A. B. Koza Koza", "Koza Koza"},
 	}
 	for _, v := range testData {
-		assert.Equal(t, authNormalize(v.auth), v.res, v.desc)
+		assert.Equal(t, v.res, authNormalize(v.auth), v.desc)
 	}
 }

@@ -21,8 +21,12 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/gnames/gnames/gnames/cmd"
+import (
+	"github.com/gnames/gnames/gnames/cmd"
+	log "github.com/sirupsen/logrus"
+)
 
 func main() {
+	log.SetFormatter(&log.JSONFormatter{})
 	cmd.Execute()
 }

@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnlib/ent/gnvers"
 	mlib "github.com/gnames/gnlib/ent/matcher"
-	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnmatcher"
 	log "github.com/sirupsen/logrus"
 )
@@ -17,8 +17,8 @@ type matcherREST struct {
 	enc gnfmt.Encoder
 }
 
-// NewGNmatcher creates an implementation of GNmatcher interface.
-func NewGNmatcher(url string) gnmatcher.GNmatcher {
+// New creates an implementation of GNmatcher interface.
+func New(url string) gnmatcher.NameMatcher {
 	return matcherREST{url: url, enc: gnfmt.GNjson{}}
 }
 

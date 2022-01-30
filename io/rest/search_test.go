@@ -28,15 +28,15 @@ func TestGetSearch(t *testing.T) {
 	meta := response.Meta
 	names := response.Names
 	assert.True(t, meta.Input.WithAllResults)
-	assert.Equal(t, meta.Input.DataSourceIDs, []int{1, 2})
-	assert.Equal(t, meta.Input.Author, "Linn.")
+	assert.Equal(t, []int{1, 2}, meta.Input.DataSourceIDs)
+	assert.Equal(t, "Linn.", meta.Input.Author)
 	assert.True(t, len(names) > 1)
-	assert.True(t, len(names[0].Results) > 1)
+	assert.True(t, len(names[0].Results) > 0)
 }
 
 func TestPostSearch(t *testing.T) {
 	inp := gnquery.New().Parse("g:Pomatomus sp:sal. tx:Actinopterygii au:Linn.")
-	assert.Equal(t, len(inp.Warnings), 0)
+	assert.Equal(t, 0, len(inp.Warnings))
 	assert.False(t, inp.WithAllResults)
 	req, err := gnfmt.GNjson{}.Encode(inp)
 	assert.Nil(t, err)

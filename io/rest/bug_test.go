@@ -61,8 +61,8 @@ func TestMoreBugs(t *testing.T) {
 
 	for i, v := range bugs {
 		msg := fmt.Sprintf("%s -> %s", v.name, v.matchCanonical)
-		assert.Equal(t, verif.Names[i].BestResult.MatchedCanonicalSimple, v.matchCanonical, msg)
-		assert.Equal(t, verif.Names[i].MatchType, v.matchType, msg)
+		assert.Equal(t, v.matchCanonical, verif.Names[i].BestResult.MatchedCanonicalSimple, msg)
+		assert.Equal(t, v.matchType, verif.Names[i].MatchType, msg)
 	}
 }
 
@@ -92,7 +92,7 @@ func TestSortBugs(t *testing.T) {
 	assert.Nil(t, err)
 
 	for i, v := range tests {
-		assert.Equal(t, verif.Names[i].BestResult.MatchedName, v.matchName, v.msg)
+		assert.Equal(t, v.matchName, verif.Names[i].BestResult.MatchedName, v.msg)
 	}
 
 }

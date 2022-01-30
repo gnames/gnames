@@ -87,7 +87,7 @@ local copy of the service.
     dump][gnames dbdump]. Restore the database with:
 
     ```bash
-    gunzip -c gnames_latest.sql.gz | pg_restore -d gnames
+    gunzip -c gnames_latest.tar.gz |pg_restore -d gnames
     ```
 
 2. `gnmatcher`
@@ -174,7 +174,7 @@ The `gnames` code is released under [MIT license].
 [OpenAPI Specification]: https://app.swaggerhub.com/apis-docs/dimus/gnames/1.0.0
 [gnverifier]: https://github.com/gnames/gnverifier
 [gnmatcher]: https://github.com/gnames/gnmatcher
-[gnames dbdump]: https://opendata.globalnames.org/dumps/gnames_latest.sql.gz
+[gnames dbdump]: https://opendata.globalnames.org/dumps/gnames_latest.tar.gz
 [.env.example]: https://github.com/gnames/gnames/blob/master/.env.example
 [gnames]: https://github.com/gnames/gnames
 [MIT license]: https://github.com/gnames/gnames/blob/master/LICENSE

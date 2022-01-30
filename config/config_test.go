@@ -24,7 +24,7 @@ func TestNew(t *testing.T) {
 		PgDB:        "gnames",
 		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
 	}
-	assert.Equal(t, cnf, deflt)
+	assert.Equal(t, deflt, cnf)
 }
 
 func TestNewOpts(t *testing.T) {
@@ -43,15 +43,15 @@ func TestNewOpts(t *testing.T) {
 		PgDB:        "gnm",
 		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
 	}
-	assert.Equal(t, cnf, updt)
+	assert.Equal(t, updt, cnf)
 }
 
 func TestMaxED(t *testing.T) {
 	log.SetLevel(log.FatalLevel)
 	cnf := config.New(config.OptMaxEditDist(5))
-	assert.Equal(t, cnf.MaxEditDist, 1)
+	assert.Equal(t, 1, cnf.MaxEditDist)
 	cnf = config.New(config.OptMaxEditDist(0))
-	assert.Equal(t, cnf.MaxEditDist, 1)
+	assert.Equal(t, 1, cnf.MaxEditDist)
 }
 
 func opts() []config.Option {
