@@ -1,24 +1,48 @@
-# GNport is a port to the gnames service
-# GNport: 8888
+# Port is a port to the gnames service.
+#
+# Port: 8888
 
-# Path to keep working data and key-value stores
-# WorkDir: ~/.local/share/gnames
+# CacheDir is a path to keep working data and key-value stores.
+#
+# CacheDir: ~/.local/share/gnames
 
-# Postgresql host for gnames database
+# PgHost is a PostgreSQL host for gnames database.
+#
 # PgHost: localhost
 
-# Postgresql user
+# PgUser is PostgreSQL user with an access to gnames database.
+#
 # PgUser: postgres
 
-# Postgresql password
+# PgPass is the password for the PgUser.
+#
 # PgPass: password
 
-# Postgresql database
+# PgDB is the name of PostgreSQL database for GNames.
+#
 # PgDB: gnames
 
-# Number of jobs for parallel tasks
+# JobsNum sets the number of concurrent processes.
+#
 # JobsNum: 4
 
 # MatcherURL is a url to a gnmatcher service.
-# MatcherURL: "https://matcher.globalnames.org/api/v0/"
+# Example for localhost: http://localhost:8080/api/v1
+#
+# MatcherURL: "https://matcher.globalnames.org/api/v1/"
 
+# WebLogsNsqdTCP provides an address to the NSQ messenger TCP service. If
+# this value is set and valid, the web logs will be published to the NSQ.
+# The option is ignored if `Port` is not set.
+#
+# If WithWebLogs option is set to `false`, but `WebLogsNsqdTCP` is set to a
+# valid URL, the logs will be sent to the NSQ messanging service, but they
+# wil not appear as STRERR output.
+# Example: `127.0.0.1:4150`
+#
+# WebLogsNsqdTCP:
+
+# WithWebLogs flag enables logs when running web-service. This flag is
+# ignored if `Port` value is not set.
+#
+# WithWebLogs: false

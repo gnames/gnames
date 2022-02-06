@@ -10,56 +10,69 @@ import (
 
 // Config collects and stores external configuration data.
 type Config struct {
-	GNport      int
-	WorkDir     string
-	JobsNum     int
-	MaxEditDist int
-	PgHost      string
-	PgPort      int
-	PgUser      string
-	PgPass      string
-	PgDB        string
-	MatcherURL  string
-}
+	// Port is the REST service port
+	Port int
 
-// New is a Config constructor that takes external options to
-// update default values to external ones.
-func New(opts ...Option) Config {
-	workDir, _ := gnsys.ConvertTilda("~/.local/share/gnames")
-	cnf := Config{
-		GNport:      8888,
-		WorkDir:     workDir,
-		JobsNum:     8,
-		MaxEditDist: 1,
-		PgHost:      "localhost",
-		PgPort:      5432,
-		PgUser:      "postgres",
-		PgPass:      "postgres",
-		PgDB:        "gnames",
-		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
-	}
-	for _, opt := range opts {
-		opt(&cnf)
-	}
-	return cnf
+	// CacheDir is a directory to keep cached data.
+	CacheDir string
+
+	// JobsNum is the number of processes to run concurrently.
+	JobsNum int
+
+	// MaxEditDist is the the muximum number of Levenschein edits before
+	// aborging a fuzzy matching.
+	MaxEditDist int
+
+	// MatcherURL is the URL where GNmatcher REST service resides.
+	// It is used to get source-agnostic name-matching.
+	MatcherURL string
+
+	// PgDB is the name of GNames database.
+	PgDB string
+
+	// PgHost is the domain name or IP address of PostgreSQL service.
+	PgHost string
+
+	// PgPass is the password for the PostgreSQL user.
+	PgPass string
+
+	// PgPort is the port used by PostgreSQL service.
+	PgPort int
+
+	// PgUser is the PostgreSQL user with access to GNames database.
+	PgUser string
+
+	// WebLogsNsqdTCP provides an address to the NSQ messenger TCP service. If
+	// this value is set and valid, the web logs will be published to the NSQ.
+	// The option is ignored if `Port` is not set.
+	//
+	// If WithWebLogs option is set to `false`, but `WebLogsNsqdTCP` is set to a
+	// valid URL, the logs will be sent to the NSQ messanging service, but they
+	// wil not appear as STRERR output.
+	// Example: `127.0.0.1:4150`
+	WebLogsNsqdTCP string
+
+	// WithWebLogs flag enables logs when running web-service. This flag is
+	// ignored if `Port` value is not set.
+	WithWebLogs bool
 }
 
 // TrieDir returns path where to dump/restore
 // serialized trie.
 func (cnf Config) TrieDir() string {
-	return filepath.Join(cnf.WorkDir, "levenshein")
+	return filepath.Join(cnf.CacheDir, "levenshein")
 }
 
 // FiltersDir returns path where to dump/restore
 // serialized bloom filters.
 func (cnf Config) FiltersDir() string {
-	return filepath.Join(cnf.WorkDir, "bloom")
+	return filepath.Join(cnf.CacheDir, "bloom")
 }
 
 // StemsDir returns path where stems key-value store
 // is located
 func (cnf Config) StemsDir() string {
-	return filepath.Join(cnf.WorkDir, "stems-kv")
+	return filepath.Join(cnf.CacheDir, "stems-kv")
 }
 
 // Option is a type of all options for Config.
@@ -68,14 +81,14 @@ type Option func(cnf *Config)
 // OptGNPort sets port for gnames HTTP service.
 func OptGNPort(i int) Option {
 	return func(cnf *Config) {
-		cnf.GNport = i
+		cnf.Port = i
 	}
 }
 
 // OptWorkDir sets a directory for key-value stores and temporary files.
 func OptWorkDir(s string) Option {
 	return func(cnf *Config) {
-		cnf.WorkDir, _ = gnsys.ConvertTilda(s)
+		cnf.CacheDir, _ = gnsys.ConvertTilda(s)
 	}
 }
 
@@ -139,4 +152,41 @@ func OptMatcherURL(s string) Option {
 	return func(cnf *Config) {
 		cnf.MatcherURL = s
 	}
+}
+
+// OptWebLogsNsqdTCP provides a URL to NSQ messanging service.
+func OptWebLogsNsqdTCP(s string) Option {
+	return func(cfg *Config) {
+		cfg.WebLogsNsqdTCP = s
+	}
+}
+
+// OptWithWebLogs sets the WithWebLogs field.
+func OptWithWebLogs(b bool) Option {
+	return func(cfg *Config) {
+		cfg.WithWebLogs = b
+	}
+}
+
+// New is a Config constructor that takes options to
+// update default values.
+func New(opts ...Option) Config {
+	workDir, _ := gnsys.ConvertTilda("~/.local/share/gnames")
+	cnf := Config{
+		CacheDir:    workDir,
+		JobsNum:     8,
+		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
+		MaxEditDist: 1,
+		PgDB:        "gnames",
+		PgHost:      "localhost",
+		PgPass:      "postgres",
+		PgPort:      5432,
+		PgUser:      "postgres",
+		Port:        8888,
+	}
+
+	for _, opt := range opts {
+		opt(&cnf)
+	}
+	return cnf
 }

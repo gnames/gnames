@@ -197,15 +197,14 @@ github.com/gnames/gnfmt v0.2.0/go.mod h1:0Aog37s1ZNpmUwVQOf+lnx0SQq8r2EvfE/pLYGi
 github.com/gnames/gnlib v0.0.3/go.mod h1:k7Wsdx6zTzyhbxH2JcoCVFvgOQzA4iwehRxa8eEOfF8=
 github.com/gnames/gnlib v0.3.2/go.mod h1:IIo4lQ8hmW/pCmudLgwJ4KdoKWF6B4jFCdVcowG/evw=
 github.com/gnames/gnlib v0.6.6/go.mod h1:DgK8NcrG2YhOS1Nx0cxt8+Gdwu1cw/abSZdhkQKjIH8=
-github.com/gnames/gnlib v0.7.0/go.mod h1:19DRcg4P/oP623qYZjG1yIBUpdqIh0UXeq2GXdz6/TU=
-github.com/gnames/gnlib v0.8.0 h1:ZLkpBn7/mkU9VYQ3CiZozZoEPYghzHrkHAo0qW4sILI=
 github.com/gnames/gnlib v0.8.0/go.mod h1:19DRcg4P/oP623qYZjG1yIBUpdqIh0UXeq2GXdz6/TU=
-github.com/gnames/gnmatcher v0.7.0 h1:O4LjOqKq+TDlEUXoTNIdlgOTXpC09g7I4d++MfIm2HQ=
-github.com/gnames/gnmatcher v0.7.0/go.mod h1:t2C0GgVoALDtlvFUKwCYw/y7AS+1HHQW/JQlRL4MgXc=
+github.com/gnames/gnlib v0.8.1 h1:mvEXvDa1ZNqvuc+lNBwZDCbgbDYHeZj61rBGuiN2hwk=
+github.com/gnames/gnlib v0.8.1/go.mod h1:19DRcg4P/oP623qYZjG1yIBUpdqIh0UXeq2GXdz6/TU=
+github.com/gnames/gnmatcher v0.7.1 h1:DGE82bQex952Mwjw3GlzRTiMIajfHTtHBCk0WcnF0So=
+github.com/gnames/gnmatcher v0.7.1/go.mod h1:ous0VSJmFBh69LdcZq7lP8xb08XSFAqnu5ILvqyrPZ4=
 github.com/gnames/gnparser v1.5.5/go.mod h1:prvrAYGrtT/LxN8ovG3LFojgjR7VDcao/cNWYjUyYw0=
-github.com/gnames/gnparser v1.6.0/go.mod h1:b4HN8r8M5cwQMLAh34UtRB0Do76K/4NodXIA8LAYJdM=
-github.com/gnames/gnparser v1.6.1 h1:w6xMTX5XMUD9Gmwc+6rtBM093NN1sNQykT0z0o0fmfM=
-github.com/gnames/gnparser v1.6.1/go.mod h1:wpnbQO8ueVTyoD/+EF+ljR2JlZeQRWTmloz0/nIrbnc=
+github.com/gnames/gnparser v1.6.2 h1:mPS7oan9gDPoKL652wPvlyY8Jish9vtd/UHajVVsw9I=
+github.com/gnames/gnparser v1.6.2/go.mod h1:wpnbQO8ueVTyoD/+EF+ljR2JlZeQRWTmloz0/nIrbnc=
 github.com/gnames/gnquery v0.1.2/go.mod h1:Jm0ZiyZ8nd4+7Pu9xdGRi5F8q6XsCADUfDIfeH+oAjs=
 github.com/gnames/gnquery v0.2.3 h1:Oi8vN6OY8k7ZNK+nD4ROB6c6LRbwLmUB62mSlooUYZ0=
 github.com/gnames/gnquery v0.2.3/go.mod h1:TAF0yt2mGcKv5awQvw1xYROZEp4O0Ce1wU5WRFlNR5s=
@@ -604,6 +603,7 @@ github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjY
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/nicolai86/scaleway-sdk v1.10.2-0.20180628010248-798f60e20bb2/go.mod h1:TLb2Sg7HQcgGdloNxkrmtgDNR9uVYF3lfdFIN4Ro6Sk=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
+github.com/nsqio/go-nsq v1.1.0 h1:PQg+xxiUjA7V+TLdXw7nVrJ5Jbl3sN86EhGCQj4+FYE=
 github.com/nsqio/go-nsq v1.1.0/go.mod h1:vKq36oyeVXgsS5Q8YEO7WghqidAVXQlcFxzQbQTuDEY=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/oklog/run v1.0.0/go.mod h1:dlhp/R75TPv97u0XWUtDeV/lRKWPKSdTuV0TZvrmrQA=
@@ -684,6 +684,7 @@ github.com/sagikazarmark/crypt v0.3.0/go.mod h1:uD/D+6UF4SrIR1uGEv7bBNkNqLGqUr43
 github.com/sagikazarmark/crypt v0.4.0/go.mod h1:ALv2SRj7GxYV4HO9elxH9nS6M9gW+xDNxqmyJ6RfDFM=
 github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=
 github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529/go.mod h1:DxrIzT+xaE7yg65j358z/aeFdxmN0P9QXhEzd20vsDc=
+github.com/sfgrp/lognsq v0.1.1 h1:Cg6J5TO0AlDg7OpmQSdM2liY0lhQEFf3fWKSW6V9xaY=
 github.com/sfgrp/lognsq v0.1.1/go.mod h1:aNbHWh6z8OIKU/3jwQIYnd3hDh0f4Nmdj0kyAiHKvh0=
 github.com/shirou/gopsutil v0.0.0-20181107111621-48177ef5f880/go.mod h1:5b4v6he4MtMOwMlS0TUMTu2PcXUg8+E1lC7eC3UO/RA=
 github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4/go.mod h1:qsXQc7+bwAM3Q1u/4XEfrquwF8Lw7D7y5cD8CuHnfIc=
@@ -709,8 +710,9 @@ github.com/spaolacci/murmur3 v1.1.0/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2
 github.com/spf13/afero v1.1.2/go.mod h1:j4pytiNVoe2o6bmDsKpLACNPDBIoEAkihy7loJ1B0CQ=
 github.com/spf13/afero v1.3.3/go.mod h1:5KUK8ByomD5Ti5Artl0RtHeI5pTF7MIDuXL3yY520V4=
 github.com/spf13/afero v1.6.0/go.mod h1:Ai8FlHk4v/PARR026UzYexafAt9roJ7LcLMAmO6Z93I=
-github.com/spf13/afero v1.8.0 h1:5MmtuhAgYeU6qpa7w7bP0dv6MBYuup0vekhSpSkoq60=
 github.com/spf13/afero v1.8.0/go.mod h1:CtAatgMJh6bJEIs48Ay/FOnkljP3WeGUG0MC1RfAqwo=
+github.com/spf13/afero v1.8.1 h1:izYHOT71f9iZ7iq37Uqjael60/vYC6vMtzedudZ0zEk=
+github.com/spf13/afero v1.8.1/go.mod h1:CtAatgMJh6bJEIs48Ay/FOnkljP3WeGUG0MC1RfAqwo=
 github.com/spf13/cast v1.3.0/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
 github.com/spf13/cast v1.3.1/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
 github.com/spf13/cast v1.4.1 h1:s0hze+J0196ZfEMTs80N7UlFt0BDuQ7Q+JDnHiMWKdA=
@@ -840,7 +842,6 @@ golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b/go.mod h1:T9bdIzuCu7OtxOm
 golang.org/x/crypto v0.0.0-20210817164053-32db794688a5/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
-golang.org/x/crypto v0.0.0-20220128200615-198e4374d7ed/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/crypto v0.0.0-20220131195533-30dcbda58838 h1:71vQrMauZZhcTVK6KdYM+rklehEEwb3E+ZhaE5jrPrE=
 golang.org/x/crypto v0.0.0-20220131195533-30dcbda58838/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
@@ -1059,8 +1060,9 @@ golang.org/x/sys v0.0.0-20211205182925-97ca703d548d/go.mod h1:oPkhp1MJrh7nUepCBc
 golang.org/x/sys v0.0.0-20211209171907-798191bca915/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20211210111614-af8b64212486/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
-golang.org/x/sys v0.0.0-20220128215802-99c3d69c2c27 h1:XDXtA5hveEEV8JB2l7nhMTp3t3cHp9ZpwcdjqyEWLlo=
 golang.org/x/sys v0.0.0-20220128215802-99c3d69c2c27/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a h1:ppl5mZgokTT8uPkmYOyEUmPTr3ypaKkg5eFOGrAmxxE=
+golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/term v0.0.0-20210927222741-03fcf44c2211/go.mod h1:jbD1KX2456YbFQfuXm/mYQcufACuNUgVhRMnK/tPxf8=
 golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=

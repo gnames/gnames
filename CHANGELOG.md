@@ -1,264 +1,198 @@
 # Changelog
 
-The `gnames` project follows [Semantic Versioning guidelines].
+The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.6.0] - 2022-02-06
 
-## [v0.6.0]
+- Add update changelog to follow older changelog convention to avoid
+  Markdown linting problems and to make changelog more readable.
+- Add [#78]: optional NSQd log aggregation.
+- Add [#77]: verification of virus names.
 
-### Added
+## [v0.5.12] - 2022-01-30
 
-- verification of virus names [#77]
+- Add: allow searches with one-letter authors
+  (related to `https://github.com/gnames/gnverifier/issues/75`).
 
-## [v0.5.12]
+## [v0.5.11] - 2021-12-15
 
-### Added
+- Add: make name field `n:` for faceted searc more powerful.
 
-- allow searches with one-letter authors
-  (related to https://github.com/gnames/gnverifier/issues/75).
+## [v0.5.10] - 2021-12-09
 
-## [v0.5.11]
+- Add: update dependency modules.
 
-### Added
+## [v0.5.9] - 2021-12-08
 
-- make name field `n:` for faceted searc more powerful.
-
-## [v0.5.10]
-
-### Added
-
-- update dependency modules
-
-## [v0.5.9]
-
-### Fixes
-
-- small changes in scoring algorithm for authors.
+- Fix: small changes in scoring algorithm for authors.
 
 ## [v0.5.8] - 2021-12-07
 
-### Added
-
-- add score details to JSON output [#75]
+- Add [#75]: add score details to JSON output.
 
 ## [v0.5.7] - 2021-12-06
 
-### Added
-
-- dereferenced slice of names in verification.Output
+- Add: dereferenced slice of names in verification.Output.
 
 ## [v0.5.6] - 2021-12-05
 
-### Fixed
-
-- fixes in context/kingdoms stats
+- Fix: fixes in context/kingdoms stats
 
 ## [v0.5.5] - 2021-12-04
 
-### Fixed
-
-- fixes in verificaton GET parameters
+- Fix: fixes in verificaton GET parameters.
 
 ## [v0.5.4] - 2021-12-04
 
-### Added
-
-- modifications in input/output format
+- Add: modifications in input/output format.
 
 ## [v0.5.3] - 2021-12-04
 
-### Added
-
-- modifications in input/output formats
+- Add: modifications in input/output formats.
 
 ## [v0.5.2] - 2021-12-03
 
-### Added
-
-- allow multiple data sources [#73]
+- Add [#73]: allow multiple data sources.
 
 ## [v0.5.1] - 2021-12-02
 
-### Added
-
-- improve output, bug fixes
+- Add: improve output, bug fixes.
 
 ## [v0.5.0] - 2021-12-01
 
-### Added
-
-- faceted search API [#71]
+- Add [#71]: faceted search API.
 
 ## [v0.4.0] - 2021-11-22
 
 ## Added (Backward incompatible)
 
--- add metadata to verification, optional context calculation [#51]
+- Add [#51]: metadata to verification, optional context calculation [#51].
 
 ## [v0.3.3] - 2021-10-30
 
-### Fixed
-
-- missing GET parameter added: all_matches
+- Fix: missing GET parameter added: `all_matches`.
 
 ## [v0.3.2] - 2021-10-28
 
-### Added
-
-- all sources/all matches results are sorted by score [#70]
+- Add [#70]: all sources/all matches results are sorted by score.
 
 ## [v0.3.1] - 2021-10-25
 
-### Fixed
-
-- remove dependency on `dgrijalva/jwt-go` which has
+- Fix: remove dependency on `dgrijalva/jwt-go` which has
   security problems.
 
 ## [v0.3.0] - 2021-10-25
 
-- optional parameters for returning all matched sources,
-  all matched results [#69]
+- Add [#69]: optional parameters for returning all matched sources,
+  all matched results.
 
 ## [v0.2.2] - 2021-10-24
 
-### Fixed
-
-- data sources show correctly [#68]
+- Fix [#68]: data sources show correctly.
 
 ## [v0.2.1] - 2021-10-22
 
-### Added
-
-- sort data-sources by ID
+- Add: sort data-sources by ID.
 
 ## [v0.2.0] - 2021-04-09
 
-### Added
-
-- add an option to capitalize the first letter of a
-  names-string [#67]
-- add ClassificationIDs to verification output [#61]
-- update gnparser to v0.2.0
-- update gnmatcher to v0.5.7
+- Add [#67]: add an option to capitalize the first letter of a
+  names-string.
+- Add [#61]: ClassificationIDs to verification output.
+- Add: update gnparser to v0.2.0.
+- Add: update gnmatcher to v0.5.7.
 
 ## [v0.1.8] - 2021-03-22
 
-### Added
-
-- update gnparser to v1.1.0
-- stop processing canceled, or expired requests [#65].
-- updated dependenies to gnparser v1.0.5, gnmatcher v0.5.5.
+- Add: update gnparser to v1.1.0.
+- Add [#65]: stop processing canceled, or expired requests.
+- Add: update dependenies to gnparser v1.0.5, gnmatcher v0.5.5.
 
 ## [v0.1.7] - 2021-01-24
 
-### Added
-
-- Update gnparser to v1.0.4 [#62]
+- Add [#62]: update gnparser to v1.0.4.
 
 ## [v0.1.6] - 2020-12-15
 
-### Added
-
-- The score entity is now based on an interface [#59].
-- Reduce impact of names with huge number of instances that slowed down
-  name verification significantly [#56].
-- Improve documentation [#54].
+- Add [#59]: the score entity is now based on an interface.
+- Add [#56]: reduce impact of names with huge number of instances that
+  slowed down name verification significantly.
+- Add [#54]: Improve documentation.
 
 ## [v0.1.5] - 2020-12-09
 
-### Added
-
-- Change server timeout for reading and writing to 5 min.
+- Add: Change server timeout for reading and writing to 5 min.
 
 ## [v0.1.4] - 2020-12-08
 
-### Added
-
-- Introduce GET method to make ad-hoc verifications easier [#53].
-- Score calculation uses parse quality. That helps push names that parsed
-  better to the top [#52].
+- Add [#53]: Introduce GET method to make ad-hoc verifications easier.
+- Add [#52]: Score calculation uses parse quality. That helps push names
+  that parsed better to the top.
 
 ## [v0.1.3] - 2020-12-07
 
-### Added
-
-- New field `isOutlinkReady` for DataSources. This field marks data-sources
-  that are prepared to be used as outlinks (for example at BHL) [#47].
-- Outlink URLs are now provided in the results [#46].
-- DataSource output cleaned up [#45].
+- Add [#47]: new field `isOutlinkReady` for DataSources. This field marks
+  data-sources that are prepared to be used as outlinks (for example at BHL).
+- Add [#46]: outlink URLs are now provided in the results.
+- Add [#45]: DataSource output cleaned up.
 
 ## [v0.1.2] - 2020-12-02
 
-### Added
-
-- Set the gnames web service at `https://verifier.globalnames.org`.
-- Set dockerhub for releases.
+- Add: set the gnames web service at `https://verifier.globalnames.org`.
+- Add: set dockerhub for releases.
 
 ## [v0.1.1] - 2020-12-02
-
-### Added
 
 - Update depenency to `gnlib`.
 
 ## [v0.1.0] - 2020-11-22
 
-### Added
-
-- Improve architecture, add OpenAPI [#42].
-- Make the code compatible with gnmatcher v0.3.6 [#41].
-- Refactor entities, move some of them to gnlib [#40].
+- Add [#42]: improve architecture, add OpenAPI.
+- Add [#41]: make the code compatible with gnmatcher v0.3.6.
+- Add [#40]: refactor entities, move some of them to gnlib.
 
 ## [v0.0.4] - 2020-10-25
 
-### Added
-
-- Increase priority for the authors score [#35].
-
-### Fixed
-
-- 'Acacia vestita may' matches with `PartialExact` to 'Acacia vestita'. Now
-  to register Fuzzy there is a limit of 5 characters in a word per edit
-  distan event [#38].
-- Score calculation uses `edit distance` correctly for fuzzy matches [#36].
-- Provide processing of unparseable accepted names [#33].
-- Set false positive from gnmatcher as NoMatch. Bloom filters create rare
-  false positives. Check every returned name for correctness using Levenshtein
-  automata [#32].
+- Add [#35]: increase priority for the authors score.
+- Fix [#38]: 'Acacia vestita may' matches with `PartialExact` to
+  'Acacia vestita'. Now to register Fuzzy there is a limit of 5 characters
+  in a word per edit distan event.
+- Fix [#36] score calculation uses `edit distance` correctly for fuzzy matches.
+- Fix [#33]: provide processing of unparseable accepted names.
+- Fix [#32]: set false positive from gnmatcher as NoMatch. Bloom filters
+  create rare false positives. Check every returned name for correctness
+  using Levenshtein automata.
 
 ## [v0.0.3] - 2020-09-16
 
-### Added
-
-- Get reasonable preferred matches from the real data [#24].
-- Reasonable BestMatch from the real data [#28].
-- Decrease score for higher edit distance fuzzy matching [#19].
-- Currently accepted names generate higher score than synonyms [#20].
-- Use curation level for scoring results [#15].
-- Use authorship for score calculation [#16].
-- Use infrapecific ranks for score calculation [#17].
-- Develop a ranking system for score calculation [#18].
-- Make gnmatcher functionality interface-based. This allows to choose to
-  use gnmatcher as a service or as a library in the future [#23].
+- Add [#24]: get reasonable preferred matches from the real data.
+- Add [#28]: reasonable BestMatch from the real data.
+- Add [#19]: decrease score for higher edit distance fuzzy matching.
+- Add [#20]: currently accepted names generate higher score than synonyms.
+- Add [#15]: use curation level for scoring results.
+- Add [#16]: use authorship for score calculation.
+- Add [#17]: use infrapecific ranks for score calculation.
+- Add [#18]: develop a ranking system for score calculation.
+- Add [#23]: make gnmatcher functionality interface-based. This allows to
+  choose to use gnmatcher as a service or as a library in the future.
 
 ## [v0.0.2] - 2020-09-11
 
-### Added
-
-- Improve the code architecture using 'clean architecture' principles [#21].
+- Add [#21]: improve the code architecture using 'clean architecture'
+  principles.
 
 ## [v0.0.1] - 2020-09-05
 
-### Added
-
-- Return complete result [#14].
-- Get DataSource metadata out of API [#13].
-- Make decode/encode accept either Gob or JSON [#8].
-- Migrate from protobuf to Go [#6].
-- Incorporate gnmatcher service [#5].
-- Send names via HTTP API [#4].
-- Setup testing framework [#3].
-- Develop a draft ot output format as a protobuffer [#1].
+- Add [#14]: return complete result.
+- Add [#13]: get DataSource metadata out of API.
+- Add [#8]: make decode/encode accept either Gob or JSON.
+- Add [#6]: migrate from protobuf to Go.
+- Add [#5]: incorporate gnmatcher service.
+- Add [#4]: send names via HTTP API.
+- Add [#3]: setup testing framework.
+- Add [#1]: develop a draft of output format as a protobuffer.
 
 ## [v0.0.0] - 2020-05-25
 
@@ -268,6 +202,7 @@ The `gnames` project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.6.0]: https://github.com/gnames/gnames/compare/v0.5.12...v0.6.0
 [v0.5.12]: https://github.com/gnames/gnames/compare/v0.5.11...v0.5.12
 [v0.5.11]: https://github.com/gnames/gnames/compare/v0.5.10...v0.5.11
 [v0.5.10]: https://github.com/gnames/gnames/compare/v0.5.9...v0.5.10
@@ -304,6 +239,16 @@ This document follows [changelog guidelines]
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.0...v0.0.1
 [v0.0.0]: https://github.com/gnames/gnames/tree/v0.0.0
 
+[#90]: https://github.com/gnames/gnames/issues/90
+[#89]: https://github.com/gnames/gnames/issues/89
+[#88]: https://github.com/gnames/gnames/issues/88
+[#87]: https://github.com/gnames/gnames/issues/87
+[#86]: https://github.com/gnames/gnames/issues/86
+[#85]: https://github.com/gnames/gnames/issues/85
+[#84]: https://github.com/gnames/gnames/issues/84
+[#83]: https://github.com/gnames/gnames/issues/83
+[#82]: https://github.com/gnames/gnames/issues/82
+[#81]: https://github.com/gnames/gnames/issues/81
 [#80]: https://github.com/gnames/gnames/issues/80
 [#79]: https://github.com/gnames/gnames/issues/79
 [#78]: https://github.com/gnames/gnames/issues/78

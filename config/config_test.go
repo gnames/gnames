@@ -13,8 +13,8 @@ func TestNew(t *testing.T) {
 	cnf := config.New()
 	workDir, _ := gnsys.ConvertTilda("~/.local/share/gnames")
 	deflt := config.Config{
-		GNport:      8888,
-		WorkDir:     workDir,
+		Port:        8888,
+		CacheDir:    workDir,
 		JobsNum:     8,
 		MaxEditDist: 1,
 		PgHost:      "localhost",
@@ -32,8 +32,8 @@ func TestNewOpts(t *testing.T) {
 	cnf := config.New(opts...)
 	workDir, _ := gnsys.ConvertTilda("~/.local/share/gnames")
 	updt := config.Config{
-		GNport:      8888,
-		WorkDir:     workDir,
+		Port:        8888,
+		CacheDir:    workDir,
 		JobsNum:     16,
 		MaxEditDist: 2,
 		PgHost:      "mypg",

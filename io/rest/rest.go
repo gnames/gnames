@@ -16,10 +16,11 @@ import (
 	"github.com/gnames/gnquery/ent/search"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	nsqcfg "github.com/sfgrp/lognsq/config"
+	"github.com/sfgrp/lognsq/ent/nsq"
+	"github.com/sfgrp/lognsq/io/nsqio"
 	log "github.com/sirupsen/logrus"
 )
-
-const withLogs = true
 
 var apiPath = "/api/v0/"
 
@@ -29,8 +30,10 @@ func Run(gn gnames.GNames, port int) {
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
-	if withLogs {
-		e.Use(middleware.Logger())
+
+	loggerNSQ := setLogger(e, gn)
+	if loggerNSQ != nil {
+		defer loggerNSQ.Stop()
 	}
 
 	e.GET(apiPath+"ping", ping())
@@ -216,4 +219,31 @@ func getContext(c echo.Context) (ctx context.Context, cancel func()) {
 	ctx = c.Request().Context()
 	ctx, cancel = context.WithTimeout(ctx, 5*time.Minute)
 	return ctx, cancel
+}
+
+func setLogger(e *echo.Echo, m gnames.GNames) nsq.NSQ {
+	nsqAddr := m.WebLogsNsqdTCP()
+	withLogs := m.WithWebLogs()
+
+	if nsqAddr != "" {
+		cfg := nsqcfg.Config{
+			StderrLogs: withLogs,
+			Topic:      "gnames",
+			Address:    nsqAddr,
+		}
+		remote, err := nsqio.New(cfg)
+		logCfg := middleware.DefaultLoggerConfig
+		if err == nil {
+			logCfg.Output = remote
+		}
+		e.Use(middleware.LoggerWithConfig(logCfg))
+		if err != nil {
+			log.Warn(err)
+		}
+		return remote
+	} else if withLogs {
+		e.Use(middleware.Logger())
+		return nil
+	}
+	return nil
 }

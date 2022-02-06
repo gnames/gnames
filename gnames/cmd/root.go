@@ -48,16 +48,18 @@ var (
 // config purpose is to achieve automatic import of data from the
 // configuration file, if it exists.
 type config struct {
-	GNport      int
-	WorkDir     string
-	PgHost      string
-	PgPort      int
-	PgUser      string
-	PgPass      string
-	PgDB        string
-	JobsNum     int
-	MaxEditDist int
-	MatcherURL  string
+	CacheDir       string
+	JobsNum        int
+	MatcherURL     string
+	MaxEditDist    int
+	PgDB           string
+	PgHost         string
+	PgPass         string
+	PgPort         int
+	PgUser         string
+	Port           int
+	WebLogsNsqdTCP string
+	WithWebLogs    bool
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -79,6 +81,7 @@ The app has provides REST API for GNverifier and stand-alone use.`,
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -138,12 +141,12 @@ func getOpts() []gncnf.Option {
 		log.Fatalf("Cannot deserialize config data: %s.", err)
 	}
 
-	if cfg.GNport != 0 {
-		opts = append(opts, gncnf.OptGNPort(cfg.GNport))
+	if cfg.Port != 0 {
+		opts = append(opts, gncnf.OptGNPort(cfg.Port))
 	}
 
-	if cfg.WorkDir != "" {
-		opts = append(opts, gncnf.OptWorkDir(cfg.WorkDir))
+	if cfg.CacheDir != "" {
+		opts = append(opts, gncnf.OptWorkDir(cfg.CacheDir))
 	}
 	if cfg.JobsNum != 0 {
 		opts = append(opts, gncnf.OptJobsNum(cfg.JobsNum))
@@ -168,6 +171,12 @@ func getOpts() []gncnf.Option {
 	}
 	if cfg.MatcherURL != "" {
 		opts = append(opts, gncnf.OptMatcherURL(cfg.MatcherURL))
+	}
+	if cfg.WebLogsNsqdTCP != "" {
+		opts = append(opts, gncnf.OptWebLogsNsqdTCP(cfg.WebLogsNsqdTCP))
+	}
+	if cfg.WithWebLogs {
+		opts = append(opts, gncnf.OptWithWebLogs(true))
 	}
 	return opts
 }

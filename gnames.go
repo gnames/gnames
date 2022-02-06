@@ -225,3 +225,11 @@ func sortNames(mrs map[string]*verifier.MatchRecord) []string {
 	sort.Strings(res)
 	return res
 }
+
+func (g gnames) WithWebLogs() bool {
+	return g.cfg.WithWebLogs
+}
+
+func (g gnames) WebLogsNsqdTCP() string {
+	return g.cfg.WebLogsNsqdTCP
+}

@@ -1,17 +1,17 @@
-# gnames
+# GNames
 
 [![API](https://img.shields.io/badge/OpenAPI3-1.0.0-89bf04)][OpenAPI Specification]
 [![GoDoc](https://godoc.org/github.com/gnames/gnames?status.svg)][godoc]
 
-The goal of the `gnames` project is to provide an accurate and fast
+The goal of the [GNames] project is to provide an accurate and fast
 verification of scientific names in unlimited quantities. The verification
 should be fast (at least 1000 names per second) and include exact and fuzzy
 matching of input strings to scientific names aggregated from a large number
 of data-sources.
 
 In case if you do not need exact records of matched names from data-sources,
-and just want to know if a name-string is known, you can use [gnmatcher]
-instead of this project. The [gnmatcher] is significantly faster and has
+and just want to know if a name-string is known, you can use [GNmatcher]
+instead of this project. The [GNmatcher] is significantly faster and has
 simpler output.
 
 RESTful API of the project is described using [OpenAPI Specification].
@@ -23,7 +23,7 @@ RESTful API of the project is described using [OpenAPI Specification].
   * [Installation prerequesites](#installation-prerequesites)
   * [Installation process](#installation-process)
 * [Usage as API](#usage-as-api)
-* [Usage with gnverifier](#usage-with-gnverifier)
+* [Usage with GNverifier](#usage-with-gnverifier)
 * [Known limitations of the verification](#known-limitations-of-the-verification)
 * [Development](#development)
 * [Authors](#authors)
@@ -47,37 +47,39 @@ RESTful API of the project is described using [OpenAPI Specification].
   * `PartialFuzzy` matching is provided for partial matches of species and
     infraspecies. To avoid false positives uninomials only checked for exact
     match.
+  * `Virus` matching provides viruses verification.
+  * `FacetedSearch` allows to use flexible query language for searching.
 * Providing names information from data-sources that contain a particular name.
-  * Returning the "best" result. Best result is calculated by a scoring
+  * Returning the "best" result. The `BestResult` is calculated by a scoring
     algorithm.
   * Optionally, returning multiple results for data-sources that are important
-    to a `gnames` user.
-* Outlink URLs to some data-sources websites to show the original record of
-  a name.
+    to a [GNames] user.
+* Providing outlink URLs to some data-sources websites to show the original
+  record of a name.
 * Providing meta-information about aggregated data-sources.
 
 ## Installation
 
-Most of the users do not need to install `gnames` and can use fast remote
-service at `http://verifier.globalnames.org/api/v1` or use a command line
-client to `gnames`: [gnverifier]. Nevertheless, it is possible to install a
-local copy of the service.
+Most of the users do not need to install [GNames] and can use remote [GNames
+API] service at `http://verifier.globalnames.org/api/v0` or use a command line
+client [GNverifier]. Nevertheless, it is possible to install a local copy of
+the service.
 
 ### Installation prerequesites
 
 * A Linux-based operating system.
 * At least 32GB of memory.
 * At least 50GB of a free disk space.
-* Fast internet connection during installation. After installation `gnames` can
+* Fast Internet connection during installation. After installation [GNames] can
   operate without remote connection.
 * PostgreSQL database.
 
 ### Installation process
 
-1. PostgreSQL
+1. **PostgreSQL**
 
     We are not covering basics of PostgreSQL administration here. There are
-    many tutorials and resources for many Linux-based operating systems that
+    many tutorials and resources for Linux-based operating systems that
     can help.
 
     PostgreSQL database has to have `C` or `C.UTF-8` collation. This
@@ -90,16 +92,16 @@ local copy of the service.
     gunzip -c gnames_latest.tar.gz |pg_restore -d gnames
     ```
 
-2. `gnmatcher`
+2. **GNmatcher**
 
-    Refer to the [gnmatcher] documentation for its installation.
+    Refer to the [GNmatcher] documentation for its installation.
 
-3. `gnames`
+3. **GNames**
 
-    Download the latest [release] of `gnames`, unpack it, place is somewhere
+    Download the [latest release] of GNames, unpack it and place somewhere
     in the `PATH`.
 
-    Run `gnames -V`. It will show you the version of `gnames` and also generate
+    Run `gnames -V`. It will show you the version of `GNames` and also generate
     `$HOME/.config/gnames.yaml` configuration file.
 
     Edit `$HOME/.config/gnames.yaml` according to your preferences.
@@ -113,7 +115,7 @@ local copy of the service.
     To load service automatically you can create systemctl configuration for
     the service, if your system supports systemctl.
 
-    Alternatively you can use docker image to run gnames. You will need to
+    Alternatively you can use docker image to run GNames. You will need to
     create a file with corresponding environment variables that are described
     in the [.env.example] file.
 
@@ -123,15 +125,24 @@ local copy of the service.
       gnames/gnames:latest rest -p 8888
     ```
 
+    We provide an [example of environment file]. Environment variables
+    override configuration file settings.
+
 ## Usage as API
 
-Refer to `gnames'` [OpenAPI Specification] about interacting with `gnames` API.
-We are planning to add web-GUI in the future as well.
+Refer to GNames' [OpenAPI Specification] about interacting with GNames API.
 
-## Usage with gnverifier
+## Usage with GNverifier
 
-[gnverifier] is a command line client for `gnames` backend. Install and
-use it according to [gnverifier] documentation.
+[GNverifier] is a command line client for [GNames] backend. Install and
+use it according to the [GNverifier] documentation.
+
+[GNverifier] also provides web-based user interface to GNames. To launch it
+use something like:
+
+```bash
+gnverifier -p 8777
+```
 
 ## Known limitations of the verification
 
@@ -155,8 +166,8 @@ prevent to find fuzzy matches from better curated sources.
 
 * Install Go language for your Linux operating system.
 * Create PostgreSQL database as described in installation.
-* Clone the [gnames] code.
-* Clone the [gnmatcher] and set it up for development.
+* Clone the [GNames] code.
+* Clone the [GNmatcher] and set it up for development.
 * Install docker and docker compose.
 * Go to your local `gnames` directory
   * Run `make dc`
@@ -169,14 +180,17 @@ prevent to find fuzzy matches from better curated sources.
 
 ## License
 
-The `gnames` code is released under [MIT license].
+The `GNames` code is released under [MIT license].
 
-[OpenAPI Specification]: https://app.swaggerhub.com/apis-docs/dimus/gnames/1.0.0
-[gnverifier]: https://github.com/gnames/gnverifier
-[gnmatcher]: https://github.com/gnames/gnmatcher
-[gnames dbdump]: https://opendata.globalnames.org/dumps/gnames_latest.tar.gz
+[GNames]: https://github.com/gnames/gnames
+[GNames API]: https://apidoc.globalnames.org/gnames-beta
+[OpenAPI Specification]: https://apidoc.globalnames.org/gnames-beta
+[GNverifier]: https://github.com/gnames/gnverifier
+[GNmatcher]: https://github.com/gnames/gnmatcher
+[gnames dbdump]: http://opendata.globalnames.org/dumps/gnames-latest.tar.gz
 [.env.example]: https://github.com/gnames/gnames/blob/master/.env.example
-[gnames]: https://github.com/gnames/gnames
 [MIT license]: https://github.com/gnames/gnames/blob/master/LICENSE
 [Dmitry Mozzherin]: https://github.com/dimus
 [godoc]: https://pkg.go.dev/github.com/gnames/gnames
+[latest release]: https://github.com/gnames/gnames/releases/latest
+[example of environment file]: https://github.com/gnames/gnames/blob/master/.env.example
