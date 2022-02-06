@@ -221,9 +221,9 @@ func getContext(c echo.Context) (ctx context.Context, cancel func()) {
 	return ctx, cancel
 }
 
-func setLogger(e *echo.Echo, m gnames.GNames) nsq.NSQ {
-	nsqAddr := m.WebLogsNsqdTCP()
-	withLogs := m.WithWebLogs()
+func setLogger(e *echo.Echo, g gnames.GNames) nsq.NSQ {
+	nsqAddr := g.WebLogsNsqdTCP()
+	withLogs := g.WithWebLogs()
 
 	if nsqAddr != "" {
 		cfg := nsqcfg.Config{
