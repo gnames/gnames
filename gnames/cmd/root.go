@@ -111,16 +111,18 @@ func initConfig() {
 
 	// Set environment variables to override
 	// config file settings
-	viper.BindEnv("GNport", "GN_PORT")
-	viper.BindEnv("WorkDir", "GN_WORK_DIR")
-	viper.BindEnv("PgHost", "GN_PG_HOST")
-	viper.BindEnv("PgPort", "GN_PG_PORT")
-	viper.BindEnv("PgUser", "GN_PG_USER")
-	viper.BindEnv("PgPass", "GN_PG_PASS")
-	viper.BindEnv("PgDB", "GN_PG_DB")
-	viper.BindEnv("JobsNum", "GN_JOBS_NUM")
-	viper.BindEnv("MaxEditDist", "GN_MAX_EDIT_DIST")
-	viper.BindEnv("MatcherURL", "GN_MATCHER_URL")
+	_ = viper.BindEnv("CacheDir", "GN_CACHE_DIR")
+	_ = viper.BindEnv("JobsNum", "GN_JOBS_NUM")
+	_ = viper.BindEnv("MatcherURL", "GN_MATCHER_URL")
+	_ = viper.BindEnv("MaxEditDist", "GN_MAX_EDIT_DIST")
+	_ = viper.BindEnv("PgDB", "GN_PG_DB")
+	_ = viper.BindEnv("PgHost", "GN_PG_HOST")
+	_ = viper.BindEnv("PgPass", "GN_PG_PASS")
+	_ = viper.BindEnv("PgPort", "GN_PG_PORT")
+	_ = viper.BindEnv("PgUser", "GN_PG_USER")
+	_ = viper.BindEnv("Port", "GN_PORT")
+	_ = viper.BindEnv("WebLogsNsqdTCP", "GN_WEB_LOGS_NSQD_TCP")
+	_ = viper.BindEnv("WithWebLogs", "GN_WITH_WEB_LOGS")
 
 	viper.AutomaticEnv() // read in environment variables that match
 

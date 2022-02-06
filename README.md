@@ -22,8 +22,10 @@ RESTful API of the project is described using [OpenAPI Specification].
 * [Installation](#installation)
   * [Installation prerequesites](#installation-prerequesites)
   * [Installation process](#installation-process)
+* [Configuration](#configuration)
 * [Usage as API](#usage-as-api)
 * [Usage with GNverifier](#usage-with-gnverifier)
+* [Web-Logs](#web-logs)
 * [Known limitations of the verification](#known-limitations-of-the-verification)
 * [Development](#development)
 * [Authors](#authors)
@@ -128,7 +130,38 @@ the service.
     We provide an [example of environment file]. Environment variables
     override configuration file settings.
 
+## Configuration
+
+Configuration settings can either be given in the config file
+located at `$HOME/.config/gnames.yaml`, or by setting the following
+environment variables:
+
+| Env. Var.            | Configuration  |
+| -------------------- | ---------------|
+| GN_CACHE_DIR         | CacheDir       |
+| GN_JOBS_NUM          | JobsNum        |
+| GN_MATCHER_URL       | MatcherURL     |
+| GN_MAX_EDIT_DIST     | MaxEditDist    |
+| GN_PG_DB             | PgDB           |
+| GN_PG_HOST           | PgHost         |
+| GN_PG_PASS           | PgPass         |
+| GN_PG_PORT           | PgPort         |
+| GN_PG_USER           | PgUser         |
+| GN_PORT              | Port           |
+| GN_WEB_LOGS_NSQD_TCP | WebLogsNsqdTCP |
+| GN_WITH_WEB_LOGS     | WithWebLogs    |
+
+The meaning of configuration settings are provided in the [default gnames.yaml].
+
 ## Usage as API
+
+Run:
+
+```bash
+gnames rest
+# to change from default 8888 port
+gnames rest -p 8787
+```
 
 Refer to GNames' [OpenAPI Specification] about interacting with GNames API.
 
@@ -143,6 +176,15 @@ use something like:
 ```bash
 gnverifier -p 8777
 ```
+
+## Web-Logs
+
+By default Logs are not shown. To enable the service logs change
+`WithWebLogs` to `true` in the configuration file.
+
+To aggregate logs with an [NSQ] messaging service, provide an address for
+TCP service of `nsqd`, for example `localhost:4150` by changing
+`WebLogsNsqdTCP` in configuration file, or `GN_WEB_LOGS_NSQD_TCP`.
 
 ## Known limitations of the verification
 
@@ -182,15 +224,17 @@ prevent to find fuzzy matches from better curated sources.
 
 The `GNames` code is released under [MIT license].
 
-[GNames]: https://github.com/gnames/gnames
-[GNames API]: https://apidoc.globalnames.org/gnames-beta
-[OpenAPI Specification]: https://apidoc.globalnames.org/gnames-beta
-[GNverifier]: https://github.com/gnames/gnverifier
-[GNmatcher]: https://github.com/gnames/gnmatcher
-[gnames dbdump]: http://opendata.globalnames.org/dumps/gnames-latest.tar.gz
 [.env.example]: https://github.com/gnames/gnames/blob/master/.env.example
-[MIT license]: https://github.com/gnames/gnames/blob/master/LICENSE
 [Dmitry Mozzherin]: https://github.com/dimus
+[GNames API]: https://apidoc.globalnames.org/gnames-beta
+[GNames]: https://github.com/gnames/gnames
+[GNmatcher]: https://github.com/gnames/gnmatcher
+[GNverifier]: https://github.com/gnames/gnverifier
+[MIT license]: https://github.com/gnames/gnames/blob/master/LICENSE
+[NSQ]: https://nsq.io/
+[OpenAPI Specification]: https://apidoc.globalnames.org/gnames-beta
+[default gnames.yaml]: https://github.com/gnames/gnames/blob/master/gnames/cmd/gnames.yaml
+[example of environment file]: https://github.com/gnames/gnames/blob/master/.env.example
+[gnames dbdump]: http://opendata.globalnames.org/dumps/gnames-latest.tar.gz
 [godoc]: https://pkg.go.dev/github.com/gnames/gnames
 [latest release]: https://github.com/gnames/gnames/releases/latest
-[example of environment file]: https://github.com/gnames/gnames/blob/master/.env.example

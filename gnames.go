@@ -108,10 +108,10 @@ func overloadTxt(mr *verifier.MatchRecord) string {
 		return ""
 	}
 	if mr.MatchType == vlib.Virus {
-		return "Too many virus strains, results are truncated"
+		return "Too many virus strains, some results are truncated"
 	}
 
-	return "To many variants (possibly strains), results are truncated"
+	return "Too many variants (possibly strains), some results are truncated"
 }
 
 func (g gnames) Search(
