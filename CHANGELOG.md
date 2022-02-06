@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.6.2] - 2022-02-06
+
+- Fix: limit NSQ to queries with `verifications` and `search` only.
+
 ## [v0.6.1] - 2022-02-06
 
 - Add: improve README.
@@ -209,6 +213,7 @@ The GNames project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.6.2]: https://github.com/gnames/gnames/compare/v0.6.1...v0.6.2
 [v0.6.1]: https://github.com/gnames/gnames/compare/v0.6.0...v0.6.1
 [v0.6.0]: https://github.com/gnames/gnames/compare/v0.5.12...v0.6.0
 [v0.5.12]: https://github.com/gnames/gnames/compare/v0.5.11...v0.5.12

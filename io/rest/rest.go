@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -230,6 +231,7 @@ func setLogger(e *echo.Echo, g gnames.GNames) nsq.NSQ {
 			StderrLogs: withLogs,
 			Topic:      "gnames",
 			Address:    nsqAddr,
+			Regex:      regexp.MustCompile(`\/api\/v0\/(verifications|search)`),
 		}
 		remote, err := nsqio.New(cfg)
 		logCfg := middleware.DefaultLoggerConfig
