@@ -15,6 +15,8 @@ The GNames project follows [Semantic Versioning guidelines].
   Markdown linting problems and to make changelog more readable.
 - Add [#78]: optional NSQd log aggregation.
 - Add [#77]: verification of virus names.
+- Add OverloadDetected field in the output to indicate when
+  there are too many results returned from the database.
 
 ## [v0.5.12] - 2022-01-30
 
