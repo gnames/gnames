@@ -121,7 +121,6 @@ func (dgp verifierpg) produceResultData(
 			Year:            year,
 			MatchType:       match.MatchType,
 			Curation:        vlib.NotCurated,
-			Overload:        len(verCan) > resultsThreshold,
 		}
 
 		for _, mi := range match.MatchItems {
@@ -210,6 +209,7 @@ func (dgp *verifierpg) populateMatchRecord(
 		// if there is a lot of records, most likely many of them are surrogates
 		// that parser is not able to catch. Surrogates would parse with worst
 		// parsing quality (4)
+		mr.Overload = recsNum > resultsThreshold
 		if recsNum > resultsThreshold && verifRec.ParseQuality == 4 {
 			if discardedExample == "" {
 				discardedExample = verifRec.Name.String

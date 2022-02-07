@@ -4,6 +4,11 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.6.3] - 2022-02-07
+
+- Add [#80]: more information for NSQ logs.
+- Fix [#79]: OverloadDetected is not created for names without overload.
+
 ## [v0.6.2] - 2022-02-06
 
 - Fix: limit NSQ to queries with `verifications` and `search` only.
@@ -213,6 +218,7 @@ The GNames project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.6.3]: https://github.com/gnames/gnames/compare/v0.6.2...v0.6.3
 [v0.6.2]: https://github.com/gnames/gnames/compare/v0.6.1...v0.6.2
 [v0.6.1]: https://github.com/gnames/gnames/compare/v0.6.0...v0.6.1
 [v0.6.0]: https://github.com/gnames/gnames/compare/v0.5.12...v0.6.0
