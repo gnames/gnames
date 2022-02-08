@@ -23,10 +23,10 @@ package main
 
 import (
 	"github.com/gnames/gnames/gnames/cmd"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 )
 
 func main() {
-	log.SetFormatter(&log.JSONFormatter{})
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	cmd.Execute()
 }

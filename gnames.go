@@ -18,7 +18,7 @@ import (
 	"github.com/gnames/gnparser/ent/str"
 	"github.com/gnames/gnquery/ent/search"
 	"github.com/gnames/gnuuid"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type gnames struct {
@@ -53,7 +53,12 @@ func (g gnames) Verify(
 	ctx context.Context,
 	input vlib.Input,
 ) (vlib.Output, error) {
-	log.Printf("Verifying %d name-strings.", len(input.NameStrings))
+	namesNum := len(input.NameStrings)
+	if namesNum > 0 {
+		log.Info().Str("action", "verification").
+			Int("namesNum", len(input.NameStrings)).
+			Str("example", input.NameStrings[0])
+	}
 	namesRes := make([]vlib.Name, len(input.NameStrings))
 
 	var matches []mlib.Match
@@ -96,7 +101,7 @@ func (g gnames) Verify(
 
 			namesRes[i] = item
 		} else {
-			log.Warnf("Cannot find record for '%s'.", v.Name)
+			log.Warn().Msgf("Cannot find record for '%s'.", v.Name)
 		}
 	}
 	res := vlib.Output{Meta: meta(input, namesRes), Names: namesRes}
@@ -119,7 +124,7 @@ func (g gnames) Search(
 	inp search.Input,
 ) search.Output {
 	inp.Query = inp.ToQuery()
-	log.Printf("Searching '%s'.", inp.Query)
+	log.Info().Str("action", "search").Str("query", inp.Query)
 
 	res := search.Output{Meta: search.Meta{Input: inp}}
 	matchRecords, err := g.facet.Search(ctx, inp)

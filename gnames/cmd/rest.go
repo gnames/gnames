@@ -29,7 +29,8 @@ import (
 	"github.com/gnames/gnames/io/facetpg"
 	"github.com/gnames/gnames/io/rest"
 	"github.com/gnames/gnames/io/verifierpg"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -43,13 +44,16 @@ var restCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, _ []string) {
 		debug, _ := cmd.Flags().GetBool("debug")
 		if debug {
-			log.SetLevel(log.DebugLevel)
-			log.Printf("Log level is set to '%s'.", log.Level.String(log.GetLevel()))
+			zerolog.SetGlobalLevel(zerolog.DebugLevel)
+			log.Info().Msgf("Log level is set to '%s'", zerolog.DebugLevel.String())
 		}
 
 		port, _ := cmd.Flags().GetInt("port")
 		opts = append(opts, gncfg.OptGNPort(port))
 
+		log.Logger = log.With().
+			Str("gnApp", "gnames").
+			Logger()
 		cfg := gncfg.New(opts...)
 		vf := verifierpg.New(cfg)
 		srch := facetpg.New(cfg)

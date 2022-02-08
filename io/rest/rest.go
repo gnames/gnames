@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -17,17 +16,17 @@ import (
 	"github.com/gnames/gnquery/ent/search"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog/log"
 	nsqcfg "github.com/sfgrp/lognsq/config"
 	"github.com/sfgrp/lognsq/ent/nsq"
 	"github.com/sfgrp/lognsq/io/nsqio"
-	log "github.com/sirupsen/logrus"
 )
 
 var apiPath = "/api/v0/"
 
 // Run starts HTTP/1 service on given port for scientific names verification.
 func Run(gn gnames.GNames, port int) {
-	log.Printf("Starting the HTTP API server on port %d.", port)
+	log.Info().Int("port", port).Msg("Starting HTTP API server")
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
@@ -115,6 +114,15 @@ func verificationPOST(gn gnames.GNames) func(echo.Context) error {
 				verified, err = gn.Verify(ctx, params)
 			}
 
+			if l := len(params.NameStrings); l > 0 {
+				log.Info().
+					Int("namesNum", l).
+					Str("example", params.NameStrings[0]).
+					Str("parsedBy", "REST API").
+					Str("method", "GET").
+					Msg("Verification")
+			}
+
 			if err == nil {
 				err = c.JSON(http.StatusOK, verified)
 			}
@@ -164,6 +172,14 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		if err != nil {
 			return err
 		}
+		if l := len(names); l > 0 {
+			log.Info().
+				Int("namesNum", l).
+				Str("example", names[0]).
+				Str("parsedBy", "REST API").
+				Str("method", "GET").
+				Msg("Verification")
+		}
 		return c.JSON(http.StatusOK, verified)
 	}
 }
@@ -174,6 +190,12 @@ func searchGET(gn gnames.GNames) func(echo.Context) error {
 		gnq := gnquery.New()
 		inp := gnq.Parse(q)
 		res := gn.Search(context.Background(), inp)
+
+		log.Info().
+			Str("query", q).
+			Str("parsedBy", "REST API").
+			Str("method", "GET").
+			Msg("Search")
 
 		return c.JSON(http.StatusOK, res)
 	}
@@ -198,6 +220,11 @@ func searchPOST(gn gnames.GNames) func(echo.Context) error {
 
 			if err == nil {
 				res = gn.Search(ctx, params)
+				log.Info().
+					Str("query", params.Query).
+					Str("parsedBy", "REST API").
+					Str("method", "POST").
+					Msg("Search")
 				err = c.JSON(http.StatusOK, res)
 			}
 
@@ -231,16 +258,17 @@ func setLogger(e *echo.Echo, g gnames.GNames) nsq.NSQ {
 			StderrLogs: withLogs,
 			Topic:      "gnames",
 			Address:    nsqAddr,
-			Regex:      regexp.MustCompile(`\/api\/v0\/(verifications|search)`),
 		}
 		remote, err := nsqio.New(cfg)
 		logCfg := middleware.DefaultLoggerConfig
 		if err == nil {
 			logCfg.Output = remote
+			// set app logger too
+			log.Logger = log.Output(remote)
 		}
 		e.Use(middleware.LoggerWithConfig(logCfg))
 		if err != nil {
-			log.Warn(err)
+			log.Warn().Err(err)
 		}
 		return remote
 	} else if withLogs {

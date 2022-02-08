@@ -3,6 +3,7 @@ package verifierpg
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -54,12 +55,12 @@ func (dgp verifierpg) MatchRecords(
 
 	verCan, err := nameQuery(ctx, dgp.db, splitMatches.canonical)
 	if err != nil {
-		log.Warnf("Cannot get matches data: %s", err)
+		log.Warn().Err(err).Msg("Cannot get matches data")
 		return res, err
 	}
 	verVir, err := dgp.virusQuery(ctx, splitMatches.virus)
 	if err != nil {
-		log.Warnf("Cannot get virus data: %s", err)
+		log.Warn().Err(err).Msg("Cannot get virus data")
 		return res, err
 	}
 
@@ -107,7 +108,8 @@ func (dgp verifierpg) produceResultData(
 	for _, match := range ms.canonical {
 		prsd := parser.ParseName(match.Name)
 		if !prsd.Parsed {
-			log.Fatalf("Cannot parse input '%s'. Should never happen at this point.", match.Name)
+			log.Fatal().Err(errors.New("cannot parse")).Str("name", match.Name).
+				Msg("Should never happen")
 		}
 		authors, year := dbshare.ProcessAuthorship(prsd.Authorship)
 
@@ -139,7 +141,7 @@ func (dgp *verifierpg) populateVirusMatchRecord(
 ) {
 	verifRecs, ok := verifMap[mi.ID]
 	if !ok {
-		log.Fatalf("no match for %s", mi.ID)
+		log.Fatal().Err(fmt.Errorf("no match for %s", mi.ID))
 	}
 	sources := make(map[int]struct{})
 	for _, verifRec := range verifRecs {
@@ -306,8 +308,11 @@ func (dgp *verifierpg) populateMatchRecord(
 
 	}
 	if discardedNum > 0 {
-		log.Infof("Skipped %d low parsing quality names (e.g. '%s')", discardedNum,
-			discardedExample)
+		log.Info().
+			Msgf("Skipped %d low parsing quality names (e.g. '%s')",
+				discardedNum,
+				discardedExample,
+			)
 	}
 	mr.DataSourcesNum = len(sources)
 }

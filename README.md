@@ -155,7 +155,14 @@ The meaning of configuration settings are provided in the [default gnames.yaml].
 
 ## Usage as API
 
-Run:
+Please note, that currently developed API ([documentation][GNames API]) is
+publically served at `https://verifier.globalnames.org/api/v0`.
+
+Legacy [API v1] public service is located at
+`https://verifier.globalnames.org/api/v1`. Legacy API is not going to change,
+but it will be deprecated, when current API will reach v2.
+
+If you installed GNames locally and want to run its API, run:
 
 ```bash
 gnames rest
@@ -167,8 +174,9 @@ Refer to GNames' [OpenAPI Specification] about interacting with GNames API.
 
 ## Usage with GNverifier
 
-[GNverifier] is a command line client for [GNames] backend. Install and
-use it according to the [GNverifier] documentation.
+[GNverifier] is a command line client for [GNames] backend. It uses publically
+available **remote** API of GNames. Install and use it according to the
+[GNverifier] documentation.
 
 [GNverifier] also provides web-based user interface to GNames. To launch it
 use something like:
@@ -227,6 +235,7 @@ The `GNames` code is released under [MIT license].
 [.env.example]: https://github.com/gnames/gnames/blob/master/.env.example
 [Dmitry Mozzherin]: https://github.com/dimus
 [GNames API]: https://apidoc.globalnames.org/gnames-beta
+[API v1]: https://apidoc.globalnames.org/gnames
 [GNames]: https://github.com/gnames/gnames
 [GNmatcher]: https://github.com/gnames/gnmatcher
 [GNverifier]: https://github.com/gnames/gnverifier

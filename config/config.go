@@ -1,11 +1,10 @@
 package config
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/gnames/gnsys"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 // Config collects and stores external configuration data.
@@ -104,8 +103,8 @@ func OptJobsNum(i int) Option {
 func OptMaxEditDist(i int) Option {
 	return func(cnf *Config) {
 		if i < 1 || i > 2 {
-			log.Warn(fmt.Sprintf("MaxEditDist can only be 1 or 2, leaving it at %d.",
-				cnf.MaxEditDist))
+			log.Warn().Msgf("MaxEditDist can only be 1 or 2, leaving it at %d.",
+				cnf.MaxEditDist)
 		} else {
 			cnf.MaxEditDist = i
 		}

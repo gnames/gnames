@@ -16,8 +16,8 @@ require (
 	github.com/labstack/echo/v4 v4.6.3
 	github.com/lib/pq v1.10.4
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/rs/zerolog v1.15.0
 	github.com/sfgrp/lognsq v0.1.1
-	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.7.0
@@ -49,6 +49,7 @@ require (
 	github.com/pointlander/compress v1.1.1-0.20190518213731-ff44bd196cc3 // indirect
 	github.com/pointlander/jetset v1.0.1-0.20190518214125-eee7eff80bd4 // indirect
 	github.com/pointlander/peg v1.0.1 // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/afero v1.8.1 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

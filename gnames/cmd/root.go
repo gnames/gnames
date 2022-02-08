@@ -34,7 +34,7 @@ import (
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
@@ -101,7 +101,7 @@ func initConfig() {
 	configFile := "gnames"
 	home, err := homedir.Dir()
 	if err != nil {
-		log.Fatalf("Cannot find home directory: %s.", err)
+		log.Fatal().Err(err).Msg("Cannot find home directory")
 	}
 	home = filepath.Join(home, ".config")
 
@@ -127,11 +127,11 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	configPath := filepath.Join(home, fmt.Sprintf("%s.yaml", configFile))
-	touchConfigFile(configPath, configFile)
+	touchConfigFile(configPath)
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		log.Printf("Using config file: %s.", viper.ConfigFileUsed())
+		log.Info().Msgf("Using config file: %s.", viper.ConfigFileUsed())
 	}
 	getOpts()
 }
@@ -140,7 +140,7 @@ func getOpts() []gncnf.Option {
 	cfg := &config{}
 	err := viper.Unmarshal(cfg)
 	if err != nil {
-		log.Fatalf("Cannot deserialize config data: %s.", err)
+		log.Fatal().Err(err).Msg("Cannot deserialize config data")
 	}
 
 	if cfg.Port != 0 {
@@ -188,7 +188,7 @@ func getOpts() []gncnf.Option {
 func showVersionFlag(cmd *cobra.Command) bool {
 	hasVersionFlag, err := cmd.Flags().GetBool("version")
 	if err != nil {
-		log.Fatalf("Cannot get version flag: %s.", err)
+		log.Fatal().Err(err).Msg("Cannot get version flag")
 	}
 
 	if hasVersionFlag {
@@ -198,24 +198,24 @@ func showVersionFlag(cmd *cobra.Command) bool {
 }
 
 // touchConfigFile checks if config file exists, and if not, it gets created.
-func touchConfigFile(configPath string, configFile string) {
+func touchConfigFile(configPath string) {
 	if ok, err := gnsys.FileExists(configPath); ok && err == nil {
 		return
 	}
 
-	log.Printf("Creating config file: %s.", configPath)
-	createConfig(configPath, configFile)
+	log.Info().Msgf("Creating config file '%s'", configPath)
+	createConfig(configPath)
 }
 
 // createConfig creates config file.
-func createConfig(path string, file string) {
+func createConfig(path string) {
 	err := gnsys.MakeDir(filepath.Dir(path))
 	if err != nil {
-		log.Fatalf("Cannot create dir %s: %s.", path, err)
+		log.Fatal().Err(err).Msgf("Cannot create dir %s", path)
 	}
 
 	err = ioutil.WriteFile(path, []byte(configText), 0644)
 	if err != nil {
-		log.Fatalf("Cannot write to file %s: %s.", path, err)
+		log.Fatal().Err(err).Msgf("Cannot write to file %s", path)
 	}
 }

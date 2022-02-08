@@ -8,7 +8,7 @@ import (
 	"github.com/gnames/gnames/ent/verifier"
 	"github.com/gnames/gnames/io/internal/dbshare"
 	vlib "github.com/gnames/gnlib/ent/verifier"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 
 	// postgres driver
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -23,7 +23,7 @@ type verifierpg struct {
 func New(cnf config.Config) verifier.Verifier {
 	db, err := sql.Open("postgres", dbshare.DBURL(cnf))
 	if err != nil {
-		log.Fatalf("Cannot create PostgreSQL connection: %s.", err)
+		log.Fatal().Err(err).Msg("Cannot create PostgreSQL connection")
 	}
 	vf := verifierpg{db: db}
 	vf.dataSourcesMap = dbshare.DataSourcesMap(db)
