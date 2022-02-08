@@ -4,9 +4,9 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
-## [v0.6.3] - 2022-02-07
+## [v0.6.3] - 2022-02-08
 
-- Add [#80]: more information for NSQ logs.
+- Add [#80]: more information for NSQ logs. Change logs lib to zerolog.
 - Fix [#79]: OverloadDetected is not created for names without overload.
 
 ## [v0.6.2] - 2022-02-06
