@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
 
 	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/ent/facet"
@@ -13,6 +12,7 @@ import (
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser/ent/parsed"
 	"github.com/gnames/gnquery/ent/search"
+	"github.com/rs/zerolog/log"
 )
 
 type facetpg struct {
@@ -26,7 +26,7 @@ type facetpg struct {
 func New(cnf config.Config) facet.Facet {
 	db, err := sql.Open("postgres", dbshare.DBURL(cnf))
 	if err != nil {
-		log.Fatalf("Cannot create PostgreSQL connection: %s.", err)
+		log.Fatal().Err(err).Msg("Cannot create PostgreSQL connection")
 	}
 	return &facetpg{db: db, dsm: dbshare.DataSourcesMap(db)}
 }

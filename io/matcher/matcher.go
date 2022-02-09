@@ -9,6 +9,7 @@ import (
 	"github.com/gnames/gnlib/ent/gnvers"
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	"github.com/gnames/gnmatcher"
+	gnmcfg "github.com/gnames/gnmatcher/config"
 	"github.com/rs/zerolog/log"
 )
 
@@ -18,7 +19,7 @@ type matcherREST struct {
 }
 
 // New creates an implementation of GNmatcher interface.
-func New(url string) gnmatcher.NameMatcher {
+func New(url string) gnmatcher.GNmatcher {
 	return matcherREST{url: url, enc: gnfmt.GNjson{}}
 }
 
@@ -60,4 +61,9 @@ func (mr matcherREST) MatchNames(names []string) []mlib.Match {
 		log.Warn().Err(err).Msg("Cannot decode matches")
 	}
 	return response
+}
+
+// GetConfig is a placeholder
+func (mr matcherREST) GetConfig() gnmcfg.Config {
+	return gnmcfg.New()
 }

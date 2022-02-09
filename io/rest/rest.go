@@ -250,14 +250,19 @@ func getContext(c echo.Context) (ctx context.Context, cancel func()) {
 }
 
 func setLogger(e *echo.Echo, g gnames.GNames) nsq.NSQ {
-	nsqAddr := g.WebLogsNsqdTCP()
-	withLogs := g.WithWebLogs()
+	cfg := g.GetConfig()
+	nsqAddr := cfg.NsqdTCPAddress
+	withLogs := cfg.WithWebLogs
+	contains := cfg.NsqdContainsFilter
+	regex := cfg.NsqdRegexFilter
 
 	if nsqAddr != "" {
 		cfg := nsqcfg.Config{
 			StderrLogs: withLogs,
 			Topic:      "gnames",
 			Address:    nsqAddr,
+			Contains:   contains,
+			Regex:      regex,
 		}
 		remote, err := nsqio.New(cfg)
 		logCfg := middleware.DefaultLoggerConfig

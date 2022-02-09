@@ -25,20 +25,20 @@ type gnames struct {
 	cfg     config.Config
 	vf      verifier.Verifier
 	facet   facet.Facet
-	matcher gnmatcher.NameMatcher
+	matcher gnmatcher.GNmatcher
 }
 
 // NewGNames is a constructor that returns implmentation of GNames interface.
 func NewGNames(
-	cnf config.Config,
+	cfg config.Config,
 	vf verifier.Verifier,
 	fc facet.Facet,
 ) GNames {
 	return gnames{
-		cfg:     cnf,
+		cfg:     cfg,
 		vf:      vf,
 		facet:   fc,
-		matcher: matcher.New(cnf.MatcherURL),
+		matcher: matcher.New(cfg.MatcherURL),
 	}
 }
 
@@ -231,10 +231,6 @@ func sortNames(mrs map[string]*verifier.MatchRecord) []string {
 	return res
 }
 
-func (g gnames) WithWebLogs() bool {
-	return g.cfg.WithWebLogs
-}
-
-func (g gnames) WebLogsNsqdTCP() string {
-	return g.cfg.WebLogsNsqdTCP
+func (g gnames) GetConfig() config.Config {
+	return g.cfg
 }

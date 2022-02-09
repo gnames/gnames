@@ -3,13 +3,13 @@ package dbshare
 import (
 	"context"
 	"database/sql"
-	"log"
 	"time"
 
 	"github.com/georgysavva/scany/sqlscan"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gofrs/uuid"
 	"github.com/lib/pq"
+	"github.com/rs/zerolog/log"
 )
 
 type dataSource struct {
@@ -36,7 +36,7 @@ func DataSourcesMap(db *sql.DB) map[int]*vlib.DataSource {
 	res := make(map[int]*vlib.DataSource)
 	dss, err := DataSources(db)
 	if err != nil {
-		log.Fatalf("Cannot init DataSources data: %s", err)
+		log.Fatal().Err(err).Msg("Cannot init DataSources data")
 	}
 	for _, ds := range dss {
 		res[ds.ID] = ds

@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.6.4] - 2022-02-09 Wed
+
+- Add [#81]: optional filters for NSQ logs.
+
 ## [v0.6.3] - 2022-02-08
 
 - Add [#80]: more information for NSQ logs. Change logs lib to zerolog.
@@ -218,6 +222,7 @@ The GNames project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.6.4]: https://github.com/gnames/gnames/compare/v0.6.3...v0.6.4
 [v0.6.3]: https://github.com/gnames/gnames/compare/v0.6.2...v0.6.3
 [v0.6.2]: https://github.com/gnames/gnames/compare/v0.6.1...v0.6.2
 [v0.6.1]: https://github.com/gnames/gnames/compare/v0.6.0...v0.6.1

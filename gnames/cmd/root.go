@@ -48,18 +48,20 @@ var (
 // config purpose is to achieve automatic import of data from the
 // configuration file, if it exists.
 type config struct {
-	CacheDir       string
-	JobsNum        int
-	MatcherURL     string
-	MaxEditDist    int
-	PgDB           string
-	PgHost         string
-	PgPass         string
-	PgPort         int
-	PgUser         string
-	Port           int
-	WebLogsNsqdTCP string
-	WithWebLogs    bool
+	CacheDir           string
+	JobsNum            int
+	MatcherURL         string
+	MaxEditDist        int
+	PgDB               string
+	PgHost             string
+	PgPass             string
+	PgPort             int
+	PgUser             string
+	Port               int
+	NsqdTCPAddress     string
+	NsqdContainsFilter string
+	NsqdRegexFilter    string
+	WithWebLogs        bool
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -121,7 +123,7 @@ func initConfig() {
 	_ = viper.BindEnv("PgPort", "GN_PG_PORT")
 	_ = viper.BindEnv("PgUser", "GN_PG_USER")
 	_ = viper.BindEnv("Port", "GN_PORT")
-	_ = viper.BindEnv("WebLogsNsqdTCP", "GN_WEB_LOGS_NSQD_TCP")
+	_ = viper.BindEnv("NsqdTCPAddress", "GN_NSQD_TCP_ADDRESS")
 	_ = viper.BindEnv("WithWebLogs", "GN_WITH_WEB_LOGS")
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -174,8 +176,14 @@ func getOpts() []gncnf.Option {
 	if cfg.MatcherURL != "" {
 		opts = append(opts, gncnf.OptMatcherURL(cfg.MatcherURL))
 	}
-	if cfg.WebLogsNsqdTCP != "" {
-		opts = append(opts, gncnf.OptWebLogsNsqdTCP(cfg.WebLogsNsqdTCP))
+	if cfg.NsqdTCPAddress != "" {
+		opts = append(opts, gncnf.OptNsqdTCPAddress(cfg.NsqdTCPAddress))
+	}
+	if cfg.NsqdContainsFilter != "" {
+		opts = append(opts, gncnf.OptNsqdContainsFilter(cfg.NsqdContainsFilter))
+	}
+	if cfg.NsqdRegexFilter != "" {
+		opts = append(opts, gncnf.OptNsqdRegexFilter(cfg.NsqdRegexFilter))
 	}
 	if cfg.WithWebLogs {
 		opts = append(opts, gncnf.OptWithWebLogs(true))
