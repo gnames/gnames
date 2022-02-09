@@ -124,6 +124,8 @@ func initConfig() {
 	_ = viper.BindEnv("PgUser", "GN_PG_USER")
 	_ = viper.BindEnv("Port", "GN_PORT")
 	_ = viper.BindEnv("NsqdTCPAddress", "GN_NSQD_TCP_ADDRESS")
+	_ = viper.BindEnv("NsqdContainsFilter", "GN_NSQD_CONTAINS_FILTER")
+	_ = viper.BindEnv("NsqdRegexFilter", "GN_NSQD_REGEX_FILTER")
 	_ = viper.BindEnv("WithWebLogs", "GN_WITH_WEB_LOGS")
 
 	viper.AutomaticEnv() // read in environment variables that match

@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.6.5] - 2022-02-09 Wed
+
+- Fix: add missing env names for NSQ filters.
+
 ## [v0.6.4] - 2022-02-09 Wed
 
 - Add [#81]: optional filters for NSQ logs.
