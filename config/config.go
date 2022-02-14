@@ -203,7 +203,7 @@ func New(opts ...Option) Config {
 	cnf := Config{
 		CacheDir:    workDir,
 		JobsNum:     8,
-		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
+		MatcherURL:  "https://matcher.globalnames.org/api/v0/",
 		MaxEditDist: 1,
 		PgDB:        "gnames",
 		PgHost:      "localhost",

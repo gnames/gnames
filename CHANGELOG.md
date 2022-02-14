@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.7.1]
+
+- Add: use /api/v0 instead of /vpi/v1 for gnmatcher
+
 ## [v0.7.0] - 2022-02-14 Mon
 
 - Add [#82]: exact match by stemed canonical can return alternative suffixes.

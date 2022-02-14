@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const restURL = "http://:8080/api/v1/"
+const restURL = "http://:8080/api/v0/"
 
 func TestVerifyPGExact(t *testing.T) {
 	names := []string{

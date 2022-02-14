@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const url = "https://matcher.globalnames.org/api/v1/"
+const url = "http://localhost:8080/api/v0/"
 
 func TestVer(t *testing.T) {
 	m := matcher.New(url)
