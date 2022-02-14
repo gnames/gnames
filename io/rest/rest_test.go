@@ -2,6 +2,7 @@ package rest_test
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -14,10 +15,10 @@ import (
 	// log "github.com/sirupsen/logrus"
 )
 
-const url = "http://:8888/api/v1/"
+const urlGNames = "http://:8888/api/v1/"
 
 func TestPing(t *testing.T) {
-	resp, err := http.Get(url + "ping")
+	resp, err := http.Get(urlGNames + "ping")
 	assert.Nil(t, err)
 
 	response, err := ioutil.ReadAll(resp.Body)
@@ -27,7 +28,7 @@ func TestPing(t *testing.T) {
 }
 
 func TestVer(t *testing.T) {
-	resp, err := http.Get(url + "version")
+	resp, err := http.Get(urlGNames + "version")
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -58,7 +59,7 @@ func TestVerifyExact(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(urlGNames+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -101,6 +102,7 @@ func TestVerifyExact(t *testing.T) {
 	cand := response[10]
 	assert.Equal(t, cand.InputID, "1b406033-fc5e-5f90-b3cf-fd1e9a42e282")
 	assert.Equal(t, cand.Input, "Candidatus Aenigmarchaeum subterraneum")
+	fmt.Printf("CAND: %#v\n\n", cand)
 	assert.NotNil(t, cand.BestResult)
 	assert.Equal(t, cand.BestResult.DataSourceID, 179)
 	assert.Equal(t, cand.BestResult.MatchType, vlib.Exact)
@@ -117,7 +119,7 @@ func TestFuzzy(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(urlGNames+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -143,7 +145,7 @@ func TestPrefDS(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(urlGNames+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -183,7 +185,7 @@ func TestPrefCapitalize(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(urlGNames+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -202,78 +204,78 @@ func TestPrefCapitalize(t *testing.T) {
 }
 
 func TestAllSources(t *testing.T) {
-  var response []vlib.Verification
-  names := []string {
-    "Bubo bubo",
-  }
+	var response []vlib.Verification
+	names := []string{
+		"Bubo bubo",
+	}
 	request := vlib.VerifyParams{NameStrings: names, PreferredSources: []int{0}}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(urlGNames+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Equal(t, len(response), len(names))
-  bubo :=response[0]
+	bubo := response[0]
 	assert.Equal(t, bubo.InputID, "4431a0f3-e901-519a-886f-9b97e0c99d8e")
 	assert.Equal(t, bubo.Input, "Bubo bubo")
 	assert.False(t, bubo.InputCapitalized)
 	assert.NotNil(t, bubo.BestResult)
-  assert.Equal(t, len(bubo.PreferredResults), bubo.DataSourcesNum)
-  assert.True(t, bubo.DataSourcesNum > 20)
+	assert.Equal(t, len(bubo.PreferredResults), bubo.DataSourcesNum)
+	assert.True(t, bubo.DataSourcesNum > 20)
 }
 
 func TestAllMatches(t *testing.T) {
-  var response []vlib.Verification
-  names := []string {
-    "Solanum tuberosum",
-  }
+	var response []vlib.Verification
+	names := []string{
+		"Solanum tuberosum",
+	}
 	request := vlib.VerifyParams{
-    NameStrings: names,
-    PreferredSources: []int{1},
-    WithAllMatches: true,
-  }
+		NameStrings:      names,
+		PreferredSources: []int{1},
+		WithAllMatches:   true,
+	}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(urlGNames+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Equal(t, len(response), len(names))
-  solanum :=response[0]
+	solanum := response[0]
 	assert.NotNil(t, solanum.BestResult)
-  assert.Greater(t, len(solanum.PreferredResults), 1)
+	assert.Greater(t, len(solanum.PreferredResults), 1)
 }
 
 func TestAll(t *testing.T) {
-  var response []vlib.Verification
-  names := []string {
-    "Solanum tuberosum",
-  }
+	var response []vlib.Verification
+	names := []string{
+		"Solanum tuberosum",
+	}
 	request := vlib.VerifyParams{
-    NameStrings: names,
-    PreferredSources: []int{0},
-    WithAllMatches: true,
-  }
+		NameStrings:      names,
+		PreferredSources: []int{0},
+		WithAllMatches:   true,
+	}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(urlGNames+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	assert.Equal(t, len(response), len(names))
-  solanum :=response[0]
+	solanum := response[0]
 	assert.NotNil(t, solanum.BestResult)
-  assert.Greater(t, len(solanum.PreferredResults), 20)
+	assert.Greater(t, len(solanum.PreferredResults), 20)
 }
 
 func TestBugs(t *testing.T) {
@@ -287,7 +289,7 @@ func TestBugs(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(urlGNames+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -309,7 +311,7 @@ func TestHomoNCBI(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(url+"verifications", "application/json", r)
+	resp, err := http.Post(urlGNames+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -322,7 +324,7 @@ func TestHomoNCBI(t *testing.T) {
 
 func TestGetVerifications(t *testing.T) {
 	var response []vlib.Verification
-	resp, err := http.Get(url + "verifications/Homo+sapiens?pref_sources=4")
+	resp, err := http.Get(urlGNames + "verifications/Homo+sapiens?pref_sources=4")
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -336,7 +338,7 @@ func TestGetVerifications(t *testing.T) {
 
 func TestDataSources(t *testing.T) {
 	var response []vlib.DataSource
-	resp, err := http.Get(url + "data_sources")
+	resp, err := http.Get(urlGNames + "data_sources")
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -351,7 +353,7 @@ func TestDataSources(t *testing.T) {
 
 func TestOneDataSource(t *testing.T) {
 	var ds vlib.DataSource
-	resp, err := http.Get(url + "data_sources/12")
+	resp, err := http.Get(urlGNames + "data_sources/12")
 	assert.Nil(t, err)
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	assert.Nil(t, err)

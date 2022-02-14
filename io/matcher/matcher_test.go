@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const url = "https://matcher.globalnames.org/api/v1/"
+const url = "http://localhost:8080/api/v1/"
 
 func TestVer(t *testing.T) {
 	var m gnmatcher.GNmatcher
