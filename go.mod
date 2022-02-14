@@ -5,9 +5,9 @@ go 1.17
 require (
 	github.com/georgysavva/scany v0.3.0
 	github.com/gnames/gnfmt v0.2.0
-	github.com/gnames/gnlib v0.8.1
-	github.com/gnames/gnmatcher v0.7.4
-	github.com/gnames/gnparser v1.6.2
+	github.com/gnames/gnlib v0.9.1
+	github.com/gnames/gnmatcher v0.8.1
+	github.com/gnames/gnparser v1.6.3
 	github.com/gnames/gnquery v0.2.3
 	github.com/gnames/gnsys v0.2.2
 	github.com/gnames/gnuuid v0.1.1
@@ -57,15 +57,15 @@ require (
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
-	golang.org/x/crypto v0.0.0-20220131195533-30dcbda58838 // indirect
+	golang.org/x/crypto v0.0.0-20220213190939-1e6e3497d506 // indirect
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
-	golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a // indirect
+	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
+	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 	golang.org/x/tools v0.1.9 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	gopkg.in/ini.v1 v1.66.3 // indirect
+	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

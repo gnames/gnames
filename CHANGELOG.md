@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.7.0] - 2022-02-14 Mon
+
+- Add [#82]: exact match by stemed canonical can return alternative suffixes.
+
 ## [v0.6.5] - 2022-02-09 Wed
 
 - Fix: add missing env names for NSQ filters.

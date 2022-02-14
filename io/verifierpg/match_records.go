@@ -106,6 +106,7 @@ func (dgp verifierpg) produceResultData(
 
 	// deal with Canonicals
 	for _, match := range ms.canonical {
+		// TODO check if parsing affects speed too much
 		prsd := parser.ParseName(match.Name)
 		if !prsd.Parsed {
 			log.Fatal().Err(errors.New("cannot parse")).Str("name", match.Name).
@@ -202,8 +203,6 @@ func (dgp *verifierpg) populateMatchRecord(
 	var discardedExample string
 	var discardedNum int
 	for i, verifRec := range verifRecs {
-		// all match types are the same, so we just take the first one to
-		// expose it one level higher.
 		if i == 0 {
 			mr.MatchType = m.MatchType
 		}
@@ -300,7 +299,7 @@ func (dgp *verifierpg) populateMatchRecord(
 			ClassificationIDs:      verifRec.ClassificationIds.String,
 			EditDistance:           edDist,
 			StemEditDistance:       edDistStem,
-			MatchType:              m.MatchType,
+			MatchType:              mi.MatchType,
 			ParsingQuality:         verifRec.ParseQuality,
 		}
 
