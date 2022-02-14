@@ -8,7 +8,7 @@ import (
 	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 
 	// postgres driver
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -23,7 +23,7 @@ type verifierpg struct {
 func NewVerifier(cnf config.Config) verifier.Verifier {
 	db, err := sql.Open("postgres", dbURL(cnf))
 	if err != nil {
-		log.Fatalf("Cannot create PostgreSQL connection: %s.", err)
+		log.Fatal().Err(err).Msg("Cannot create PostgreSQL connection")
 	}
 	vf := verifierpg{DB: db}
 	vf.dataSourcesMap()
@@ -39,7 +39,7 @@ func (vf *verifierpg) dataSourcesMap() {
 	dsm := make(map[int]*vlib.DataSource)
 	dss, err := vf.DataSources()
 	if err != nil {
-		log.Fatalf("Cannot init DataSources data: %s", err)
+		log.Fatal().Err(err).Msg("Cannot init DataSources data")
 	}
 	for _, ds := range dss {
 		dsm[ds.ID] = ds

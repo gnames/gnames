@@ -10,22 +10,26 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gnames/gnames"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
+	nsqcfg "github.com/sfgrp/lognsq/config"
+	"github.com/sfgrp/lognsq/ent/nsq"
+	"github.com/sfgrp/lognsq/io/nsqio"
 )
-
-const withLogs = true
 
 // Run starts HTTP/1 service for scientific names verification.
 func Run(vs VerifierService) {
-	log.Printf("Starting the HTTP API server on port %d.", vs.Port())
+	log.Info().Msgf("Starting the HTTP API server on port %d.", vs.Port())
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
-	if withLogs {
-		e.Use(middleware.Logger())
+
+	loggerNSQ := setLogger(e, vs)
+	if loggerNSQ != nil {
+		defer loggerNSQ.Stop()
 	}
 
 	e.GET("/api/v1/ping", ping(vs))
@@ -109,6 +113,15 @@ func verificationPOST(vs VerifierService) func(echo.Context) error {
 				err = c.JSON(http.StatusOK, verified)
 			}
 
+			if l := len(params.NameStrings); l > 0 {
+				log.Info().
+					Int("namesNum", l).
+					Str("example", params.NameStrings[0]).
+					Str("parsedBy", "REST API").
+					Str("method", "GET").
+					Msg("Verification")
+			}
+
 			chErr <- err
 		}()
 
@@ -147,6 +160,16 @@ func verificationGET(vs VerifierService) func(echo.Context) error {
 		if err != nil {
 			return err
 		}
+
+		if l := len(names); l > 0 {
+			log.Info().
+				Int("namesNum", l).
+				Str("example", names[0]).
+				Str("parsedBy", "REST API").
+				Str("method", "GET").
+				Msg("Verification")
+		}
+
 		return c.JSON(http.StatusOK, verified)
 	}
 }
@@ -155,4 +178,38 @@ func getContext(c echo.Context) (ctx context.Context, cancel func()) {
 	ctx = c.Request().Context()
 	ctx, cancel = context.WithTimeout(ctx, 5*time.Minute)
 	return ctx, cancel
+}
+
+func setLogger(e *echo.Echo, g gnames.GNames) nsq.NSQ {
+	cfg := g.GetConfig()
+	nsqAddr := cfg.NsqdTCPAddress
+	withLogs := cfg.WithWebLogs
+	contains := cfg.NsqdContainsFilter
+	regex := cfg.NsqdRegexFilter
+
+	if nsqAddr != "" {
+		cfg := nsqcfg.Config{
+			StderrLogs: withLogs,
+			Topic:      "gnames-api-v1",
+			Address:    nsqAddr,
+			Contains:   contains,
+			Regex:      regex,
+		}
+		remote, err := nsqio.New(cfg)
+		logCfg := middleware.DefaultLoggerConfig
+		if err == nil {
+			logCfg.Output = remote
+			// set app logger too
+			log.Logger = log.Output(remote)
+		}
+		e.Use(middleware.LoggerWithConfig(logCfg))
+		if err != nil {
+			log.Warn().Err(err)
+		}
+		return remote
+	} else if withLogs {
+		e.Use(middleware.Logger())
+		return nil
+	}
+	return nil
 }

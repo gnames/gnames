@@ -34,7 +34,7 @@ import (
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
@@ -48,16 +48,20 @@ var (
 // config purpose is to achieve automatic import of data from the
 // configuration file, if it exists.
 type config struct {
-	GNport      int
-	WorkDir     string
-	PgHost      string
-	PgPort      int
-	PgUser      string
-	PgPass      string
-	PgDB        string
-	JobsNum     int
-	MaxEditDist int
-	MatcherURL  string
+	GNport             int
+	WorkDir            string
+	PgHost             string
+	PgPort             int
+	PgUser             string
+	PgPass             string
+	PgDB               string
+	JobsNum            int
+	MaxEditDist        int
+	MatcherURL         string
+	NsqdTCPAddress     string
+	NsqdContainsFilter string
+	NsqdRegexFilter    string
+	WithWebLogs        bool
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -98,7 +102,7 @@ func initConfig() {
 	configFile := "gnames"
 	home, err := homedir.Dir()
 	if err != nil {
-		log.Fatalf("Cannot find home directory: %s.", err)
+		log.Fatal().Err(err).Msg("Cannot find home directory")
 	}
 	home = filepath.Join(home, ".config")
 
@@ -108,16 +112,20 @@ func initConfig() {
 
 	// Set environment variables to override
 	// config file settings
-	viper.BindEnv("GNport", "GN_PORT")
-	viper.BindEnv("WorkDir", "GN_WORK_DIR")
-	viper.BindEnv("PgHost", "GN_PG_HOST")
-	viper.BindEnv("PgPort", "GN_PG_PORT")
-	viper.BindEnv("PgUser", "GN_PG_USER")
-	viper.BindEnv("PgPass", "GN_PG_PASS")
-	viper.BindEnv("PgDB", "GN_PG_DB")
-	viper.BindEnv("JobsNum", "GN_JOBS_NUM")
-	viper.BindEnv("MaxEditDist", "GN_MAX_EDIT_DIST")
-	viper.BindEnv("MatcherURL", "GN_MATCHER_URL")
+	_ = viper.BindEnv("GNport", "GN_PORT")
+	_ = viper.BindEnv("WorkDir", "GN_WORK_DIR")
+	_ = viper.BindEnv("PgHost", "GN_PG_HOST")
+	_ = viper.BindEnv("PgPort", "GN_PG_PORT")
+	_ = viper.BindEnv("PgUser", "GN_PG_USER")
+	_ = viper.BindEnv("PgPass", "GN_PG_PASS")
+	_ = viper.BindEnv("PgDB", "GN_PG_DB")
+	_ = viper.BindEnv("JobsNum", "GN_JOBS_NUM")
+	_ = viper.BindEnv("MaxEditDist", "GN_MAX_EDIT_DIST")
+	_ = viper.BindEnv("MatcherURL", "GN_MATCHER_URL")
+	_ = viper.BindEnv("NsqdContainsFilter", "GN_NSQD_CONTAINS_FILTER")
+	_ = viper.BindEnv("NsqdRegexFilter", "GN_NSQD_REGEX_FILTER")
+	_ = viper.BindEnv("NsqdTCPAddress", "GN_NSQD_TCP_ADDRESS")
+	_ = viper.BindEnv("WithWebLogs", "GN_WITH_WEB_LOGS")
 
 	viper.AutomaticEnv() // read in environment variables that match
 
@@ -126,7 +134,7 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		log.Printf("Using config file: %s.", viper.ConfigFileUsed())
+		log.Info().Msgf("Using config file: %s.", viper.ConfigFileUsed())
 	}
 	getOpts()
 }
@@ -135,7 +143,7 @@ func getOpts() []gncnf.Option {
 	cfg := &config{}
 	err := viper.Unmarshal(cfg)
 	if err != nil {
-		log.Fatalf("Cannot deserialize config data: %s.", err)
+		log.Fatal().Err(err).Msg("Cannot deserialize config data")
 	}
 
 	if cfg.GNport != 0 {
@@ -169,6 +177,18 @@ func getOpts() []gncnf.Option {
 	if cfg.MatcherURL != "" {
 		opts = append(opts, gncnf.OptMatcherURL(cfg.MatcherURL))
 	}
+	if cfg.NsqdTCPAddress != "" {
+		opts = append(opts, gncnf.OptNsqdTCPAddress(cfg.NsqdTCPAddress))
+	}
+	if cfg.NsqdContainsFilter != "" {
+		opts = append(opts, gncnf.OptNsqdContainsFilter(cfg.NsqdContainsFilter))
+	}
+	if cfg.NsqdRegexFilter != "" {
+		opts = append(opts, gncnf.OptNsqdRegexFilter(cfg.NsqdRegexFilter))
+	}
+	if cfg.WithWebLogs {
+		opts = append(opts, gncnf.OptWithWebLogs(true))
+	}
 	return opts
 }
 
@@ -177,7 +197,7 @@ func getOpts() []gncnf.Option {
 func showVersionFlag(cmd *cobra.Command) bool {
 	hasVersionFlag, err := cmd.Flags().GetBool("version")
 	if err != nil {
-		log.Fatalf("Cannot get version flag: %s.", err)
+		log.Fatal().Err(err).Msg("Cannot get version flag")
 	}
 
 	if hasVersionFlag {
@@ -192,7 +212,7 @@ func touchConfigFile(configPath string, configFile string) {
 		return
 	}
 
-	log.Printf("Creating config file: %s.", configPath)
+	log.Info().Msgf("Creating config file: %s.", configPath)
 	createConfig(configPath, configFile)
 }
 
@@ -200,11 +220,11 @@ func touchConfigFile(configPath string, configFile string) {
 func createConfig(path string, file string) {
 	err := gnsys.MakeDir(filepath.Dir(path))
 	if err != nil {
-		log.Fatalf("Cannot create dir %s: %s.", path, err)
+		log.Fatal().Err(err).Msgf("Cannot create dir %s", path)
 	}
 
 	err = ioutil.WriteFile(path, []byte(configText), 0644)
 	if err != nil {
-		log.Fatalf("Cannot write to file %s: %s.", path, err)
+		log.Fatal().Err(err).Msgf("Cannot write to file %s", path)
 	}
 }

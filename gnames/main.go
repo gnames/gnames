@@ -21,8 +21,12 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/gnames/gnames/gnames/cmd"
+import (
+	"github.com/gnames/gnames/gnames/cmd"
+	"github.com/rs/zerolog"
+)
 
 func main() {
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	cmd.Execute()
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnsys"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,11 +47,12 @@ func TestNewOpts(t *testing.T) {
 }
 
 func TestMaxED(t *testing.T) {
-	log.SetLevel(log.FatalLevel)
+	zerolog.SetGlobalLevel(zerolog.Disabled)
 	cnf := config.NewConfig(config.OptMaxEditDist(5))
 	assert.Equal(t, cnf.MaxEditDist, 1)
 	cnf = config.NewConfig(config.OptMaxEditDist(0))
 	assert.Equal(t, cnf.MaxEditDist, 1)
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 }
 
 func opts() []config.Option {

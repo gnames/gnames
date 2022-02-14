@@ -14,7 +14,7 @@ import (
 	"github.com/gnames/gnmatcher"
 	"github.com/gnames/gnparser/ent/str"
 	"github.com/gnames/gnuuid"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type gnames struct {
@@ -43,7 +43,6 @@ func (g gnames) Verify(
 	ctx context.Context,
 	params vlib.VerifyParams,
 ) ([]*vlib.Verification, error) {
-	log.Printf("Verifying %d name-strings.", len(params.NameStrings))
 	res := make([]*vlib.Verification, len(params.NameStrings))
 
 	var matches []mlib.Match
@@ -86,7 +85,7 @@ func (g gnames) Verify(
 
 			res[i] = &item
 		} else {
-			log.Warnf("Cannot find record for '%s'.", v.Name)
+			log.Warn().Msgf("Cannot find record for '%s'.", v.Name)
 		}
 	}
 	return res, nil
@@ -112,4 +111,8 @@ func FirstUpperCase(name string) string {
 	}
 	runes[0] = unicode.ToUpper(one)
 	return string(runes)
+}
+
+func (g gnames) GetConfig() config.Config {
+	return g.cfg
 }

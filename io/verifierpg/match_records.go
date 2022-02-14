@@ -13,7 +13,7 @@ import (
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser"
 	"github.com/gnames/gnparser/ent/parsed"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -69,7 +69,7 @@ func (dgp verifierpg) MatchRecords(
 
 	verifs, err := nameQuery(ctx, dgp.DB, splitMatches.canonical)
 	if err != nil {
-		log.Warnf("Cannot get matches data: %s", err)
+		log.Warn().Err(err).Msg("Cannot get matches data")
 		return res, err
 	}
 	res = dgp.produceResultData(splitMatches, parser, verifs)
@@ -95,7 +95,7 @@ func (dgp verifierpg) produceResultData(
 	for _, match := range ms.canonical {
 		prsd := parser.ParseName(match.Name)
 		if !prsd.Parsed {
-			log.Fatalf("Cannot parse input '%s'. Should never happen at this point.", match.Name)
+			log.Fatal().Msgf("Cannot parse input '%s'. Should never happen at this point.", match.Name)
 		}
 		authors, year := processAuthorship(prsd.Authorship)
 
@@ -264,7 +264,7 @@ func (dgp *verifierpg) populateMatchRecord(
 
 	}
 	if discardedNum > 0 {
-		log.Infof("Skipped %d low parsing quality names (e.g. '%s')", discardedNum,
+		log.Info().Msgf("Skipped %d low parsing quality names (e.g. '%s')", discardedNum,
 			discardedExample)
 	}
 	mr.DataSourcesNum = len(sources)

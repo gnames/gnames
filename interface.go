@@ -2,6 +2,8 @@ package gnames
 
 import (
 	"context"
+
+	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnlib/ent/gnvers"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 )
@@ -20,4 +22,6 @@ type GNames interface {
 	// Datasources take IDs of data-sourses and return back list of corresponding
 	// metadata. If no IDs are given, it returns metadata for all data-sources.
 	DataSources(ids ...int) ([]*vlib.DataSource, error)
+	// GetConfig returns configuration of the GNames object.
+	GetConfig() config.Config
 }

@@ -29,7 +29,8 @@ import (
 	"github.com/gnames/gnames/io/rest"
 	"github.com/gnames/gnames/io/verifierpg"
 	"github.com/gnames/gnfmt"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -43,8 +44,8 @@ var restCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, _ []string) {
 		debug, _ := cmd.Flags().GetBool("debug")
 		if debug {
-			log.SetLevel(log.DebugLevel)
-			log.Printf("Log level is set to '%s'.", log.Level.String(log.GetLevel()))
+			zerolog.SetGlobalLevel(zerolog.DebugLevel)
+			log.Info().Msgf("Log level is set to '%s'", zerolog.DebugLevel.String())
 		}
 
 		port, _ := cmd.Flags().GetInt("port")
@@ -52,6 +53,9 @@ var restCmd = &cobra.Command{
 
 		var enc gnfmt.Encoder = gnfmt.GNjson{}
 
+		log.Logger = log.With().
+			Str("gnApp", "gnames-api-v1").
+			Logger()
 		cnf := gncnf.NewConfig(opts...)
 		vf := verifierpg.NewVerifier(cnf)
 		gn := gnames.NewGNames(cnf, vf)
