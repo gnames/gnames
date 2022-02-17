@@ -84,9 +84,6 @@ the service.
     many tutorials and resources for Linux-based operating systems that
     can help.
 
-    PostgreSQL database has to have `C` or `C.UTF-8` collation. This
-    dependency on collation will be removed in the future.
-
     Create a database named `gnames`. Download the [gnames database
     dump][gnames dbdump]. Restore the database with:
 
