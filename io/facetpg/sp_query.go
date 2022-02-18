@@ -34,13 +34,14 @@ WITH sp AS (
 		args = append(args, ds)
 		dsQ := fmt.Sprintf("      AND v.data_source_id = $%d", len(args))
 		spQ = append(spQ, dsQ)
-		if tx != "" {
-			args = append(args, tx)
-			clQ := fmt.Sprintf("      AND v.classification LIKE $%d", len(args))
-			spQ = append(spQ, clQ)
-		}
+	}
+	if tx != "" {
+		args = append(args, tx)
+		clQ := fmt.Sprintf("      AND v.classification LIKE $%d", len(args))
+		spQ = append(spQ, clQ)
 	}
 	spQ = append(spQ, ")")
+	fmt.Printf("QUERY: %#v\n\n", spQ)
 	res := strings.Join(spQ, "\n")
 	return res, args
 }
@@ -76,12 +77,12 @@ func (f *facetpg) prepareGenWord() string {
 }
 
 func (f *facetpg) prepareTxWord() (string, int) {
+	var ds int
 	tx := f.ParentTaxon
 	if tx == "" {
 		return "", 0
 	}
 
-	ds := 1
 	tx = "%" + tx + "%"
 
 	ids := f.DataSourceIDs

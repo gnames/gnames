@@ -2,6 +2,7 @@ package gnames
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"unicode"
 
@@ -129,6 +130,7 @@ func (g gnames) Search(
 
 	res := search.Output{Meta: search.Meta{Input: inp}}
 	matchRecords, err := g.facet.Search(ctx, inp)
+	fmt.Printf("SRCH: %#v\n\n", matchRecords)
 	if err != nil {
 		res.Error = err.Error()
 	}
