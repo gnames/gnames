@@ -52,19 +52,24 @@ func (dgp verifierpg) MatchRecords(
 	parser := gnparser.New(cfg)
 	var res map[string]*verifier.MatchRecord
 
+	// separate NoMatch, Virus, and matches
 	splitMatches := partitionMatches(matches)
 
+	// find matches for canonicals
 	verCan, err := dgp.nameQuery(ctx, splitMatches.canonical, input)
 	if err != nil {
 		log.Warn().Err(err).Msg("Cannot get matches data")
 		return res, err
 	}
+
+	// find matches for viruses
 	verVir, err := dgp.virusQuery(ctx, splitMatches.virus, input)
 	if err != nil {
 		log.Warn().Err(err).Msg("Cannot get virus data")
 		return res, err
 	}
 
+	// convert matches to intermediate results
 	res = dgp.produceResultData(splitMatches, parser, verCan, verVir)
 
 	return res, nil
@@ -78,9 +83,9 @@ func (dgp verifierpg) produceResultData(
 ) map[string]*verifier.MatchRecord {
 
 	// deal with NoMatch first
-	mrs := make(map[string]*verifier.MatchRecord)
+	allMatchRecs := make(map[string]*verifier.MatchRecord)
 	for _, v := range ms.noMatch {
-		mrs[v.ID] = &verifier.MatchRecord{
+		allMatchRecs[v.ID] = &verifier.MatchRecord{
 			ID:   v.ID,
 			Name: v.Name,
 		}
@@ -88,6 +93,8 @@ func (dgp verifierpg) produceResultData(
 
 	vers := verCan
 	vers = append(vers, verVir...)
+	// organize results by either CanonicalID or
+	// NameID (for viruses)
 	verifMap := getVerifMap(vers)
 
 	// deal with Viruses
@@ -102,13 +109,14 @@ func (dgp verifierpg) produceResultData(
 		for _, mi := range match.MatchItems {
 			dgp.populateVirusMatchRecord(mi, *match, &mr, verifMap)
 		}
-		mrs[match.ID] = &mr
+		allMatchRecs[match.ID] = &mr
 	}
 
 	// deal with Canonicals
 	for _, match := range ms.canonical {
 		// TODO check if parsing affects speed too much
 		prsd := parser.ParseName(match.Name)
+
 		if !prsd.Parsed {
 			log.Fatal().Err(errors.New("cannot parse")).Str("name", match.Name).
 				Msg("Should never happen")
@@ -130,9 +138,9 @@ func (dgp verifierpg) produceResultData(
 		for _, mi := range match.MatchItems {
 			dgp.populateMatchRecord(mi, *match, &mr, parser, verifMap)
 		}
-		mrs[match.ID] = &mr
+		allMatchRecs[match.ID] = &mr
 	}
-	return mrs
+	return allMatchRecs
 }
 
 func (dgp *verifierpg) populateVirusMatchRecord(
@@ -187,15 +195,14 @@ func (dgp *verifierpg) populateVirusMatchRecord(
 }
 
 func (dgp *verifierpg) populateMatchRecord(
-	mi mlib.MatchItem,
+	mItm mlib.MatchItem,
 	m mlib.Match,
-	mr *verifier.MatchRecord,
+	mRec *verifier.MatchRecord,
 	parser gnparser.GNparser,
 	verifMap map[string][]*dbshare.VerifSQL,
 ) {
-	verifRecs, ok := verifMap[mi.ID]
+	verifRecs, ok := verifMap[mItm.ID]
 	if !ok {
-		mr.MatchType = vlib.NoMatch
 		return
 	}
 
@@ -205,13 +212,13 @@ func (dgp *verifierpg) populateMatchRecord(
 	var discardedNum int
 	for i, verifRec := range verifRecs {
 		if i == 0 {
-			mr.MatchType = m.MatchType
+			mRec.MatchType = m.MatchType
 		}
 
 		// if there is a lot of records, most likely many of them are surrogates
 		// that parser is not able to catch. Surrogates would parse with worst
 		// parsing quality (4)
-		mr.Overload = recsNum > resultsThreshold
+		mRec.Overload = recsNum > resultsThreshold
 		if recsNum > resultsThreshold && verifRec.ParseQuality == 4 {
 			if discardedExample == "" {
 				discardedExample = verifRec.Name.String
@@ -243,8 +250,8 @@ func (dgp *verifierpg) populateMatchRecord(
 		ds := dgp.dataSourcesMap[verifRec.DataSourceID]
 		curation := ds.Curation
 
-		if mr.Curation < curation {
-			mr.Curation = curation
+		if mRec.Curation < curation {
+			mRec.Curation = curation
 		}
 
 		var dsID, matchCard, currCard, edDist, edDistStem int
@@ -255,8 +262,8 @@ func (dgp *verifierpg) populateMatchRecord(
 			dsID = verifRec.DataSourceID
 			matchCard = matchedCardinality
 			currCard = currentCardinality
-			edDist = mi.EditDistance
-			edDistStem = mi.EditDistanceStem
+			edDist = mItm.EditDistance
+			edDistStem = mItm.EditDistanceStem
 		}
 
 		var outlink string
@@ -300,11 +307,11 @@ func (dgp *verifierpg) populateMatchRecord(
 			ClassificationIDs:      verifRec.ClassificationIds.String,
 			EditDistance:           edDist,
 			StemEditDistance:       edDistStem,
-			MatchType:              mi.MatchType,
+			MatchType:              mItm.MatchType,
 			ParsingQuality:         verifRec.ParseQuality,
 		}
 
-		mr.MatchResults = append(mr.MatchResults, &resData)
+		mRec.MatchResults = append(mRec.MatchResults, &resData)
 
 	}
 	if discardedNum > 0 {
@@ -314,7 +321,7 @@ func (dgp *verifierpg) populateMatchRecord(
 				discardedExample,
 			)
 	}
-	mr.DataSourcesNum = len(sources)
+	mRec.DataSourcesNum = len(sources)
 }
 
 func getVerifMap(vs []*dbshare.VerifSQL) map[string][]*dbshare.VerifSQL {
@@ -386,7 +393,7 @@ func getUUIDs(matches []*mlib.Match) []string {
 	set := make(map[string]struct{})
 	for _, v := range matches {
 		for _, vv := range v.MatchItems {
-			if vv.EditDistance > 2 {
+			if vv.EditDistance > 5 {
 				continue
 			}
 			set[vv.ID] = struct{}{}

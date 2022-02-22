@@ -133,7 +133,8 @@ func (s score) fuzzy(editDistance int) score {
 }
 
 func (s score) fuzzyVal() float32 {
-	return s.extractVal(fuzzyShift, 0b11, 3)
+	val := s.extractVal(fuzzyShift, 0b11, 3)
+	return val
 }
 
 // curation scores by curation level of data-sources.

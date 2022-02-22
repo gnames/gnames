@@ -65,6 +65,26 @@ func TestFuzzy(t *testing.T) {
 	}
 }
 
+func TestFuzzyVal(t *testing.T) {
+	testData := []struct {
+		desc     string
+		editDist int
+		scoreVal float32
+	}{
+		{"fuzzy1", 1, 0.666},
+		{"fuzzy2", 2, 0.333},
+		{"fuzzy3", 3, 0},
+		{"fuzzy4", 13, 0},
+		{"fuzzy5", -1, 0},
+		{"exact", 0, 1},
+	}
+	for _, v := range testData {
+		s := score{}
+		s = s.fuzzy(v.editDist)
+		assert.InDelta(t, v.scoreVal, s.fuzzyVal(), 0.001)
+	}
+}
+
 func TestCuration(t *testing.T) {
 	testData := []struct {
 		desc   string

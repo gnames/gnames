@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/ent/facet"
@@ -26,7 +25,6 @@ type facetpg struct {
 
 func New(cnf config.Config) facet.Facet {
 	dbURL := dbshare.DBURL(cnf)
-	fmt.Printf("DB_URL: %#v\n\n", dbURL)
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot create PostgreSQL connection")

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"testing"
 
 	"github.com/gnames/gnfmt"
@@ -95,6 +96,43 @@ func TestSortBugs(t *testing.T) {
 		assert.Equal(t, v.matchName, verif.Names[i].BestResult.MatchedName, v.msg)
 	}
 
+}
+
+// related to #84
+func TestMissedMatchType(t *testing.T) {
+	inp := vlib.Input{
+		NameStrings:    []string{"Jsoetes cf. longissimum Bory"},
+		DataSources:    []int{196, 197, 198, 158},
+		WithAllMatches: true,
+	}
+	req, err := gnfmt.GNjson{}.Encode(inp)
+	assert.Nil(t, err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(urlTest+"verifications", "application/json", r)
+	assert.Nil(t, err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+
+	var verif vlib.Output
+	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
+	assert.Nil(t, err)
+
+	assert.Equal(t, vlib.Fuzzy.String(), verif.Names[0].MatchType.String())
+	assert.True(t, len(verif.Names[0].Results) > 0)
+	assert.Equal(t, vlib.Fuzzy.String(), verif.Names[0].Results[0].MatchType.String())
+
+	matchedCanonicals := make(map[string]struct{})
+	for _, v := range verif.Names[0].Results {
+		matchedCanonicals[v.MatchedCanonicalSimple] = struct{}{}
+	}
+	ary := make([]string, len(matchedCanonicals))
+	var i int
+	for k := range matchedCanonicals {
+		ary[i] = k
+		i++
+	}
+	sort.Strings(ary)
+	assert.Equal(t, ary, []string{"Isoetes longissima", "Isoetes longissimum"})
 }
 
 func params() vlib.Input {
