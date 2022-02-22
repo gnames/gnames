@@ -98,8 +98,6 @@ var matchRec = verifier.MatchRecord{
 	CanonicalFull:   "Pisonia grandis",
 	Authors:         nil,
 	Year:            0,
-	MatchType:       vlib.Exact,
-	Curation:        vlib.Curated,
 	DataSourcesNum:  18,
 	MatchResults: []*vlib.ResultData{
 		{

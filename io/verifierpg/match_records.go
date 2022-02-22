@@ -55,6 +55,8 @@ func (dgp verifierpg) MatchRecords(
 	// separate NoMatch, Virus, and matches
 	splitMatches := partitionMatches(matches)
 
+  fmt.Printf("MATCHES: %#v\n\n", matches)
+
 	// find matches for canonicals
 	verCan, err := dgp.nameQuery(ctx, splitMatches.canonical, input)
 	if err != nil {
@@ -100,11 +102,9 @@ func (dgp verifierpg) produceResultData(
 	// deal with Viruses
 	for _, match := range ms.virus {
 		mr := verifier.MatchRecord{
-			ID:        match.ID,
-			Name:      match.Name,
-			MatchType: match.MatchType,
-			Curation:  vlib.NotCurated,
-			Overload:  len(match.MatchItems) > 20,
+			ID:       match.ID,
+			Name:     match.Name,
+			Overload: len(match.MatchItems) > 20,
 		}
 		for _, mi := range match.MatchItems {
 			dgp.populateVirusMatchRecord(mi, *match, &mr, verifMap)
@@ -131,8 +131,6 @@ func (dgp verifierpg) produceResultData(
 			CanonicalFull:   prsd.Canonical.Full,
 			Authors:         authors,
 			Year:            year,
-			MatchType:       match.MatchType,
-			Curation:        vlib.NotCurated,
 		}
 
 		for _, mi := range match.MatchItems {
@@ -159,10 +157,6 @@ func (dgp *verifierpg) populateVirusMatchRecord(
 
 		ds := dgp.dataSourcesMap[verifRec.DataSourceID]
 		curation := ds.Curation
-
-		if mr.Curation < curation {
-			mr.Curation = curation
-		}
 
 		var outlink string
 		if ds.OutlinkURL != "" && verifRec.OutlinkID.String != "" {
@@ -210,11 +204,7 @@ func (dgp *verifierpg) populateMatchRecord(
 	recsNum := len(verifRecs)
 	var discardedExample string
 	var discardedNum int
-	for i, verifRec := range verifRecs {
-		if i == 0 {
-			mRec.MatchType = m.MatchType
-		}
-
+	for _, verifRec := range verifRecs {
 		// if there is a lot of records, most likely many of them are surrogates
 		// that parser is not able to catch. Surrogates would parse with worst
 		// parsing quality (4)
@@ -249,10 +239,6 @@ func (dgp *verifierpg) populateMatchRecord(
 
 		ds := dgp.dataSourcesMap[verifRec.DataSourceID]
 		curation := ds.Curation
-
-		if mRec.Curation < curation {
-			mRec.Curation = curation
-		}
 
 		var dsID, matchCard, currCard, edDist, edDistStem int
 		if m.MatchType != vlib.NoMatch {

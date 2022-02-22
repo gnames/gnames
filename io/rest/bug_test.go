@@ -135,6 +135,30 @@ func TestMissedMatchType(t *testing.T) {
 	assert.Equal(t, ary, []string{"Isoetes longissima", "Isoetes longissimum"})
 }
 
+// related to #87
+func TestWrongMatchType(t *testing.T) {
+	inp := vlib.Input{
+		NameStrings:    []string{"Jsoetes longissimum"},
+		DataSources:    []int{195},
+		WithAllMatches: true,
+	}
+	req, err := gnfmt.GNjson{}.Encode(inp)
+	assert.Nil(t, err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(urlTest+"verifications", "application/json", r)
+	assert.Nil(t, err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+
+	var verif vlib.Output
+	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
+	assert.Nil(t, err)
+
+	assert.Nil(t, verif.Names[0].BestResult)
+	assert.Equal(t, 0, len(verif.Names[0].Results))
+	assert.Equal(t, vlib.NoMatch.String(), verif.Names[0].MatchType.String())
+}
+
 func params() vlib.Input {
 	ns := make([]string, len(bugs))
 	for i, v := range bugs {

@@ -87,8 +87,6 @@ func (g gnames) Verify(
 				ID:               mr.ID,
 				Name:             mr.Name,
 				Cardinality:      mr.Cardinality,
-				MatchType:        mr.MatchType,
-				Curation:         mr.Curation,
 				DataSourcesNum:   mr.DataSourcesNum,
 				BestResult:       s.BestResult(mr),
 				Results:          s.Results(mr, input.WithAllMatches),
@@ -98,6 +96,12 @@ func (g gnames) Verify(
 			if input.WithCapitalization {
 				item.Name = input.NameStrings[i]
 				item.ID = gnuuid.New(item.Name).String()
+			}
+			if item.BestResult != nil {
+				item.MatchType = item.BestResult.MatchType
+				item.Curation = item.BestResult.Curation
+			} else {
+				item.OverloadDetected = ""
 			}
 
 			namesRes[i] = item
@@ -113,11 +117,7 @@ func overloadTxt(mr *verifier.MatchRecord) string {
 	if !mr.Overload {
 		return ""
 	}
-	if mr.MatchType == vlib.Virus {
-		return "Too many virus strains, some results are truncated"
-	}
-
-	return "Too many variants (possibly strains), some results are truncated"
+	return "Too many records (possibly strains), some results are truncated"
 }
 
 func (g gnames) Search(
@@ -145,11 +145,16 @@ func (g gnames) Search(
 			ID:          mr.ID,
 			Name:        mr.Name,
 			Cardinality: mr.Cardinality,
-			MatchType:   mr.MatchType,
 			BestResult:  s.BestResult(mr),
 			Results:     s.Results(mr, inp.WithAllMatches),
 		}
-		item.Curation = item.BestResult.Curation
+		if item.BestResult != nil {
+			item.Curation = item.BestResult.Curation
+			item.MatchType = item.BestResult.MatchType
+		} else {
+			item.OverloadDetected = ""
+		}
+
 		resNames[i] = item
 	}
 

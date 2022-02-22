@@ -15,8 +15,6 @@ type MatchRecord struct {
 	CanonicalFull   string
 	Authors         []string
 	Year            int
-	MatchType       vlib.MatchTypeValue
-	Curation        vlib.CurationLevel
 	DataSourcesNum  int
 	Overload        bool
 	// MatchResults contains all matches to Input.

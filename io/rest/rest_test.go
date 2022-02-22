@@ -93,7 +93,7 @@ func TestVerifyExact(t *testing.T) {
 	assert.Equal(t, "0f84ed48-3a57-59ac-ac1a-2e9221439fdc", partial.ID)
 	assert.Equal(t, "Acacia vestita may", partial.Name)
 	assert.Equal(t, 1, partial.BestResult.DataSourceID)
-	assert.Equal(t, vlib.PartialExact, partial.MatchType)
+	assert.Equal(t, vlib.PartialExact.String(), partial.MatchType.String())
 	assert.Equal(t, "Acacia vestita", partial.BestResult.CurrentCanonicalSimple)
 
 	cand := response.Names[10]

@@ -113,8 +113,6 @@ func (f *facetpg) organizeByCanonicals(
 				Cardinality:     int(prsd.Cardinality),
 				CanonicalSimple: prsd.Canonical.Simple,
 				CanonicalFull:   prsd.Canonical.Full,
-				MatchType:       vlib.FacetedSearch,
-				Curation:        vlib.NotCurated,
 			}
 			mr.MatchResults = []*vlib.ResultData{
 				f.matchRes(gnp, prsd, v),
