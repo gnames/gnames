@@ -14,6 +14,7 @@ The GNames project follows [Semantic Versioning guidelines].
   WARNING: Introduces backward incompatibility and changes in
   https://apidoc.globalnames.org/gnames-beta documentation.
 
+- Fix [#87]: MatchType should always be NoMatch when BestResult is missing.
 - Fix [#84]: MatchType for `Jsoetes longissimum` is `NoMatch` instead of
   `Fuzzy`. Show `Isoetes longissimum` and `Isoetes longissima` in results.
 - Fix [#85]: search with `tx:` works correctly.
