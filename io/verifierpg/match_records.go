@@ -55,8 +55,6 @@ func (dgp verifierpg) MatchRecords(
 	// separate NoMatch, Virus, and matches
 	splitMatches := partitionMatches(matches)
 
-  fmt.Printf("MATCHES: %#v\n\n", matches)
-
 	// find matches for canonicals
 	verCan, err := dgp.nameQuery(ctx, splitMatches.canonical, input)
 	if err != nil {
