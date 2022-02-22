@@ -31,8 +31,8 @@ func (f *facetpg) queryEnd(
 	q string,
 	args []interface{},
 ) (string, []interface{}) {
-	if len(f.DataSourceIDs) > 0 {
-		args = append(args, pq.Array(f.DataSourceIDs))
+	if len(f.DataSources) > 0 {
+		args = append(args, pq.Array(f.DataSources))
 		q += fmt.Sprintf("\n    AND data_source_id = any($%d::int[])", len(args))
 	}
 
@@ -99,7 +99,7 @@ func (f *facetpg) organizeByCanonicals(
 		prsd := gnp.ParseName(v.Name.String)
 
 		if !prsd.Parsed {
-			log.Warn().Err(fmt.Errorf("Could not parse %s", v.Name.String)).Msg("Should never happen")
+			log.Warn().Err(fmt.Errorf("could not parse %s", v.Name.String)).Msg("Should never happen")
 			continue // should never happen
 		}
 		if m, ok := res[prsd.Canonical.Full]; ok {

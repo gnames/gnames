@@ -2,7 +2,6 @@ package verifierpg
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser"
+	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 )
 
@@ -46,6 +46,7 @@ FROM verification v
 func (dgp verifierpg) MatchRecords(
 	ctx context.Context,
 	matches []mlib.Match,
+	input vlib.Input,
 ) (map[string]*verifier.MatchRecord, error) {
 	cfg := gnparser.NewConfig(gnparser.OptWithDetails(true))
 	parser := gnparser.New(cfg)
@@ -53,12 +54,12 @@ func (dgp verifierpg) MatchRecords(
 
 	splitMatches := partitionMatches(matches)
 
-	verCan, err := nameQuery(ctx, dgp.db, splitMatches.canonical)
+	verCan, err := dgp.nameQuery(ctx, splitMatches.canonical, input)
 	if err != nil {
 		log.Warn().Err(err).Msg("Cannot get matches data")
 		return res, err
 	}
-	verVir, err := dgp.virusQuery(ctx, splitMatches.virus)
+	verVir, err := dgp.virusQuery(ctx, splitMatches.virus, input)
 	if err != nil {
 		log.Warn().Err(err).Msg("Cannot get virus data")
 		return res, err
@@ -332,6 +333,7 @@ func getVerifMap(vs []*dbshare.VerifSQL) map[string][]*dbshare.VerifSQL {
 func (dgp *verifierpg) virusQuery(
 	ctx context.Context,
 	virMatches []*mlib.Match,
+	input vlib.Input,
 ) ([]*dbshare.VerifSQL, error) {
 	if len(virMatches) == 0 {
 		return nil, nil
@@ -339,8 +341,14 @@ func (dgp *verifierpg) virusQuery(
 
 	var res []*dbshare.VerifSQL
 	ids := getUUIDs(virMatches)
-	idsStr := "{" + strings.Join(ids, ",") + "}"
-	err := sqlscan.Select(ctx, dgp.db, &res, virusQ, idsStr)
+	q := virusQ
+	args := []interface{}{pq.Array(ids)}
+	if len(input.DataSources) > 0 {
+		args = append(args, pq.Array(input.DataSources))
+		q += "\n    AND data_source_id = any($2::int[])"
+	}
+
+	err := sqlscan.Select(ctx, dgp.db, &res, q, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -348,10 +356,10 @@ func (dgp *verifierpg) virusQuery(
 	return res, nil
 }
 
-func nameQuery(
+func (dgp verifierpg) nameQuery(
 	ctx context.Context,
-	db *sql.DB,
 	canMatches []*mlib.Match,
+	input vlib.Input,
 ) ([]*dbshare.VerifSQL, error) {
 
 	var res []*dbshare.VerifSQL
@@ -360,8 +368,14 @@ func nameQuery(
 	}
 
 	ids := getUUIDs(canMatches)
-	idsStr := "{" + strings.Join(ids, ",") + "}"
-	err := sqlscan.Select(ctx, db, &res, namesQ, idsStr)
+	q := namesQ
+	args := []interface{}{pq.Array(ids)}
+	if len(input.DataSources) > 0 {
+		args = append(args, pq.Array(input.DataSources))
+		q += "\n    AND data_source_id = any($2::int[])"
+	}
+
+	err := sqlscan.Select(ctx, dgp.db, &res, q, args...)
 	if err != nil {
 		return nil, err
 	}

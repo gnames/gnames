@@ -2,7 +2,6 @@ package gnames
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"unicode"
 
@@ -75,7 +74,7 @@ func (g gnames) Verify(
 	}
 
 	var errString string
-	matchRecords, err := g.vf.MatchRecords(ctx, matches)
+	matchRecords, err := g.vf.MatchRecords(ctx, matches, input)
 	if err != nil {
 		errString = err.Error()
 	}
@@ -92,7 +91,7 @@ func (g gnames) Verify(
 				Curation:         mr.Curation,
 				DataSourcesNum:   mr.DataSourcesNum,
 				BestResult:       s.BestResult(mr),
-				Results:          s.Results(input.DataSources, mr, input.WithAllMatches),
+				Results:          s.Results(mr, input.WithAllMatches),
 				OverloadDetected: overloadTxt(mr),
 				Error:            errString,
 			}
@@ -130,7 +129,6 @@ func (g gnames) Search(
 
 	res := search.Output{Meta: search.Meta{Input: inp}}
 	matchRecords, err := g.facet.Search(ctx, inp)
-	fmt.Printf("SRCH: %#v\n\n", matchRecords)
 	if err != nil {
 		res.Error = err.Error()
 	}
@@ -138,12 +136,6 @@ func (g gnames) Search(
 
 	sortedNames := sortNames(matchRecords)
 	resNames := make([]vlib.Name, len(matchRecords))
-	var dss []int
-	var all bool
-	if inp.WithAllResults {
-		dss = []int{0}
-		all = true
-	}
 
 	for i, v := range sortedNames {
 		mr := matchRecords[v]
@@ -155,7 +147,7 @@ func (g gnames) Search(
 			Cardinality: mr.Cardinality,
 			MatchType:   mr.MatchType,
 			BestResult:  s.BestResult(mr),
-			Results:     s.Results(dss, mr, all),
+			Results:     s.Results(mr, inp.WithAllMatches),
 		}
 		item.Curation = item.BestResult.Curation
 		resNames[i] = item

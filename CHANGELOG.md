@@ -4,9 +4,18 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.8.0] - 2022-02-21 Mon
+
+- Add [#86]: make Input.DataSources and Input.WithAllMatches behave
+  similar for Verification and Search. DataSources now limit search
+  to provided data-sources, while WithAllMatches shows all Results.
+  There is no option anymore to provide Results 1 per data-source
+  anymore.
+  WARNING: Introduces backward incompatibility and changes in
+  https://apidoc.globalnames.org/gnames-beta documentation.
 - Fix [#85]: search with `tx:` works correctly.
 
-## [v0.7.1]
+## [v0.7.1] - 2022-02-14 Mon
 
 - Add: use /api/v0 instead of /vpi/v1 for gnmatcher.
 
@@ -100,9 +109,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## [v0.4.0] - 2021-11-22
 
-## Added (Backward incompatible)
-
 - Add [#51]: metadata to verification, optional context calculation [#51].
+  WARNING: Introduces major backward incompatibility
 
 ## [v0.3.3] - 2021-10-30
 
@@ -236,6 +244,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 This document follows [changelog guidelines]
 
+[v0.8.0]: https://github.com/gnames/gnames/compare/v0.7.1...v0.8.0
+[v0.7.1]: https://github.com/gnames/gnames/compare/v0.7.0...v0.7.1
+[v0.7.0]: https://github.com/gnames/gnames/compare/v0.6.5...v0.7.0
+[v0.6.5]: https://github.com/gnames/gnames/compare/v0.6.4...v0.6.5
 [v0.6.4]: https://github.com/gnames/gnames/compare/v0.6.3...v0.6.4
 [v0.6.3]: https://github.com/gnames/gnames/compare/v0.6.2...v0.6.3
 [v0.6.2]: https://github.com/gnames/gnames/compare/v0.6.1...v0.6.2
@@ -277,6 +289,16 @@ This document follows [changelog guidelines]
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.0...v0.0.1
 [v0.0.0]: https://github.com/gnames/gnames/tree/v0.0.0
 
+[#100]: https://github.com/gnames/gnames/issues/100
+[#99]: https://github.com/gnames/gnames/issues/99
+[#98]: https://github.com/gnames/gnames/issues/98
+[#97]: https://github.com/gnames/gnames/issues/97
+[#96]: https://github.com/gnames/gnames/issues/96
+[#95]: https://github.com/gnames/gnames/issues/95
+[#94]: https://github.com/gnames/gnames/issues/94
+[#93]: https://github.com/gnames/gnames/issues/93
+[#92]: https://github.com/gnames/gnames/issues/92
+[#91]: https://github.com/gnames/gnames/issues/91
 [#90]: https://github.com/gnames/gnames/issues/90
 [#89]: https://github.com/gnames/gnames/issues/89
 [#88]: https://github.com/gnames/gnames/issues/88

@@ -29,19 +29,15 @@ WITH sp AS (
 		spQ = append(spQ, genQ)
 	}
 
-	tx, ds := f.prepareTxWord()
-	if ds > 0 {
-		args = append(args, ds)
-		dsQ := fmt.Sprintf("      AND v.data_source_id = $%d", len(args))
-		spQ = append(spQ, dsQ)
-	}
-	if tx != "" {
+	// add higher taxon constraint
+	if tx := f.ParentTaxon; tx != "" {
+    tx = "%" + tx + "%"
 		args = append(args, tx)
 		clQ := fmt.Sprintf("      AND v.classification LIKE $%d", len(args))
 		spQ = append(spQ, clQ)
 	}
+
 	spQ = append(spQ, ")")
-	fmt.Printf("QUERY: %#v\n\n", spQ)
 	res := strings.Join(spQ, "\n")
 	return res, args
 }
@@ -74,21 +70,4 @@ func (f *facetpg) prepareGenWord() string {
 	}
 
 	return g + " %"
-}
-
-func (f *facetpg) prepareTxWord() (string, int) {
-	var ds int
-	tx := f.ParentTaxon
-	if tx == "" {
-		return "", 0
-	}
-
-	tx = "%" + tx + "%"
-
-	ids := f.DataSourceIDs
-	if len(ids) > 0 {
-		ds = ids[0]
-	}
-
-	return tx, ds
 }

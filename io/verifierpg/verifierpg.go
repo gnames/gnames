@@ -20,8 +20,8 @@ type verifierpg struct {
 }
 
 // New creates a new instance of sqlx.DB using configuration data.
-func New(cnf config.Config) verifier.Verifier {
-	db, err := sql.Open("postgres", dbshare.DBURL(cnf))
+func New(cfg config.Config) verifier.Verifier {
+	db, err := sql.Open("postgres", dbshare.DBURL(cfg))
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot create PostgreSQL connection")
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/gnames/gnames/config"
 	"github.com/gnames/gnames/io/matcher"
 	"github.com/gnames/gnames/io/verifierpg"
+	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +33,8 @@ func TestVerifyPGExact(t *testing.T) {
 	mtr := matcher.New(cfg.MatcherURL)
 	matches := mtr.MatchNames(names)
 
-	mrs, err := vpg.MatchRecords(context.Background(), matches)
+	input := vlib.Input{}
+	mrs, err := vpg.MatchRecords(context.Background(), matches, input)
 	assert.Nil(t, err)
 	assert.Equal(t, 11, len(mrs))
 }

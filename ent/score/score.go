@@ -73,25 +73,18 @@ func (s score) BestResult(mr *verifier.MatchRecord) *vlib.ResultData {
 // Results returns the best scoring vlib.ResultData for each of
 // the preffered data-source. From 0 to 1 results per data-source are allowed.
 func (s score) Results(
-	sources []int,
 	mr *verifier.MatchRecord,
 	allMatches bool,
 ) []*vlib.ResultData {
-	if mr.MatchResults == nil || len(mr.MatchResults) == 0 {
+	if !allMatches || mr.MatchResults == nil || len(mr.MatchResults) == 0 {
 		return nil
 	}
-
-	allSources := len(sources) == 1 && sources[0] == 0
 
 	if !mr.Sorted {
 		s.SortResults(mr)
 	}
 
-	if allSources {
-		return getAllSources(mr, allMatches)
-	}
-
-	return getPrefSources(sources, mr, allMatches)
+	return mr.MatchResults
 }
 
 // ScoreDetails converts the scoreinteger to human-readable ScoreDetails.
@@ -103,54 +96,6 @@ func (s score) Details() vlib.ScoreDetails {
 		AuthorMatchScore:       s.authVal(),
 		AcceptedNameScore:      s.acceptedVal(),
 		ParsingQualityScore:    s.parsingQualityVal(),
-	}
-	return res
-}
-
-func getPrefSources(
-	sources []int,
-	mr *verifier.MatchRecord,
-	allMatches bool,
-) []*vlib.ResultData {
-	// maps a data-source ID to corresponding result data.
-	sourceMap := make(map[int][]*vlib.ResultData)
-	for _, v := range sources {
-		sourceMap[v] = nil
-	}
-	var resLen int
-	for _, v := range mr.MatchResults {
-		dsID := v.DataSourceID
-		if data, ok := sourceMap[dsID]; ok && (allMatches || data == nil) {
-			resLen++
-			sourceMap[dsID] = append(sourceMap[dsID], v)
-		}
-	}
-	res := make([]*vlib.ResultData, 0, resLen)
-	for _, v := range sources {
-		if data := sourceMap[v]; data != nil {
-			res = append(res, data...)
-		}
-	}
-	return res
-}
-
-func getAllSources(
-	mr *verifier.MatchRecord,
-	allMatches bool,
-) []*vlib.ResultData {
-	if allMatches {
-		return mr.MatchResults
-	}
-	res := make([]*vlib.ResultData, 0, len(mr.MatchResults))
-	sourceMap := make(map[int]struct{})
-	for i := range mr.MatchResults {
-		dsID := mr.MatchResults[i].DataSourceID
-		if _, ok := sourceMap[dsID]; ok {
-			continue
-		} else {
-			sourceMap[dsID] = struct{}{}
-			res = append(res, mr.MatchResults[i])
-		}
 	}
 	return res
 }

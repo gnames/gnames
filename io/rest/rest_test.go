@@ -24,7 +24,7 @@ func TestPing(t *testing.T) {
 	assert.Equal(t, "pong", string(response))
 }
 
-func TestVer(t *testing.T) {
+func TestVersion(t *testing.T) {
 	resp, err := http.Get(restURL + "version")
 	assert.Nil(t, err)
 	respBytes, err := io.ReadAll(resp.Body)
@@ -137,7 +137,11 @@ func TestPrefDS(t *testing.T) {
 		"Cytospora ribis mitovirus 2",
 		"Pisonia grandis",
 	}
-	request := vlib.Input{NameStrings: names, DataSources: []int{1, 12, 169, 182}}
+	request := vlib.Input{
+		NameStrings:    names,
+		DataSources:    []int{1, 12, 169, 182},
+		WithAllMatches: true,
+	}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
@@ -157,7 +161,7 @@ func TestPrefDS(t *testing.T) {
 	assert.Contains(t, binom.BestResult.Outlink, "NKSD")
 	assert.Equal(t, vlib.Exact, binom.BestResult.MatchType)
 	assert.Equal(t, vlib.Curated, binom.Curation)
-	assert.Equal(t, 3, len(binom.Results))
+	assert.Equal(t, 7, len(binom.Results))
 	assert.Equal(t, "", binom.Error)
 
 	acceptFilter := response.Names[5]
@@ -166,7 +170,7 @@ func TestPrefDS(t *testing.T) {
 	assert.Equal(t, 1, acceptFilter.BestResult.DataSourceID)
 	assert.Equal(t, vlib.Exact, acceptFilter.BestResult.MatchType)
 	assert.Equal(t, "Ceodes grandis", acceptFilter.BestResult.CurrentCanonicalSimple)
-	assert.Equal(t, 3, len(binom.Results))
+	assert.Equal(t, 7, len(binom.Results))
 }
 
 func TestPrefCapitalize(t *testing.T) {
@@ -204,7 +208,7 @@ func TestAllSources(t *testing.T) {
 	names := []string{
 		"Bubo bubo",
 	}
-	request := vlib.Input{NameStrings: names, DataSources: []int{0}}
+	request := vlib.Input{NameStrings: names}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
@@ -220,8 +224,8 @@ func TestAllSources(t *testing.T) {
 	assert.Equal(t, "4431a0f3-e901-519a-886f-9b97e0c99d8e", bubo.ID)
 	assert.Equal(t, "Bubo bubo", bubo.Name)
 	assert.NotNil(t, bubo.BestResult)
-	assert.Equal(t, bubo.DataSourcesNum, len(bubo.Results))
 	assert.True(t, bubo.DataSourcesNum > 20)
+	assert.Equal(t, len(bubo.Results), 0)
 }
 
 func TestAllMatches(t *testing.T) {
@@ -256,7 +260,6 @@ func TestAll(t *testing.T) {
 	}
 	request := vlib.Input{
 		NameStrings:    names,
-		DataSources:    []int{0},
 		WithAllMatches: true,
 	}
 	req, err := gnfmt.GNjson{}.Encode(request)
@@ -301,8 +304,9 @@ func TestBugs(t *testing.T) {
 func TestHomoNCBI(t *testing.T) {
 	var response vlib.Output
 	request := vlib.Input{
-		NameStrings: []string{"Homo sapiens"},
-		DataSources: []int{4},
+		NameStrings:    []string{"Homo sapiens"},
+		DataSources:    []int{4},
+		WithAllMatches: true,
 	}
 	req, err := gnfmt.GNjson{}.Encode(request)
 	assert.Nil(t, err)
@@ -320,7 +324,7 @@ func TestHomoNCBI(t *testing.T) {
 
 func TestGetVerifications(t *testing.T) {
 	var response vlib.Output
-	resp, err := http.Get(restURL + "verifications/Homo+sapiens?data_sources=4")
+	resp, err := http.Get(restURL + "verifications/Homo+sapiens?data_sources=4&all_matches=true")
 	assert.Nil(t, err)
 	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
