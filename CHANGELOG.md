@@ -6,14 +6,58 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## [v0.8.0] - 2022-02-21 Mon
 
+This release takes care of several issues accumulated over time. Addressing
+the issues does introduce backward incompatibilities, but also, hopefully,
+streamlines the API.
+
+1. There were 2 similar settings in verificaton and search:
+   DataSources and DataSourceIDs, WithAllMatches and WithAllRecords.
+   These settings had different names, and provided non-identical behavior.
+   Now they are called and behave the same in both verification and search:
+
+   - DataSources now limits search to provides data-sources. If the option
+     is not given, all sources are used.
+   - WithAllMatches. When the flag is false, only the BestResult is returned.
+     When the flag is true, all results, sorted by score, are returned.
+
+   For search these options can be profided either by query, or by out of
+   query options. Out of query options override options in the query.
+
+   There is no explicit way to set a search by all data-sources anymore and
+   and option DataSource = [0], would create an empty result. All data searches
+   are set implicitly by the absence of the DataSource option.
+
+2. BestResult appears only in situations when WithDataSources setting is false.
+   When it is true BestResult field is substituted by Results field.
+
+3. The absense of BestResult can lead to confusion, because it is not obvious
+   anymore which results are better (although they are still sorted from the
+   'best' to the 'worst'. To make it clearer which results are better in
+   relation to others we are introducing SortScore field. If to follow this
+   field, it becomes obvious, that Results are sorted by its value.
+
+Hopefully these changes will streamline interaction with Search and
+Verification.
+
+There is no way currently to set an option to provide only best results per
+data-source. It might be introduced later, if it will be proved to be needed
+by many users who do not know how to script. For people who can write scripts
+such result is produced by going from best result to worst in Results and
+picking only the first result per each data-source.
+
+- Add [#89]: add SortScore value to the Output to illustrate how the matches
+             are sorted.
 - Add [#88]: do not show BestResult if WithAllMatches is true.
+             WARNING: Introduces backward incompatibility. Before BestResult
+             was present all the time, not it only shows when it is the
+             only result.
 - Add [#86]: make Input.DataSources and Input.WithAllMatches behave
-  similar for Verification and Search. DataSources now limit search
-  to provided data-sources, while WithAllMatches shows all Results.
-  There is no option anymore to provide Results 1 per data-source
-  anymore.
-  WARNING: Introduces backward incompatibility and changes in
-  https://apidoc.globalnames.org/gnames-beta documentation.
+             similar for Verification and Search. DataSources now
+             limit search to provided data-sources, while WithAllMatches
+             shows all Results. There is no option anymore to limit
+             Results to one per data-source.
+             WARNING: Introduces backward incompatibility and changes in
+             `https://apidoc.globalnames.org/gnames-beta` documentation.
 
 - Fix [#87]: MatchType should always be NoMatch when BestResult is missing.
 - Fix [#84]: MatchType for `Jsoetes longissimum` is `NoMatch` instead of

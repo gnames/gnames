@@ -196,3 +196,63 @@ func TestAuthNormalize(t *testing.T) {
 		assert.Equal(t, v.res, authNormalize(v.auth), v.desc)
 	}
 }
+
+func TestScoreDetails(t *testing.T) {
+	tests := []struct {
+		msg                                    string
+		score                                  uint32
+		rank, fuzzy, curat, auth, accept, pars float32
+	}{
+		{
+			"empty",
+			uint32(0b00000000_00000000_00000000_00000000),
+			0, 0, 0, 0, 0, 0,
+		},
+		{
+			"full",
+			uint32(0b10111111_11111111_11111111_11111111),
+			1, 1, 1, 1, 1, 1,
+		},
+		{
+			"rank",
+			uint32(0b01000000_00000000_00000000_00000000),
+			0.5, 0, 0, 0, 0, 0,
+		},
+		{
+			"fuzzy",
+			uint32(0b00010000_00000000_00000000_00000000),
+			0, 0.33, 0, 0, 0, 0,
+		},
+		{
+			"curated",
+			uint32(0b00000100_00000000_00000000_00000000),
+			0, 0, 0.33, 0, 0, 0,
+		},
+		{
+			"auth",
+			uint32(0b00000000_10000000_00000000_00000000),
+			0, 0, 0, 0.1428, 0, 0,
+		},
+		{
+			"accept",
+			uint32(0b00000000_01000000_00000000_00000000),
+			0, 0, 0, 0, 1, 0,
+		},
+		{
+			"parsed",
+			uint32(0b00000000_00010000_00000000_00000000),
+			0, 0, 0, 0, 0, 0.33,
+		},
+	}
+
+	for _, v := range tests {
+		s := score{value: v.score}
+		res := s.details()
+		assert.Equal(t, v.rank, res.InfraSpecificRankScore, v.msg)
+		assert.InDelta(t, res.FuzzyLessScore, v.fuzzy, 0.01, v.msg)
+		assert.InDelta(t, res.CuratedDataScore, v.curat, 0.01, v.msg)
+		assert.InDelta(t, res.AuthorMatchScore, v.auth, 0.01, v.msg)
+		assert.Equal(t, v.accept, res.AcceptedNameScore, v.msg)
+		assert.InDelta(t, res.ParsingQualityScore, v.pars, 0.01, v.msg)
+	}
+}

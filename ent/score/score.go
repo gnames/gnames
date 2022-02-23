@@ -2,6 +2,7 @@ package score
 
 import (
 	"fmt"
+	"math"
 	"sort"
 
 	"github.com/gnames/gnames/ent/verifier"
@@ -33,6 +34,11 @@ func (s score) String() string {
 	return string(res)
 }
 
+// sortScore represents the score as a float64 number.
+func (s score) sortScore() float64 {
+	return math.Log10(float64(s.value))
+}
+
 // SortResults goes through vlib.ResultData aggregated by a match and
 // assigns each of them a score accoring to the scoring algorithms.
 func (s score) SortResults(mr *verifier.MatchRecord) {
@@ -44,15 +50,15 @@ func (s score) SortResults(mr *verifier.MatchRecord) {
 			auth(mr.Authors, rd.MatchedAuthors, mr.Year, rd.MatchedYear).
 			accepted(rd.RecordID, rd.CurrentRecordID).
 			parsingQuality(rd.ParsingQuality)
-		rd.Score = s.value
-		rd.ScoreDetails = s.Details()
+		rd.SortScore = s.sortScore()
+		rd.ScoreDetails = s.details()
 		s.value = 0
 	}
 	// Sort (in reverse) according to the score. First element has
 	// the highest score, the last has the lowest.
 	mrs := mr.MatchResults
 	sort.SliceStable(mrs, func(i, j int) bool {
-		return mrs[i].Score > mrs[j].Score
+		return mrs[i].SortScore > mrs[j].SortScore
 	})
 	mr.Sorted = true
 }
@@ -84,7 +90,7 @@ func (s score) Results(
 }
 
 // ScoreDetails converts the scoreinteger to human-readable ScoreDetails.
-func (s score) Details() vlib.ScoreDetails {
+func (s score) details() vlib.ScoreDetails {
 	res := vlib.ScoreDetails{
 		InfraSpecificRankScore: s.rankVal(),
 		FuzzyLessScore:         s.fuzzyVal(),
