@@ -81,30 +81,12 @@ func (g gnames) Verify(
 
 	for i, v := range matches {
 		if mr, ok := matchRecords[v.ID]; ok {
-			s := score.New()
-			s.SortResults(mr)
-			item := vlib.Name{
-				ID:               mr.ID,
-				Name:             mr.Name,
-				Cardinality:      mr.Cardinality,
-				DataSourcesNum:   mr.DataSourcesNum,
-				BestResult:       s.BestResult(mr),
-				Results:          s.Results(mr, input.WithAllMatches),
-				OverloadDetected: overloadTxt(mr),
-				Error:            errString,
-			}
+			namesRes[i] = outputName(mr, input.WithAllMatches)
+			namesRes[i].Error = errString
 			if input.WithCapitalization {
-				item.Name = input.NameStrings[i]
-				item.ID = gnuuid.New(item.Name).String()
+				namesRes[i].Name = input.NameStrings[i]
+				namesRes[i].ID = gnuuid.New(namesRes[i].Name).String()
 			}
-			if item.BestResult != nil {
-				item.MatchType = item.BestResult.MatchType
-				item.Curation = item.BestResult.Curation
-			} else {
-				item.OverloadDetected = ""
-			}
-
-			namesRes[i] = item
 		} else {
 			log.Warn().Msgf("Cannot find record for '%s'.", v.Name)
 		}
@@ -122,13 +104,13 @@ func overloadTxt(mr *verifier.MatchRecord) string {
 
 func (g gnames) Search(
 	ctx context.Context,
-	inp search.Input,
+	input search.Input,
 ) search.Output {
-	inp.Query = inp.ToQuery()
-	log.Info().Str("action", "search").Str("query", inp.Query)
+	input.Query = input.ToQuery()
+	log.Info().Str("action", "search").Str("query", input.Query)
 
-	res := search.Output{Meta: search.Meta{Input: inp}}
-	matchRecords, err := g.facet.Search(ctx, inp)
+	res := search.Output{Meta: search.Meta{Input: input}}
+	matchRecords, err := g.facet.Search(ctx, input)
 	if err != nil {
 		res.Error = err.Error()
 	}
@@ -139,27 +121,37 @@ func (g gnames) Search(
 
 	for i, v := range sortedNames {
 		mr := matchRecords[v]
-		s := score.New()
-		s.SortResults(mr)
-		item := vlib.Name{
-			ID:          mr.ID,
-			Name:        mr.Name,
-			Cardinality: mr.Cardinality,
-			BestResult:  s.BestResult(mr),
-			Results:     s.Results(mr, inp.WithAllMatches),
-		}
-		if item.BestResult != nil {
-			item.Curation = item.BestResult.Curation
-			item.MatchType = item.BestResult.MatchType
-		} else {
-			item.OverloadDetected = ""
-		}
-
-		resNames[i] = item
+		resNames[i] = outputName(mr, input.WithAllMatches)
 	}
 
 	res.Names = resNames
 	return res
+}
+
+func outputName(mr *verifier.MatchRecord, allMatches bool) vlib.Name {
+	s := score.New()
+	s.SortResults(mr)
+	item := vlib.Name{
+		ID:               mr.ID,
+		Name:             mr.Name,
+		DataSourcesNum:   mr.DataSourcesNum,
+		Cardinality:      mr.Cardinality,
+		OverloadDetected: overloadTxt(mr),
+	}
+	bestResult := s.BestResult(mr)
+	if bestResult != nil {
+		item.Curation = bestResult.Curation
+		item.MatchType = bestResult.MatchType
+	} else {
+		item.OverloadDetected = ""
+	}
+
+	if allMatches {
+		item.Results = s.Results(mr)
+	} else {
+		item.BestResult = bestResult
+	}
+	return item
 }
 
 func meta(input vlib.Input, names []vlib.Name) vlib.Meta {

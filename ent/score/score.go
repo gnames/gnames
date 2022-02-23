@@ -74,11 +74,7 @@ func (s score) BestResult(mr *verifier.MatchRecord) *vlib.ResultData {
 // the preffered data-source. From 0 to 1 results per data-source are allowed.
 func (s score) Results(
 	mr *verifier.MatchRecord,
-	allMatches bool,
 ) []*vlib.ResultData {
-	if !allMatches || mr.MatchResults == nil || len(mr.MatchResults) == 0 {
-		return nil
-	}
 
 	if !mr.Sorted {
 		s.SortResults(mr)

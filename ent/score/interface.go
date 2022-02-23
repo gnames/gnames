@@ -26,7 +26,7 @@ type Score interface {
 
 	// Results returns the best-scoring result for each of the
 	// given selected data-sources.
-	Results(mr *verifier.MatchRecord, allMatches bool) []*vlib.ResultData
+	Results(mr *verifier.MatchRecord) []*vlib.ResultData
 
 	// Details returns score items and their values
 	Details() vlib.ScoreDetails

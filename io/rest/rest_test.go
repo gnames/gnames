@@ -156,20 +156,22 @@ func TestPrefDS(t *testing.T) {
 	binom := response.Names[0]
 	assert.Equal(t, "4431a0f3-e901-519a-886f-9b97e0c99d8e", binom.ID)
 	assert.Equal(t, "Bubo bubo", binom.Name)
-	assert.NotNil(t, binom.BestResult)
-	assert.Equal(t, 1, binom.BestResult.DataSourceID)
-	assert.Contains(t, binom.BestResult.Outlink, "NKSD")
-	assert.Equal(t, vlib.Exact, binom.BestResult.MatchType)
-	assert.Equal(t, vlib.Curated, binom.Curation)
+	assert.Nil(t, binom.BestResult)
 	assert.Equal(t, 7, len(binom.Results))
+	assert.Equal(t, 1, binom.Results[0].DataSourceID)
+	assert.Contains(t, binom.Results[0].Outlink, "NKSD")
+	assert.Equal(t, vlib.Exact, binom.Results[0].MatchType)
+	assert.Equal(t, vlib.Curated, binom.Curation)
 	assert.Equal(t, "", binom.Error)
 
 	acceptFilter := response.Names[5]
 	assert.Equal(t, "4c8848f2-7271-588c-ba81-e4d5efcc1e92", acceptFilter.ID)
 	assert.Equal(t, "Pisonia grandis", acceptFilter.Name)
-	assert.Equal(t, 1, acceptFilter.BestResult.DataSourceID)
-	assert.Equal(t, vlib.Exact, acceptFilter.BestResult.MatchType)
-	assert.Equal(t, "Ceodes grandis", acceptFilter.BestResult.CurrentCanonicalSimple)
+	assert.Nil(t, binom.BestResult)
+	assert.True(t, len(binom.Results) > 0)
+	assert.Equal(t, 1, acceptFilter.Results[0].DataSourceID)
+	assert.Equal(t, vlib.Exact, acceptFilter.Results[0].MatchType)
+	assert.Equal(t, "Ceodes grandis", acceptFilter.Results[0].CurrentCanonicalSimple)
 	assert.Equal(t, 7, len(binom.Results))
 }
 
@@ -249,7 +251,7 @@ func TestAllMatches(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, len(names), len(response.Names))
 	solanum := response.Names[0]
-	assert.NotNil(t, solanum.BestResult)
+	assert.Nil(t, solanum.BestResult)
 	assert.Greater(t, len(solanum.Results), 1)
 }
 
@@ -273,7 +275,7 @@ func TestAll(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, len(names), len(response.Names))
 	solanum := response.Names[0]
-	assert.NotNil(t, solanum.BestResult)
+	assert.Nil(t, solanum.BestResult)
 	assert.Greater(t, len(solanum.Results), 20)
 }
 
@@ -318,7 +320,9 @@ func TestHomoNCBI(t *testing.T) {
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	homo := response.Names[0]
-	assert.Equal(t, "Homo sapiens", homo.BestResult.MatchedCanonicalSimple)
+	assert.Nil(t, homo.BestResult)
+	assert.True(t, len(homo.Results) > 0)
+	assert.Equal(t, "Homo sapiens", homo.Results[0].MatchedCanonicalSimple)
 	assert.NotContains(t, homo.Results[0].MatchedName, "Denisova")
 }
 
@@ -332,7 +336,9 @@ func TestGetVerifications(t *testing.T) {
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
 	assert.Nil(t, err)
 	homo := response.Names[0]
-	assert.Equal(t, "Homo sapiens", homo.BestResult.MatchedCanonicalSimple)
+	assert.Nil(t, homo.BestResult)
+	assert.True(t, len(homo.Results) > 0)
+	assert.Equal(t, "Homo sapiens", homo.Results[0].MatchedCanonicalSimple)
 	assert.NotContains(t, homo.Results[0].MatchedName, "Denisova")
 }
 

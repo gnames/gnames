@@ -6,6 +6,7 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## [v0.8.0] - 2022-02-21 Mon
 
+- Add [#88]: do not show BestResult if WithAllMatches is true.
 - Add [#86]: make Input.DataSources and Input.WithAllMatches behave
   similar for Verification and Search. DataSources now limit search
   to provided data-sources, while WithAllMatches shows all Results.

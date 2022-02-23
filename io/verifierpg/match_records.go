@@ -299,11 +299,9 @@ func (dgp *verifierpg) populateMatchRecord(
 
 	}
 	if discardedNum > 0 {
-		log.Info().
-			Msgf("Skipped %d low parsing quality names (e.g. '%s')",
-				discardedNum,
-				discardedExample,
-			)
+		log.Warn().
+			Str("example", discardedExample).Int("skippedNum", discardedNum).
+			Msg("Skipped low parsing quality names")
 	}
 	mRec.DataSourcesNum = len(sources)
 }
