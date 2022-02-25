@@ -54,7 +54,7 @@ RESTful API of the project is described using [OpenAPI Specification].
 * Providing names information from data-sources that contain a particular name.
   * Returning the "best" result. The `BestResult` is calculated by a scoring
     algorithm.
-  * Optionally, returning multiple results for data-sources that are important
+  * Optionally, limiting results to data-sources that are important
     to a [GNames] user.
 * Providing outlink URLs to some data-sources websites to show the original
   record of a name.
