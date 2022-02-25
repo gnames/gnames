@@ -6,7 +6,7 @@ require (
 	github.com/georgysavva/scany v0.3.0
 	github.com/gnames/gnfmt v0.2.0
 	github.com/gnames/gnlib v0.10.2
-	github.com/gnames/gnmatcher v0.9.0
+	github.com/gnames/gnmatcher v0.9.1
 	github.com/gnames/gnparser v1.6.3
 	github.com/gnames/gnquery v0.3.3
 	github.com/gnames/gnsys v0.2.2
@@ -36,7 +36,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
-	github.com/magiconair/properties v1.8.5 // indirect
+	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
@@ -60,7 +60,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
-	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
+	golang.org/x/sys v0.0.0-20220223155357-96fed51e1446 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 	golang.org/x/tools v0.1.9 // indirect

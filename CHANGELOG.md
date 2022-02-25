@@ -59,6 +59,7 @@ picking only the first result per each data-source.
              WARNING: Introduces backward incompatibility and changes in
              `https://apidoc.globalnames.org/gnames-beta` documentation.
 
+- Fix [#90]: No results for "Teucrium pyrenaicum subsp. guarense".
 - Fix [#87]: MatchType should always be NoMatch when BestResult is missing.
 - Fix [#84]: MatchType for `Jsoetes longissimum` is `NoMatch` instead of
   `Fuzzy`. Show `Isoetes longissimum` and `Isoetes longissima` in results.
