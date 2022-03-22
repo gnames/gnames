@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.8.1] - 2022-03-22 Tue
+
+- Add: Update Go (v1.18), modules
+
 ## [v0.8.0] - 2022-02-21 Mon
 
 This release takes care of several issues accumulated over time. Addressing
@@ -46,18 +50,18 @@ such result is produced by going from best result to worst in Results and
 picking only the first result per each data-source.
 
 - Add [#89]: add SortScore value to the Output to illustrate how the matches
-             are sorted.
+  are sorted.
 - Add [#88]: do not show BestResult if WithAllMatches is true.
-             WARNING: Introduces backward incompatibility. Before BestResult
-             was present all the time, not it only shows when it is the
-             only result.
+  WARNING: Introduces backward incompatibility. Before BestResult
+  was present all the time, not it only shows when it is the
+  only result.
 - Add [#86]: make Input.DataSources and Input.WithAllMatches behave
-             similar for Verification and Search. DataSources now
-             limit search to provided data-sources, while WithAllMatches
-             shows all Results. There is no option anymore to limit
-             Results to one per data-source.
-             WARNING: Introduces backward incompatibility and changes in
-             `https://apidoc.globalnames.org/gnames-beta` documentation.
+  similar for Verification and Search. DataSources now
+  limit search to provided data-sources, while WithAllMatches
+  shows all Results. There is no option anymore to limit
+  Results to one per data-source.
+  WARNING: Introduces backward incompatibility and changes in
+  `https://apidoc.globalnames.org/gnames-beta` documentation.
 
 - Fix [#90]: No results for "Teucrium pyrenaicum subsp. guarense".
 - Fix [#87]: MatchType should always be NoMatch when BestResult is missing.
@@ -294,6 +298,7 @@ picking only the first result per each data-source.
 
 This document follows [changelog guidelines]
 
+[v0.8.1]: https://github.com/gnames/gnames/compare/v0.8.0...v0.8.1
 [v0.8.0]: https://github.com/gnames/gnames/compare/v0.7.1...v0.8.0
 [v0.7.1]: https://github.com/gnames/gnames/compare/v0.7.0...v0.7.1
 [v0.7.0]: https://github.com/gnames/gnames/compare/v0.6.5...v0.7.0
@@ -338,7 +343,6 @@ This document follows [changelog guidelines]
 [v0.0.2]: https://github.com/gnames/gnames/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.0...v0.0.1
 [v0.0.0]: https://github.com/gnames/gnames/tree/v0.0.0
-
 [#100]: https://github.com/gnames/gnames/issues/100
 [#99]: https://github.com/gnames/gnames/issues/99
 [#98]: https://github.com/gnames/gnames/issues/98
@@ -439,6 +443,5 @@ This document follows [changelog guidelines]
 [#3]: https://github.com/gnames/gnames/issues/3
 [#2]: https://github.com/gnames/gnames/issues/2
 [#1]: https://github.com/gnames/gnames/issues/1
-
 [changelog guidelines]: https://github.com/olivierlacan/keep-a-changelog
-[Semantic Versioning guidelines]: https://semver.org/
+[semantic versioning guidelines]: https://semver.org/
