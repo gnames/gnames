@@ -10,9 +10,9 @@ import (
 	"github.com/gnames/gnames/ent/score"
 	"github.com/gnames/gnames/ent/verifier"
 	"github.com/gnames/gnames/io/matcher"
-	gnctx "github.com/gnames/gnlib/ent/context"
 	"github.com/gnames/gnlib/ent/gnvers"
 	mlib "github.com/gnames/gnlib/ent/matcher"
+	"github.com/gnames/gnlib/ent/stats"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnmatcher"
 	"github.com/gnames/gnparser/ent/str"
@@ -156,15 +156,24 @@ func outputName(mr *verifier.MatchRecord, allMatches bool) vlib.Name {
 
 func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 	allSources := len(input.DataSources) == 1 && input.DataSources[0] == 0
-	hs := make([]gnctx.Hierarch, len(names))
+	hs := make([]stats.Hierarchy, 0, len(names))
+	ids := make(map[string]struct{})
 	for i := range names {
-		hs[i] = names[i]
+		if _, ok := ids[names[i].ID]; ok {
+			continue
+		}
+		if names[i].BestResult == nil || names[i].BestResult.DataSourceID != 1 {
+			continue
+		}
+
+		ids[names[i].ID] = struct{}{}
+		hs = append(hs, names[i])
 	}
-	var c gnctx.Context
+	var c stats.Stats
 	var ks []vlib.Kingdom
 
-	if input.WithContext {
-		c = gnctx.New(hs, input.ContextThreshold)
+	if input.WithStats {
+		c = stats.New(hs, input.MainTaxonThreshold)
 		ks = make([]vlib.Kingdom, len(c.Kingdoms))
 		for i, v := range c.Kingdoms {
 			ks[i] = vlib.Kingdom{
@@ -175,18 +184,19 @@ func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 		}
 	}
 	res := vlib.Meta{
-		NamesNumber:        len(input.NameStrings),
-		WithAllSources:     allSources,
-		WithAllMatches:     input.WithAllMatches,
-		WithContext:        input.WithContext,
-		WithCapitalization: input.WithCapitalization,
-		ContextThreshold:   input.ContextThreshold,
-		DataSources:        input.DataSources,
-		Context:            c.Context.Name,
-		ContextPercentage:  c.ContextPercentage,
-		Kingdom:            c.Kingdom.Name,
-		KingdomPercentage:  c.KingdomPercentage,
-		Kingdoms:           ks,
+		NamesNumber:         len(input.NameStrings),
+		WithAllSources:      allSources,
+		WithAllMatches:      input.WithAllMatches,
+		WithStats:           input.WithStats,
+		WithCapitalization:  input.WithCapitalization,
+		MainTaxonThreshold:  input.MainTaxonThreshold,
+		DataSources:         input.DataSources,
+		MainTaxon:           c.MainTaxon.Name,
+		MainTaxonPercentage: c.MainTaxonPercentage,
+		StatsNamesNum:       len(hs),
+		Kingdom:             c.Kingdom.Name,
+		KingdomPercentage:   c.KingdomPercentage,
+		Kingdoms:            ks,
 	}
 	return res
 }

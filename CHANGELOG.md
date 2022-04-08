@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.9.0] - 2022-04-08 Fri
+
+- Add: update gnlib to v0.12.0, use its stats module.
+
 ## [v0.8.1] - 2022-03-22 Tue
 
 - Add: Update Go (v1.18), modules
