@@ -344,7 +344,7 @@ func TestGetVerifications(t *testing.T) {
 
 func TestContext(t *testing.T) {
 	var response vlib.Output
-	resp, err := http.Get(restURL + "verifications/Homo+sapiens|Pan+troglodytes?context=true")
+	resp, err := http.Get(restURL + "verifications/Homo+sapiens|Pan+troglodytes?stats=true")
 	assert.Nil(t, err)
 	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -353,8 +353,8 @@ func TestContext(t *testing.T) {
 	assert.Nil(t, err)
 	homo := response.Names[0]
 	assert.Equal(t, "Homo sapiens", homo.BestResult.MatchedCanonicalSimple)
-	assert.Equal(t, "Hominidae", response.Context)
-	assert.Equal(t, float32(1.0), response.ContextPercentage)
+	assert.Equal(t, "Homininae", response.MainTaxon)
+	assert.Equal(t, float32(1.0), response.MainTaxonPercentage)
 }
 
 func TestDataSources(t *testing.T) {
