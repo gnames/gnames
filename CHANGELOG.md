@@ -4,7 +4,7 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
-## [v0.9.0] - 2022-04-08 Fri
+## [v0.12.0] - 2022-04-08 Fri
 
 - Add: update gnlib to v0.12.0, use its stats module.
 
@@ -302,6 +302,8 @@ picking only the first result per each data-source.
 
 This document follows [changelog guidelines]
 
+[v0.13.0]: https://github.com/gnames/gnames/compare/v0.12.0...v0.13.0
+[v0.12.0]: https://github.com/gnames/gnames/compare/v0.8.1...v0.12.0
 [v0.8.1]: https://github.com/gnames/gnames/compare/v0.8.0...v0.8.1
 [v0.8.0]: https://github.com/gnames/gnames/compare/v0.7.1...v0.8.0
 [v0.7.1]: https://github.com/gnames/gnames/compare/v0.7.0...v0.7.1

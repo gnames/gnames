@@ -12,11 +12,11 @@ import (
 	"github.com/gnames/gnames/io/matcher"
 	"github.com/gnames/gnlib/ent/gnvers"
 	mlib "github.com/gnames/gnlib/ent/matcher"
-	"github.com/gnames/gnlib/ent/stats"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnmatcher"
 	"github.com/gnames/gnparser/ent/str"
 	"github.com/gnames/gnquery/ent/search"
+	"github.com/gnames/gnstats/ent/stats"
 	"github.com/gnames/gnuuid"
 	"github.com/rs/zerolog/log"
 )
