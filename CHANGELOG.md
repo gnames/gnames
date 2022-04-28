@@ -4,6 +4,14 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.13.1] - 2022-04-28 Thu
+
+- Add [#92]: show IDs of all data-sources that had a match.
+
+## [v0.13.0] - 2022-04-09 Sat
+
+- Add: update gnlib to v0.13.0
+
 ## [v0.12.0] - 2022-04-08 Fri
 
 - Add: update gnlib to v0.12.0, use its stats module.

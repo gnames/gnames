@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/georgysavva/scany/sqlscan"
@@ -184,6 +185,13 @@ func (dgp *verifierpg) populateVirusMatchRecord(
 		mr.MatchResults = append(mr.MatchResults, &resData)
 	}
 	mr.DataSourcesNum = len(sources)
+	mr.DataSourcesIDs = make([]int, len(sources))
+	var i int
+	for k := range sources {
+		mr.DataSourcesIDs[i] = k
+		i++
+	}
+	sort.Ints(mr.DataSourcesIDs)
 }
 
 func (dgp *verifierpg) populateMatchRecord(
@@ -304,6 +312,13 @@ func (dgp *verifierpg) populateMatchRecord(
 			Msg("Skipped low parsing quality names")
 	}
 	mRec.DataSourcesNum = len(sources)
+	mRec.DataSourcesIDs = make([]int, len(sources))
+	var i int
+	for k := range sources {
+		mRec.DataSourcesIDs[i] = k
+		i++
+	}
+	sort.Ints(mRec.DataSourcesIDs)
 }
 
 func getVerifMap(vs []*dbshare.VerifSQL) map[string][]*dbshare.VerifSQL {

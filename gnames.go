@@ -135,6 +135,7 @@ func outputName(mr *verifier.MatchRecord, allMatches bool) vlib.Name {
 		ID:               mr.ID,
 		Name:             mr.Name,
 		DataSourcesNum:   mr.DataSourcesNum,
+		DataSourcesIDs:   mr.DataSourcesIDs,
 		Cardinality:      mr.Cardinality,
 		OverloadDetected: overloadTxt(mr),
 	}

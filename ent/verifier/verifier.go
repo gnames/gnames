@@ -16,6 +16,7 @@ type MatchRecord struct {
 	Authors         []string
 	Year            int
 	DataSourcesNum  int
+	DataSourcesIDs  []int
 	Overload        bool
 	// MatchResults contains all matches to Input.
 	MatchResults []*vlib.ResultData

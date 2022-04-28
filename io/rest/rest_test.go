@@ -70,6 +70,7 @@ func TestVerifyExact(t *testing.T) {
 	assert.Equal(t, vlib.NoMatch, bad.MatchType)
 	assert.Nil(t, bad.BestResult)
 	assert.Equal(t, 0, bad.DataSourcesNum)
+	assert.Equal(t, 0, len(bad.DataSourcesIDs))
 	assert.Equal(t, vlib.NotCurated, bad.Curation)
 	assert.Equal(t, "", bad.Error)
 
@@ -78,6 +79,8 @@ func TestVerifyExact(t *testing.T) {
 	assert.Equal(t, "Bubo bubo", binom.Name)
 	assert.NotNil(t, binom.BestResult)
 	assert.Equal(t, 1, binom.BestResult.DataSourceID)
+	assert.Equal(t, 31, len(binom.DataSourcesIDs))
+	assert.Equal(t, 31, binom.DataSourcesNum)
 	assert.Equal(t, vlib.Exact, binom.BestResult.MatchType)
 	assert.Equal(t, vlib.Curated, binom.Curation)
 	assert.Equal(t, "", binom.Error)
