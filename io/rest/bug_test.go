@@ -19,31 +19,43 @@ var bugs = []struct {
 	name           string
 	matchType      vlib.MatchTypeValue
 	matchCanonical string
+	matchCurrent   string
 	desc           string
 }{
 	{
 		name:           "Tillaudsia utriculata",
 		matchType:      vlib.Fuzzy,
 		matchCanonical: "Tillandsia utriculata",
+		matchCurrent:   "Tillandsia utriculata",
 		desc:           "Misspelling of Tillandsia",
 	},
 	{
 		name:           "Drosohila melanogaster",
 		matchType:      vlib.Fuzzy,
 		matchCanonical: "Drosophila melanogaster",
+		matchCurrent:   "Drosophila melanogaster",
 		desc:           "Misspelling of Drosophila",
 	},
 	{
 		name:           "Acacia nur",
 		matchType:      vlib.PartialExact,
 		matchCanonical: "Acacia",
+		matchCurrent:   "Acacia",
 		desc:           "Should not match 'Acacia dura', ep. is too short",
 	},
 	{
 		name:           "Bubo",
 		matchType:      vlib.Exact,
 		matchCanonical: "Bubo",
+		matchCurrent:   "Bubo",
 		desc:           "Uninomials should match correctly #32 gnmatcher",
+	},
+	{
+		name:           "Trichoderma",
+		matchType:      vlib.Exact,
+		matchCanonical: "Trichoderma",
+		matchCurrent:   "Trichoderma",
+		desc:           "Synonyms should be sorted down #94 gnmatcher",
 	},
 }
 

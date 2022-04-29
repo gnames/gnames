@@ -38,7 +38,7 @@ import (
 // 001 - Authorship is not comparable.
 //       `` vs ``
 //
-// 010 - Authorship is not comparable, input has no authorship, but
+// 001 - Authorship is not comparable, input has no authorship, but
 //       output has authorship.
 //       `` vs `Auth1, Auth2, 1880`
 //
@@ -206,7 +206,7 @@ func (s score) auth(auth1, auth2 []string, year1, year2 int) score {
 			i = 0b010 //2
 		}
 	} else if authors == noAuthVsAuth {
-		i = 0b010 //2
+		i = 0b001 //1
 	} else if authors == incomparable {
 		i = 0b001 //1
 	}

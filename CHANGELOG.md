@@ -6,6 +6,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## [v0.13.1] - 2022-04-28 Thu
 
+- Add [#94]: sort synonyms down in an edge case that was sorted up by
+  and authorship.
 - Add [#92]: show IDs of all data-sources that had a match.
 
 ## [v0.13.0] - 2022-04-09 Sat
@@ -310,6 +312,9 @@ picking only the first result per each data-source.
 
 This document follows [changelog guidelines]
 
+<!-- Versions -->
+
+[v0.13.1]: https://github.com/gnames/gnames/compare/v0.13.0...v0.13.1
 [v0.13.0]: https://github.com/gnames/gnames/compare/v0.12.0...v0.13.0
 [v0.12.0]: https://github.com/gnames/gnames/compare/v0.8.1...v0.12.0
 [v0.8.1]: https://github.com/gnames/gnames/compare/v0.8.0...v0.8.1
@@ -357,6 +362,9 @@ This document follows [changelog guidelines]
 [v0.0.2]: https://github.com/gnames/gnames/compare/v0.0.1...v0.0.2
 [v0.0.1]: https://github.com/gnames/gnames/tree/v0.0.0...v0.0.1
 [v0.0.0]: https://github.com/gnames/gnames/tree/v0.0.0
+
+ <!-- Issues -->
+
 [#100]: https://github.com/gnames/gnames/issues/100
 [#99]: https://github.com/gnames/gnames/issues/99
 [#98]: https://github.com/gnames/gnames/issues/98
@@ -457,5 +465,8 @@ This document follows [changelog guidelines]
 [#3]: https://github.com/gnames/gnames/issues/3
 [#2]: https://github.com/gnames/gnames/issues/2
 [#1]: https://github.com/gnames/gnames/issues/1
+
+<!-- Links -->
+
 [changelog guidelines]: https://github.com/olivierlacan/keep-a-changelog
 [semantic versioning guidelines]: https://semver.org/
