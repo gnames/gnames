@@ -14,6 +14,7 @@ import (
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnmatcher"
+	gncfg "github.com/gnames/gnmatcher/config"
 	"github.com/gnames/gnparser/ent/str"
 	"github.com/gnames/gnquery/ent/search"
 	"github.com/gnames/gnstats/ent/stats"
@@ -61,16 +62,20 @@ func (g gnames) Verify(
 	}
 	namesRes := make([]vlib.Name, len(input.NameStrings))
 
-	var matches []mlib.Match
+	var matches []mlib.Output
+	var opts []gncfg.Option
+	if input.WithSpeciesGroup {
+		opts = append(opts, gncfg.OptWithSpeciesGroup(true))
+	}
 
 	if input.WithCapitalization {
 		names := make([]string, len(input.NameStrings))
 		for i := range input.NameStrings {
 			names[i] = str.CapitalizeName(input.NameStrings[i])
 		}
-		matches = g.matcher.MatchNames(names)
+		matches = g.matcher.MatchNames(names, opts...)
 	} else {
-		matches = g.matcher.MatchNames(input.NameStrings)
+		matches = g.matcher.MatchNames(input.NameStrings, opts...)
 	}
 
 	var errString string

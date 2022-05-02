@@ -25,9 +25,9 @@ const (
 )
 
 type matchSplit struct {
-	noMatch   []*mlib.Match
-	virus     []*mlib.Match
-	canonical []*mlib.Match
+	noMatch   []*mlib.Output
+	virus     []*mlib.Output
+	canonical []*mlib.Output
 }
 
 var namesQ = fmt.Sprintf(`
@@ -46,7 +46,7 @@ FROM verification v
 // the database that organizes data from database into matched records.
 func (dgp verifierpg) MatchRecords(
 	ctx context.Context,
-	matches []mlib.Match,
+	matches []mlib.Output,
 	input vlib.Input,
 ) (map[string]*verifier.MatchRecord, error) {
 	cfg := gnparser.NewConfig(gnparser.OptWithDetails(true))
@@ -105,9 +105,11 @@ func (dgp verifierpg) produceResultData(
 			Name:     match.Name,
 			Overload: len(match.MatchItems) > 20,
 		}
+		sources := make(map[int]struct{})
 		for _, mi := range match.MatchItems {
-			dgp.populateVirusMatchRecord(mi, *match, &mr, verifMap)
+			dgp.populateVirusMatchRecord(mi, *match, &mr, verifMap, sources)
 		}
+		setDataSources(&mr, sources)
 		allMatchRecs[match.ID] = &mr
 	}
 
@@ -132,25 +134,28 @@ func (dgp verifierpg) produceResultData(
 			Year:            year,
 		}
 
+		sources := make(map[int]struct{})
 		for _, mi := range match.MatchItems {
-			dgp.populateMatchRecord(mi, *match, &mr, parser, verifMap)
+			dgp.populateMatchRecord(mi, *match, &mr, parser, verifMap, sources)
 		}
+		setDataSources(&mr, sources)
 		allMatchRecs[match.ID] = &mr
 	}
+
 	return allMatchRecs
 }
 
 func (dgp *verifierpg) populateVirusMatchRecord(
 	mi mlib.MatchItem,
-	m mlib.Match,
+	m mlib.Output,
 	mr *verifier.MatchRecord,
 	verifMap map[string][]*dbshare.VerifSQL,
+	sources map[int]struct{},
 ) {
 	verifRecs, ok := verifMap[mi.ID]
 	if !ok {
 		log.Fatal().Err(fmt.Errorf("no match for %s", mi.ID))
 	}
-	sources := make(map[int]struct{})
 	for _, verifRec := range verifRecs {
 		sources[verifRec.DataSourceID] = struct{}{}
 
@@ -184,6 +189,9 @@ func (dgp *verifierpg) populateVirusMatchRecord(
 
 		mr.MatchResults = append(mr.MatchResults, &resData)
 	}
+}
+
+func setDataSources(mr *verifier.MatchRecord, sources map[int]struct{}) {
 	mr.DataSourcesNum = len(sources)
 	mr.DataSourcesIDs = make([]int, len(sources))
 	var i int
@@ -196,17 +204,17 @@ func (dgp *verifierpg) populateVirusMatchRecord(
 
 func (dgp *verifierpg) populateMatchRecord(
 	mItm mlib.MatchItem,
-	m mlib.Match,
+	m mlib.Output,
 	mRec *verifier.MatchRecord,
 	parser gnparser.GNparser,
 	verifMap map[string][]*dbshare.VerifSQL,
+	sources map[int]struct{},
 ) {
 	verifRecs, ok := verifMap[mItm.ID]
 	if !ok {
 		return
 	}
 
-	sources := make(map[int]struct{})
 	recsNum := len(verifRecs)
 	var discardedExample string
 	var discardedNum int
@@ -222,6 +230,7 @@ func (dgp *verifierpg) populateMatchRecord(
 			discardedNum++
 			continue
 		}
+		sources[verifRec.DataSourceID] = struct{}{}
 
 		prsd := parser.ParseName(verifRec.Name.String)
 		authors, year := dbshare.ProcessAuthorship(prsd.Authorship)
@@ -240,8 +249,6 @@ func (dgp *verifierpg) populateMatchRecord(
 				currentCanFull = prsdCurrent.Canonical.Full
 			}
 		}
-
-		sources[verifRec.DataSourceID] = struct{}{}
 
 		ds := dgp.dataSourcesMap[verifRec.DataSourceID]
 		curation := ds.Curation
@@ -311,14 +318,6 @@ func (dgp *verifierpg) populateMatchRecord(
 			Str("example", discardedExample).Int("skippedNum", discardedNum).
 			Msg("Skipped low parsing quality names")
 	}
-	mRec.DataSourcesNum = len(sources)
-	mRec.DataSourcesIDs = make([]int, len(sources))
-	var i int
-	for k := range sources {
-		mRec.DataSourcesIDs[i] = k
-		i++
-	}
-	sort.Ints(mRec.DataSourcesIDs)
 }
 
 func getVerifMap(vs []*dbshare.VerifSQL) map[string][]*dbshare.VerifSQL {
@@ -336,7 +335,7 @@ func getVerifMap(vs []*dbshare.VerifSQL) map[string][]*dbshare.VerifSQL {
 
 func (dgp *verifierpg) virusQuery(
 	ctx context.Context,
-	virMatches []*mlib.Match,
+	virMatches []*mlib.Output,
 	input vlib.Input,
 ) ([]*dbshare.VerifSQL, error) {
 	if len(virMatches) == 0 {
@@ -362,7 +361,7 @@ func (dgp *verifierpg) virusQuery(
 
 func (dgp verifierpg) nameQuery(
 	ctx context.Context,
-	canMatches []*mlib.Match,
+	canMatches []*mlib.Output,
 	input vlib.Input,
 ) ([]*dbshare.VerifSQL, error) {
 
@@ -386,7 +385,7 @@ func (dgp verifierpg) nameQuery(
 	return res, nil
 }
 
-func getUUIDs(matches []*mlib.Match) []string {
+func getUUIDs(matches []*mlib.Output) []string {
 	set := make(map[string]struct{})
 	for _, v := range matches {
 		for _, vv := range v.MatchItems {
@@ -407,11 +406,11 @@ func getUUIDs(matches []*mlib.Match) []string {
 
 // partitionMatches partitions matches into two categories:
 // no match, match by canonical.
-func partitionMatches(matches []mlib.Match) matchSplit {
+func partitionMatches(matches []mlib.Output) matchSplit {
 	ms := matchSplit{
-		noMatch:   make([]*mlib.Match, 0, len(matches)),
-		virus:     make([]*mlib.Match, 0, len(matches)),
-		canonical: make([]*mlib.Match, 0, len(matches)),
+		noMatch:   make([]*mlib.Output, 0, len(matches)),
+		virus:     make([]*mlib.Output, 0, len(matches)),
+		canonical: make([]*mlib.Output, 0, len(matches)),
 	}
 	for i := range matches {
 		switch matches[i].MatchType {

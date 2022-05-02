@@ -14,7 +14,7 @@ import (
 // able to prepare raw data for verification.
 type Verifier interface {
 	// DataSources returns a slice of all data-sources known to gnames. If
-	// id are provided, it returns a slice of requested data-sources.
+	// idd are provided, it returns a slice of requested data-sources.
 	DataSources(ids ...int) ([]*vlib.DataSource, error)
 
 	// MatchRecords function returns unsorted records corresponding to Input
@@ -22,7 +22,7 @@ type Verifier interface {
 	// that input.
 	MatchRecords(
 		ctx context.Context,
-		matches []mlib.Match,
+		matches []mlib.Output,
 		input vlib.Input,
 	) (map[string]*MatchRecord, error)
 }

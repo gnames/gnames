@@ -41,9 +41,13 @@ func (mr matcherREST) GetVersion() gnvers.Version {
 	return response
 }
 
-func (mr matcherREST) MatchNames(names []string) []mlib.Match {
-	var response []mlib.Match
-	req, err := mr.enc.Encode(names)
+func (mr matcherREST) MatchNames(names []string, opts ...gnmcfg.Option) []mlib.Output {
+	var response []mlib.Output
+	cfg := gnmcfg.New(opts...)
+	req, err := mr.enc.Encode(mlib.Input{
+		Names:            names,
+		WithSpeciesGroup: cfg.WithSpeciesGroup,
+	})
 	if err != nil {
 		log.Warn().Err(err).Msg("Cannot encode name-strings")
 	}

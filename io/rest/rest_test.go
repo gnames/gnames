@@ -345,7 +345,7 @@ func TestGetVerifications(t *testing.T) {
 	assert.NotContains(t, homo.Results[0].MatchedName, "Denisova")
 }
 
-func TestContext(t *testing.T) {
+func TestMainTaxon(t *testing.T) {
 	var response vlib.Output
 	resp, err := http.Get(restURL + "verifications/Homo+sapiens|Pan+troglodytes?stats=true")
 	assert.Nil(t, err)
@@ -358,6 +358,28 @@ func TestContext(t *testing.T) {
 	assert.Equal(t, "Homo sapiens", homo.BestResult.MatchedCanonicalSimple)
 	assert.Equal(t, "Homininae", response.MainTaxon)
 	assert.Equal(t, float32(1.0), response.MainTaxonPercentage)
+}
+
+func TestSpeciesGroup(t *testing.T) {
+	var response vlib.Output
+	resp, err := http.Get(restURL + "verifications/Narcissus+minor?all_matches=true&species_group=true")
+	assert.Nil(t, err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
+	assert.Nil(t, err)
+	spGroup := response.Names[0]
+
+	resp, err = http.Get(restURL + "verifications/Narcissus+minor?all_matches=true&species_group=false")
+	assert.Nil(t, err)
+	respBytes, err = io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
+	assert.Nil(t, err)
+	noSpGroup := response.Names[0]
+	assert.Greater(t, len(spGroup.Results), len(noSpGroup.Results))
 }
 
 func TestDataSources(t *testing.T) {
@@ -386,5 +408,4 @@ func TestOneDataSource(t *testing.T) {
 	assert.Equal(t, "Encyclopedia of Life", ds.Title)
 	assert.True(t, ds.IsOutlinkReady)
 	assert.Equal(t, "https://eol.org", ds.WebsiteURL)
-	assert.Equal(t, "dba5f880-a40d-479b-a1ad-a646835edde4", ds.UUID)
 }

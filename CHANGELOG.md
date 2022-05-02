@@ -4,6 +4,11 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.13.2] - 2022-05-02 Mon
+
+- Add: update gnmatcher to v0.9.6, introduce `species_group` option
+  for `GET` verifications and `WithSpeciesGroup` option for `POST`.
+
 ## [v0.13.1] - 2022-04-28 Thu
 
 - Add [#94]: sort synonyms down in an edge case that was sorted up by
@@ -314,6 +319,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v0.13.2]: https://github.com/gnames/gnames/compare/v0.13.1...v0.13.2
 [v0.13.1]: https://github.com/gnames/gnames/compare/v0.13.0...v0.13.1
 [v0.13.0]: https://github.com/gnames/gnames/compare/v0.12.0...v0.13.0
 [v0.12.0]: https://github.com/gnames/gnames/compare/v0.8.1...v0.12.0

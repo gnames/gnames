@@ -148,9 +148,11 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		names := strings.Split(nameStr, "|")
 		dsStr, _ := url.QueryUnescape(c.QueryParam("data_sources"))
 		capitalize := c.QueryParam("capitalize") == "true"
+		spGrp := c.QueryParam("species_group") == "true"
 		stats := c.QueryParam("stats") == "true"
 		mainTxnThresholdStr := c.QueryParam("main_taxon_threshold")
 		matches := c.QueryParam("all_matches") == "true"
+		fmt.Printf("SPGRP: %#v\n\n", spGrp)
 
 		mainTxnThreshold, _ := strconv.ParseFloat(mainTxnThresholdStr, 64)
 		var ds []int
@@ -166,6 +168,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 			WithCapitalization: capitalize,
 			WithAllMatches:     matches,
 			WithStats:          stats,
+			WithSpeciesGroup:   spGrp,
 			MainTaxonThreshold: float32(mainTxnThreshold),
 		}
 		verified, err := gn.Verify(context.Background(), params)

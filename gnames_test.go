@@ -40,7 +40,7 @@ func (m mockVerifier) DataSources(ids ...int) ([]*vlib.DataSource, error) {
 
 func (m mockVerifier) MatchRecords(
 	ctx context.Context,
-	fmatches []mlib.Match,
+	fmatches []mlib.Output,
 	input vlib.Input,
 ) (map[string]*verifier.MatchRecord, error) {
 	var res map[string]*verifier.MatchRecord
