@@ -15,6 +15,7 @@ func TestString(t *testing.T) {
 
 func TestChain(t *testing.T) {
 	s := score{}.
+		cardinality(3, 3).
 		rank("Aus bus var. cus", "Aus bus var. cus", 3, 3).
 		fuzzy(2).
 		curation(2, vlib.Curated).
@@ -24,7 +25,25 @@ func TestChain(t *testing.T) {
 		).
 		accepted("12", "12").
 		parsingQuality(3)
-	assert.Equal(t, "10011010_11010000_00000000_00000000", s.String())
+	assert.Equal(t, "11001101_01101000_00000000_00000000", s.String())
+}
+
+func TestCardinality(t *testing.T) {
+	testData := []struct {
+		desc         string
+		card1, card2 int
+		score        string
+	}{
+		{"zero1", 0, 1, "00000000_00000000_00000000_00000000"},
+		{"zero2", 1, 0, "00000000_00000000_00000000_00000000"},
+		{"zero3", 0, 0, "00000000_00000000_00000000_00000000"},
+		{"differ", 1, 3, "00000000_00000000_00000000_00000000"},
+		{"equal", 2, 2, "10000000_00000000_00000000_00000000"},
+	}
+	for _, v := range testData {
+		s := score{}
+		assert.Equal(t, v.score, s.cardinality(v.card1, v.card2).String(), v.desc)
+	}
 }
 
 func TestRank(t *testing.T) {
@@ -35,11 +54,11 @@ func TestRank(t *testing.T) {
 	}{
 		{"partial", "Aus bus var. cus", "Aus bus", 3, 2, "00000000_00000000_00000000_00000000"},
 		{"binomial", "Aus bus", "Aus bus", 2, 2, "00000000_00000000_00000000_00000000"},
-		{"exact", "Aus bus var. cus", "Aus bus var. cus", 3, 3, "10000000_00000000_00000000_00000000"},
+		{"exact", "Aus bus var. cus", "Aus bus var. cus", 3, 3, "01000000_00000000_00000000_00000000"},
 		{"no match", "Aus bus var. cus", "Aus bus f. cus", 3, 3, "00000000_00000000_00000000_00000000"},
-		{"unknown", "Aus bus cus", "Aus bus f. cus", 3, 3, "01000000_00000000_00000000_00000000"},
-		{"n/a", "Aus bus cus", "Aus bus f. cus", 3, 3, "01000000_00000000_00000000_00000000"},
-		{"n/a", "Aus bus f. cus", "Aus bus cus", 3, 3, "01000000_00000000_00000000_00000000"},
+		{"unknown", "Aus bus cus", "Aus bus f. cus", 3, 3, "00100000_00000000_00000000_00000000"},
+		{"n/a", "Aus bus cus", "Aus bus f. cus", 3, 3, "00100000_00000000_00000000_00000000"},
+		{"n/a", "Aus bus f. cus", "Aus bus cus", 3, 3, "00100000_00000000_00000000_00000000"},
 	}
 	for _, v := range testData {
 		s := score{}
@@ -53,11 +72,11 @@ func TestFuzzy(t *testing.T) {
 		editDist int
 		score    string
 	}{
-		{"fuzzy1", 1, "00100000_00000000_00000000_00000000"},
-		{"fuzzy2", 2, "00010000_00000000_00000000_00000000"},
+		{"fuzzy1", 1, "00010000_00000000_00000000_00000000"},
+		{"fuzzy2", 2, "00001000_00000000_00000000_00000000"},
 		{"fuzzy3", 3, "00000000_00000000_00000000_00000000"},
 		{"fuzzy4", 13, "00000000_00000000_00000000_00000000"},
-		{"exact", 0, "00110000_00000000_00000000_00000000"},
+		{"exact", 0, "00011000_00000000_00000000_00000000"},
 	}
 	for _, v := range testData {
 		s := score{}
@@ -93,9 +112,9 @@ func TestCuration(t *testing.T) {
 		score  string
 	}{
 		{"no cur", 67, vlib.NotCurated, "00000000_00000000_00000000_00000000"},
-		{"auto cur", 67, vlib.AutoCurated, "00000100_00000000_00000000_00000000"},
-		{"cur", 67, vlib.Curated, "00001000_00000000_00000000_00000000"},
-		{"CoL", 1, vlib.Curated, "00001100_00000000_00000000_00000000"},
+		{"auto cur", 67, vlib.AutoCurated, "00000010_00000000_00000000_00000000"},
+		{"cur", 67, vlib.Curated, "00000100_00000000_00000000_00000000"},
+		{"CoL", 1, vlib.Curated, "00000110_00000000_00000000_00000000"},
 	}
 	for _, v := range testData {
 		s := score{}
@@ -110,22 +129,22 @@ func TestAuth(t *testing.T) {
 		year1, year2 int
 		score        string
 	}{
-		{"empty1", []string{}, []string{}, 0, 0, "00000000_10000000_00000000_00000000"},
-		{"empty2", []string{"L."}, []string{}, 1758, 0, "00000000_10000000_00000000_00000000"},
-		{"empty3", []string{}, []string{"L."}, 0, 1758, "00000000_10000000_00000000_00000000"},
+		{"empty1", []string{}, []string{}, 0, 0, "00000000_01000000_00000000_00000000"},
+		{"empty2", []string{"L."}, []string{}, 1758, 0, "00000000_01000000_00000000_00000000"},
+		{"empty3", []string{}, []string{"L."}, 0, 1758, "00000000_01000000_00000000_00000000"},
 		{"no match1", []string{"Banks"}, []string{"L."}, 0, 0, "00000000_00000000_00000000_00000000"},
 		{"no match2", []string{"L."}, []string{"Banks"}, 1758, 1758, "00000000_00000000_00000000_00000000"},
-		{"overlap", []string{"Tomm.", "L.", "Banks", "Muetze"}, []string{"Kuntze", "Linn", "Hopkins"}, 1758, 1758, "00000010_10000000_00000000_00000000"},
-		{"full subset, yes yr", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1758, 1758, "00000011_00000000_00000000_00000000"},
-		{"full subset, aprx yr1", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1757, 1758, "00000010_10000000_00000000_00000000"},
-		{"full subset, aprx yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1757, 1756, "00000010_10000000_00000000_00000000"},
-		{"full subset, n/a yr1", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 0, 1756, "00000010_00000000_00000000_00000000"},
-		{"full subset, n/a yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 0, "00000010_00000000_00000000_00000000"},
-		{"full subset, no yr", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 1800, "00000001_10000000_00000000_00000000"},
-		{"match, yes yr", []string{"L.", "Thomson"}, []string{"Linn", "Thomson"}, 1800, 1800, "00000011_10000000_00000000_00000000"},
-		{"match, aprx yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1799, 1800, "00000011_00000000_00000000_00000000"},
-		{"match, n/a yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 0, 0, "00000010_10000000_00000000_00000000"},
-		{"match, bad yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1750, 1755, "00000010_00000000_00000000_00000000"},
+		{"overlap", []string{"Tomm.", "L.", "Banks", "Muetze"}, []string{"Kuntze", "Linn", "Hopkins"}, 1758, 1758, "00000001_01000000_00000000_00000000"},
+		{"full subset, yes yr", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1758, 1758, "00000001_10000000_00000000_00000000"},
+		{"full subset, aprx yr1", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1757, 1758, "00000001_01000000_00000000_00000000"},
+		{"full subset, aprx yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1757, 1756, "00000001_01000000_00000000_00000000"},
+		{"full subset, n/a yr1", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 0, 1756, "00000001_00000000_00000000_00000000"},
+		{"full subset, n/a yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 0, "00000001_00000000_00000000_00000000"},
+		{"full subset, no yr", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 1800, "00000000_11000000_00000000_00000000"},
+		{"match, yes yr", []string{"L.", "Thomson"}, []string{"Linn", "Thomson"}, 1800, 1800, "00000001_11000000_00000000_00000000"},
+		{"match, aprx yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1799, 1800, "00000001_10000000_00000000_00000000"},
+		{"match, n/a yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 0, 0, "00000001_01000000_00000000_00000000"},
+		{"match, bad yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1750, 1755, "00000001_00000000_00000000_00000000"},
 	}
 	for _, v := range testData {
 		s := score{}
@@ -136,8 +155,8 @@ func TestAuth(t *testing.T) {
 func TestAccepted(t *testing.T) {
 	testData := []struct{ desc, recordID, acceptedID, score string }{
 		{"synonym", "123", "234", "00000000_00000000_00000000_00000000"},
-		{"accepted1", "123", "123", "00000000_01000000_00000000_00000000"},
-		{"accepted2", "123", "", "00000000_01000000_00000000_00000000"},
+		{"accepted1", "123", "123", "00000000_00100000_00000000_00000000"},
+		{"accepted2", "123", "", "00000000_00100000_00000000_00000000"},
 	}
 	for _, v := range testData {
 		s := score{}
@@ -153,9 +172,9 @@ func TestParserQuality(t *testing.T) {
 		score   string
 	}{
 		{"no parse", 0, "00000000_00000000_00000000_00000000"},
-		{"clean", 1, "00000000_00110000_00000000_00000000"},
-		{"some problems", 2, "00000000_00100000_00000000_00000000"},
-		{"big problems", 3, "00000000_00010000_00000000_00000000"},
+		{"clean", 1, "00000000_00011000_00000000_00000000"},
+		{"some problems", 2, "00000000_00010000_00000000_00000000"},
+		{"big problems", 3, "00000000_00001000_00000000_00000000"},
 	}
 	for _, v := range testData {
 		s := score{}
@@ -199,55 +218,61 @@ func TestAuthNormalize(t *testing.T) {
 
 func TestScoreDetails(t *testing.T) {
 	tests := []struct {
-		msg                                    string
-		score                                  uint32
-		rank, fuzzy, curat, auth, accept, pars float32
+		msg                                          string
+		score                                        uint32
+		card, rank, fuzzy, curat, auth, accept, pars float32
 	}{
 		{
 			"empty",
 			uint32(0b00000000_00000000_00000000_00000000),
-			0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0,
 		},
 		{
 			"full",
-			uint32(0b10111111_11111111_11111111_11111111),
-			1, 1, 1, 1, 1, 1,
+			uint32(0b11011111_11111111_11111111_11111111),
+			1, 1, 1, 1, 1, 1, 1,
+		},
+		{
+			"card",
+			uint32(0b10000000_00000000_00000000_00000000),
+			1, 0, 0, 0, 0, 0, 0,
 		},
 		{
 			"rank",
-			uint32(0b01000000_00000000_00000000_00000000),
-			0.5, 0, 0, 0, 0, 0,
+			uint32(0b00100000_00000000_00000000_00000000),
+			0, 0.5, 0, 0, 0, 0, 0,
 		},
 		{
 			"fuzzy",
-			uint32(0b00010000_00000000_00000000_00000000),
-			0, 0.33, 0, 0, 0, 0,
+			uint32(0b00001000_00000000_00000000_00000000),
+			0, 0, 0.33, 0, 0, 0, 0,
 		},
 		{
 			"curated",
-			uint32(0b00000100_00000000_00000000_00000000),
-			0, 0, 0.33, 0, 0, 0,
+			uint32(0b00000010_00000000_00000000_00000000),
+			0, 0, 0, 0.33, 0, 0, 0,
 		},
 		{
 			"auth",
-			uint32(0b00000000_10000000_00000000_00000000),
-			0, 0, 0, 0.1428, 0, 0,
+			uint32(0b00000000_01000000_00000000_00000000),
+			0, 0, 0, 0, 0.1428, 0, 0,
 		},
 		{
 			"accept",
-			uint32(0b00000000_01000000_00000000_00000000),
-			0, 0, 0, 0, 1, 0,
+			uint32(0b00000000_00100000_00000000_00000000),
+			0, 0, 0, 0, 0, 1, 0,
 		},
 		{
 			"parsed",
-			uint32(0b00000000_00010000_00000000_00000000),
-			0, 0, 0, 0, 0, 0.33,
+			uint32(0b00000000_00001000_00000000_00000000),
+			0, 0, 0, 0, 0, 0, 0.33,
 		},
 	}
 
 	for _, v := range tests {
 		s := score{value: v.score}
 		res := s.details()
+		assert.Equal(t, v.card, res.CardinalityScore, v.msg)
 		assert.Equal(t, v.rank, res.InfraSpecificRankScore, v.msg)
 		assert.InDelta(t, res.FuzzyLessScore, v.fuzzy, 0.01, v.msg)
 		assert.InDelta(t, res.CuratedDataScore, v.curat, 0.01, v.msg)

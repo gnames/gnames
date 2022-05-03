@@ -11,7 +11,13 @@ import (
 // score contains 32bits. They are distributed between different criteria the
 // following way (from the left):
 //
-// xx000000_00000000_00000000_00000000: matching rank for ranked infraspecies
+// x0000000_00000000_00000000_00000000: matching cardinality
+// 00 - cardinality does not match
+//    `Aus bus cus` vs `Aus bus`
+// 01 - cardinality match
+//    `Aus bus cus` vs `Aus bus f. cus`
+//
+// 0xx00000_00000000_00000000_00000000: matching rank for ranked infraspecies
 // 00 - rank does not match
 //    `Aus bus var. cus` vs `Aus bus f. cus`
 // 01 - match is unknown
@@ -19,19 +25,19 @@ import (
 // 10 - rank matches
 //    `Aus bus var. cus` vs `Aus bus var. cus`
 //
-// 00xx0000_00000000_00000000_00000000: edit distance
+// 000xx000_00000000_00000000_00000000: edit distance
 // 00 - edit distance is 3 or more
 // 01 - edit distance 2
 // 10 - edit distance 1
 // 11 - edit distance 0
 //
-// 0000xx00_00000000_00000000_00000000: curation
+// 00000xx0_00000000_00000000_00000000: curation
 // 00 - uncurated sources only
 // 01 - auto-curated sources
 // 10 - human-curated sources
 // 11 - Catalogue of Life
 //
-// 000000xx_x0000000_00000000_00000000: matching authorship
+// 0000000x_xx000000_00000000_00000000: matching authorship
 // 000 - authorship does not match.
 //       `Linn.` vs `Banks`
 //
@@ -73,11 +79,11 @@ import (
 // 111 - aaa,yyy: Authors and years are identical.
 //       `Auth1, Auth2, 1888` vs `Auth1, Auth2, 1888`
 //
-// 00000000_0x000000_00000000_00000000: accepted name
+// 00000000_00x00000_00000000_00000000: accepted name
 // 0 - name is a synonym
 // 1 - name is currently accepted
 //
-// 00000000_00xx0000_00000000_00000000: parsing quality of a match
+// 00000000_000xx000_00000000_00000000: parsing quality of a match
 // 00 - parsing failed
 // 01 - significant parsing problems
 // 10 - some parsing problems
@@ -87,13 +93,29 @@ type score struct {
 }
 
 var (
-	rankShift           = 30
-	fuzzyShift          = 28
-	curationShift       = 26
-	authShift           = 23
-	acceptedShift       = 22
-	parsingQualityShift = 20
+	cardinalityShift    = 31
+	rankShift           = 29
+	fuzzyShift          = 27
+	curationShift       = 25
+	authShift           = 22
+	acceptedShift       = 21
+	parsingQualityShift = 19
 )
+
+// cardinality checks if canonical forms have the same cardinality.
+// If cardinality matches, result is 1, if not, result is 0. If
+// cardinality is unknown, result is 0.
+func (s score) cardinality(card1, card2 int) score {
+	if card1 == 0 || card2 == 0 || card1 != card2 {
+		return s
+	}
+	s.value = s.value | 0b01<<cardinalityShift
+	return s
+}
+
+func (s score) cardinalityVal() float32 {
+	return s.extractVal(cardinalityShift, 0b01, 1)
+}
 
 // rank checks if infraspecific canonical forms contain the same ranks. If they
 // do the score is 2, if comparison cannot be done the score is 1, and if the

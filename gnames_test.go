@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestVer(t *testing.T) {
+func TestVerifier(t *testing.T) {
 	var g gnames.GNames
 	cfg := config.New()
 	ctx := context.Background()

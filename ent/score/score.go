@@ -43,8 +43,9 @@ func (s score) sortScore() float64 {
 // assigns each of them a score accoring to the scoring algorithms.
 func (s score) SortResults(mr *verifier.MatchRecord) {
 	for _, rd := range mr.MatchResults {
-		s = s.rank(mr.CanonicalFull, rd.MatchedCanonicalFull,
-			mr.Cardinality, rd.MatchedCardinality).
+		s = s.cardinality(mr.Cardinality, rd.MatchedCardinality).
+			rank(mr.CanonicalFull, rd.MatchedCanonicalFull,
+				mr.Cardinality, rd.MatchedCardinality).
 			fuzzy(rd.EditDistance).
 			curation(rd.DataSourceID, rd.Curation).
 			auth(mr.Authors, rd.MatchedAuthors, mr.Year, rd.MatchedYear).
@@ -92,6 +93,7 @@ func (s score) Results(
 // ScoreDetails converts the scoreinteger to human-readable ScoreDetails.
 func (s score) details() vlib.ScoreDetails {
 	res := vlib.ScoreDetails{
+		CardinalityScore:       s.cardinalityVal(),
 		InfraSpecificRankScore: s.rankVal(),
 		FuzzyLessScore:         s.fuzzyVal(),
 		CuratedDataScore:       s.curationVal(),
