@@ -50,6 +50,7 @@ func (mr matcherREST) MatchNames(
 	req, err := mr.enc.Encode(mlib.Input{
 		Names:            names,
 		WithSpeciesGroup: cfg.WithSpeciesGroup,
+		DataSources:      cfg.DataSources,
 	})
 	if err != nil {
 		log.Warn().Err(err).Msg("Cannot encode name-strings")

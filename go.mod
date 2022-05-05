@@ -5,8 +5,8 @@ go 1.18
 require (
 	github.com/georgysavva/scany v0.3.0
 	github.com/gnames/gnfmt v0.2.0
-	github.com/gnames/gnlib v0.13.7
-	github.com/gnames/gnmatcher v0.9.7
+	github.com/gnames/gnlib v0.13.8
+	github.com/gnames/gnmatcher v0.9.9
 	github.com/gnames/gnparser v1.6.5
 	github.com/gnames/gnquery v0.3.3
 	github.com/gnames/gnstats v0.1.0
@@ -61,7 +61,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
-	golang.org/x/sys v0.0.0-20220502124256-b6088ccd6cba // indirect
+	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 	golang.org/x/tools v0.1.10 // indirect

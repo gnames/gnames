@@ -67,6 +67,9 @@ func (g gnames) Verify(
 	if input.WithSpeciesGroup {
 		opts = append(opts, gncfg.OptWithSpeciesGroup(true))
 	}
+	if len(input.DataSources) > 0 {
+		opts = append(opts, gncfg.OptDataSources(input.DataSources))
+	}
 
 	if input.WithCapitalization {
 		names := make([]string, len(input.NameStrings))

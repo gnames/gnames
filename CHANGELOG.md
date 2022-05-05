@@ -4,6 +4,11 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v0.13.4] - 2022-05-05 Thu
+
+- Add [#95]: provide gnmatcher with data-sources option.
+- Add: update gnmatcher to v0.9.9, gnlib to v0.13.8.
+
 ## [v0.13.3] - 2022-05-02 Mon
 
 - Add: update gnmatcher to v0.9.7
@@ -324,6 +329,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v0.13.4]: https://github.com/gnames/gnames/compare/v0.13.3...v0.13.4
 [v0.13.3]: https://github.com/gnames/gnames/compare/v0.13.2...v0.13.3
 [v0.13.2]: https://github.com/gnames/gnames/compare/v0.13.1...v0.13.2
 [v0.13.1]: https://github.com/gnames/gnames/compare/v0.13.0...v0.13.1
