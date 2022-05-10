@@ -44,8 +44,8 @@ func (mr matcherREST) GetVersion() gnvers.Version {
 func (mr matcherREST) MatchNames(
 	names []string,
 	opts ...gnmcfg.Option,
-) []mlib.Output {
-	var response []mlib.Output
+) mlib.Output {
+	var response mlib.Output
 	cfg := gnmcfg.New(opts...)
 	req, err := mr.enc.Encode(mlib.Input{
 		Names:            names,

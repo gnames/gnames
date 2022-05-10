@@ -5,8 +5,8 @@ go 1.18
 require (
 	github.com/georgysavva/scany v0.3.0
 	github.com/gnames/gnfmt v0.2.0
-	github.com/gnames/gnlib v0.13.8
-	github.com/gnames/gnmatcher v0.9.9
+	github.com/gnames/gnlib v0.14.0
+	github.com/gnames/gnmatcher v1.0.0-RC1
 	github.com/gnames/gnparser v1.6.5
 	github.com/gnames/gnquery v0.3.3
 	github.com/gnames/gnstats v0.1.0

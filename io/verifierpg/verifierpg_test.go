@@ -31,7 +31,7 @@ func TestVerifyPGExact(t *testing.T) {
 	cfg := config.New(config.OptMatcherURL(restURL))
 	vpg := verifierpg.New(cfg)
 	mtr := matcher.New(cfg.MatcherURL)
-	matches := mtr.MatchNames(names)
+	matches := mtr.MatchNames(names).Matches
 
 	input := vlib.Input{}
 	mrs, err := vpg.MatchRecords(context.Background(), matches, input)

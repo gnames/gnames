@@ -19,6 +19,6 @@ func TestVer(t *testing.T) {
 func TestMatch(t *testing.T) {
 	m := matcher.New(url)
 	res := m.MatchNames([]string{"Pardosa moeste"})
-	assert.Equal(t, "Pardosa moeste", res[0].Name)
-	assert.Equal(t, vlib.Fuzzy, res[0].MatchType)
+	assert.Equal(t, "Pardosa moeste", res.Matches[0].Name)
+	assert.Equal(t, vlib.Fuzzy, res.Matches[0].MatchType)
 }

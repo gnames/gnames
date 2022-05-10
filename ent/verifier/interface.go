@@ -22,7 +22,7 @@ type Verifier interface {
 	// that input.
 	MatchRecords(
 		ctx context.Context,
-		matches []mlib.Output,
+		matches []mlib.Match,
 		input vlib.Input,
 	) (map[string]*MatchRecord, error)
 }

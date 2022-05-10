@@ -152,7 +152,6 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		stats := c.QueryParam("stats") == "true"
 		mainTxnThresholdStr := c.QueryParam("main_taxon_threshold")
 		matches := c.QueryParam("all_matches") == "true"
-		fmt.Printf("SPGRP: %#v\n\n", spGrp)
 
 		mainTxnThreshold, _ := strconv.ParseFloat(mainTxnThresholdStr, 64)
 		var ds []int

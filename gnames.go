@@ -62,7 +62,7 @@ func (g gnames) Verify(
 	}
 	namesRes := make([]vlib.Name, len(input.NameStrings))
 
-	var matches []mlib.Output
+	var matchOut mlib.Output
 	var opts []gncfg.Option
 	if input.WithSpeciesGroup {
 		opts = append(opts, gncfg.OptWithSpeciesGroup(true))
@@ -76,18 +76,18 @@ func (g gnames) Verify(
 		for i := range input.NameStrings {
 			names[i] = str.CapitalizeName(input.NameStrings[i])
 		}
-		matches = g.matcher.MatchNames(names, opts...)
+		matchOut = g.matcher.MatchNames(names, opts...)
 	} else {
-		matches = g.matcher.MatchNames(input.NameStrings, opts...)
+		matchOut = g.matcher.MatchNames(input.NameStrings, opts...)
 	}
 
 	var errString string
-	matchRecords, err := g.vf.MatchRecords(ctx, matches, input)
+	matchRecords, err := g.vf.MatchRecords(ctx, matchOut.Matches, input)
 	if err != nil {
 		errString = err.Error()
 	}
 
-	for i, v := range matches {
+	for i, v := range matchOut.Matches {
 		if mr, ok := matchRecords[v.ID]; ok {
 			namesRes[i] = outputName(mr, input.WithAllMatches)
 			namesRes[i].Error = errString

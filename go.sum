@@ -108,10 +108,10 @@ github.com/gnames/gnfmt v0.1.0/go.mod h1:WG9c3CoiVrGc1SDsxLk7zjmv2B4UIzI00m4K5Kh
 github.com/gnames/gnfmt v0.2.0 h1:CjE1HxdqyTwufua5wMCdILWnCsCfRiHe5G4TgxR8aAI=
 github.com/gnames/gnfmt v0.2.0/go.mod h1:0Aog37s1ZNpmUwVQOf+lnx0SQq8r2EvfE/pLYGiJlJQ=
 github.com/gnames/gnlib v0.0.3/go.mod h1:k7Wsdx6zTzyhbxH2JcoCVFvgOQzA4iwehRxa8eEOfF8=
-github.com/gnames/gnlib v0.13.8 h1:8mQhlrB2k1bZten/RDUjVmqL5/C9aWwDNAgFM+rORY4=
-github.com/gnames/gnlib v0.13.8/go.mod h1:mzrTHNzYkTYLA2JmJ6UqJ/dk4eaQws+r3YQI4AAcOic=
-github.com/gnames/gnmatcher v0.9.9 h1:Wtm1np1zHvAq8EPc8tKaEcrlHcY64LIEGbE458g3fxc=
-github.com/gnames/gnmatcher v0.9.9/go.mod h1:eZTIHczgec5PUiGNfbtqjOggAw2skECmmDVWrbjW0PQ=
+github.com/gnames/gnlib v0.14.0 h1:urDtkupQMpsiZ/7/nkI+ZtxlVE3CTVQFI0fkGZLfIaU=
+github.com/gnames/gnlib v0.14.0/go.mod h1:mzrTHNzYkTYLA2JmJ6UqJ/dk4eaQws+r3YQI4AAcOic=
+github.com/gnames/gnmatcher v1.0.0-RC1 h1:bRurhsJrUn97uxv/SjBgkQmrK+/oPLN3H59CJCifZus=
+github.com/gnames/gnmatcher v1.0.0-RC1/go.mod h1:4rj05uEOfRPDBo0RhCfwmXCT+XmYdwSUQEqpeSdswOM=
 github.com/gnames/gnparser v1.6.5 h1:5Jva2zdCOEnoTksDpZksU79f9Eewar6CgSs7PNhW/r4=
 github.com/gnames/gnparser v1.6.5/go.mod h1:GpKrtGaK5NwjnKaRxVdjNHA9grT53wGoBXBwyiP0neM=
 github.com/gnames/gnquery v0.3.3 h1:Pcq3i67KoOAA0fkvUvRKq7ZMstJb8YZbZPU0LUz9/Jk=

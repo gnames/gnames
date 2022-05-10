@@ -25,9 +25,9 @@ const (
 )
 
 type matchSplit struct {
-	noMatch   []*mlib.Output
-	virus     []*mlib.Output
-	canonical []*mlib.Output
+	noMatch   []*mlib.Match
+	virus     []*mlib.Match
+	canonical []*mlib.Match
 }
 
 var namesQ = fmt.Sprintf(`
@@ -46,7 +46,7 @@ FROM verification v
 // the database that organizes data from database into matched records.
 func (dgp verifierpg) MatchRecords(
 	ctx context.Context,
-	matches []mlib.Output,
+	matches []mlib.Match,
 	input vlib.Input,
 ) (map[string]*verifier.MatchRecord, error) {
 	cfg := gnparser.NewConfig(gnparser.OptWithDetails(true))
@@ -147,7 +147,7 @@ func (dgp verifierpg) produceResultData(
 
 func (dgp *verifierpg) populateVirusMatchRecord(
 	mi mlib.MatchItem,
-	m mlib.Output,
+	m mlib.Match,
 	mr *verifier.MatchRecord,
 	verifMap map[string][]*dbshare.VerifSQL,
 	sources map[int]struct{},
@@ -204,7 +204,7 @@ func setDataSources(mr *verifier.MatchRecord, sources map[int]struct{}) {
 
 func (dgp *verifierpg) populateMatchRecord(
 	mItm mlib.MatchItem,
-	m mlib.Output,
+	m mlib.Match,
 	mRec *verifier.MatchRecord,
 	parser gnparser.GNparser,
 	verifMap map[string][]*dbshare.VerifSQL,
@@ -335,7 +335,7 @@ func getVerifMap(vs []*dbshare.VerifSQL) map[string][]*dbshare.VerifSQL {
 
 func (dgp *verifierpg) virusQuery(
 	ctx context.Context,
-	virMatches []*mlib.Output,
+	virMatches []*mlib.Match,
 	input vlib.Input,
 ) ([]*dbshare.VerifSQL, error) {
 	if len(virMatches) == 0 {
@@ -361,7 +361,7 @@ func (dgp *verifierpg) virusQuery(
 
 func (dgp verifierpg) nameQuery(
 	ctx context.Context,
-	canMatches []*mlib.Output,
+	canMatches []*mlib.Match,
 	input vlib.Input,
 ) ([]*dbshare.VerifSQL, error) {
 
@@ -385,7 +385,7 @@ func (dgp verifierpg) nameQuery(
 	return res, nil
 }
 
-func getUUIDs(matches []*mlib.Output) []string {
+func getUUIDs(matches []*mlib.Match) []string {
 	set := make(map[string]struct{})
 	for _, v := range matches {
 		for _, vv := range v.MatchItems {
@@ -406,11 +406,11 @@ func getUUIDs(matches []*mlib.Output) []string {
 
 // partitionMatches partitions matches into two categories:
 // no match, match by canonical.
-func partitionMatches(matches []mlib.Output) matchSplit {
+func partitionMatches(matches []mlib.Match) matchSplit {
 	ms := matchSplit{
-		noMatch:   make([]*mlib.Output, 0, len(matches)),
-		virus:     make([]*mlib.Output, 0, len(matches)),
-		canonical: make([]*mlib.Output, 0, len(matches)),
+		noMatch:   make([]*mlib.Match, 0, len(matches)),
+		virus:     make([]*mlib.Match, 0, len(matches)),
+		canonical: make([]*mlib.Match, 0, len(matches)),
 	}
 	for i := range matches {
 		switch matches[i].MatchType {
