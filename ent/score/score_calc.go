@@ -121,19 +121,42 @@ func (s score) cardinalityVal() float32 {
 // do the score is 2, if comparison cannot be done the score is 1, and if the
 // ranks are different, the score is 0. 2 bits, shift 30
 func (s score) rank(can1, can2 string, card1, card2 int) score {
-	if card1 < 3 || card2 < 3 {
+	if card1 < 3 || card1 != card2 {
 		return s
 	}
 
-	if card1 != card2 || !strings.Contains(can1, ".") || !strings.Contains(can2, ".") {
+	ranks1 := getRanks(can1)
+	ranks2 := getRanks(can2)
+
+	if ranks1 == "" || ranks2 == "" {
 		s.value = s.value | 0b01<<rankShift
 		return s
 	}
 
-	if can1 == can2 {
+	if ranks1 == ranks2 {
 		s.value = s.value | 0b10<<rankShift
 	}
+
 	return s
+}
+
+func getRanks(s string) string {
+	words := strings.Split(s, " ")
+
+	// should never happen
+	if len(words) < 3 {
+		return ""
+	}
+
+	words = words[2:]
+
+	var res string
+	for i := range words {
+		if strings.HasSuffix(words[i], ".") {
+			res += words[i]
+		}
+	}
+	return res
 }
 
 func (s score) rankVal() float32 {

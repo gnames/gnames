@@ -36,7 +36,11 @@ func Run(gn gnames.GNames, port int) {
 		defer loggerNSQ.Stop()
 	}
 
-	e.GET(apiPath+"ping", ping())
+	e.GET("/", info)
+	e.GET("/api", info)
+	e.GET("/api/v0", info)
+	e.GET(apiPath, info)
+	e.GET(apiPath+"ping", ping)
 	e.GET(apiPath+"version", ver(gn))
 	e.GET(apiPath+"data_sources", dataSources(gn))
 	e.GET(apiPath+"data_sources/:id", oneDataSource(gn))
@@ -54,10 +58,14 @@ func Run(gn gnames.GNames, port int) {
 	e.Logger.Fatal(e.StartServer(s))
 }
 
-func ping() func(echo.Context) error {
-	return func(c echo.Context) error {
-		return c.String(http.StatusOK, "pong")
-	}
+func info(c echo.Context) error {
+	return c.String(http.StatusOK,
+		`The API is described at
+https://apidoc.globalnames.org/gnames-beta`)
+}
+
+func ping(c echo.Context) error {
+	return c.String(http.StatusOK, "pong")
 }
 
 func ver(gn gnames.GNames) func(echo.Context) error {

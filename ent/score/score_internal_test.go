@@ -55,10 +55,19 @@ func TestRank(t *testing.T) {
 		{"partial", "Aus bus var. cus", "Aus bus", 3, 2, "00000000_00000000_00000000_00000000"},
 		{"binomial", "Aus bus", "Aus bus", 2, 2, "00000000_00000000_00000000_00000000"},
 		{"exact", "Aus bus var. cus", "Aus bus var. cus", 3, 3, "01000000_00000000_00000000_00000000"},
+		{"fuzzy", "Aus bus var. cuss", "Aus bus var. cus", 3, 3, "01000000_00000000_00000000_00000000"},
+		{"fuzzy nomatch", "Aus bus f. cuss", "Aus bus var. cus", 3, 3, "00000000_00000000_00000000_00000000"},
+		{"fuzzy unknown1", "Aus bus f. cuss", "Aus bus cus", 3, 3, "00100000_00000000_00000000_00000000"},
+		{"fuzzy unknown2", "Aus bus cuss", "Aus bus cus", 3, 3, "00100000_00000000_00000000_00000000"},
+		{"card neq", "Aus bus var. cus cus", "Aus bus var. cus", 4, 3, "00000000_00000000_00000000_00000000"},
 		{"no match", "Aus bus var. cus", "Aus bus f. cus", 3, 3, "00000000_00000000_00000000_00000000"},
-		{"unknown", "Aus bus cus", "Aus bus f. cus", 3, 3, "00100000_00000000_00000000_00000000"},
+		{"abbr gen nomatch1", "A. bus cus", "A. bus var. cus", 3, 3, "00100000_00000000_00000000_00000000"},
+		{"abbr gen nomatch2", "A. bus cus", "A. bus cus", 3, 3, "00100000_00000000_00000000_00000000"},
+		{"abbr gen match", "A. bus var. cus", "A. bus var. cus", 3, 3, "01000000_00000000_00000000_00000000"},
+		{"unknown", "Aus bus cus", "Aus bus cus", 3, 3, "00100000_00000000_00000000_00000000"},
 		{"n/a", "Aus bus cus", "Aus bus f. cus", 3, 3, "00100000_00000000_00000000_00000000"},
 		{"n/a", "Aus bus f. cus", "Aus bus cus", 3, 3, "00100000_00000000_00000000_00000000"},
+		{"should not happen", "Aus bus", "Aus bus var. cus", 3, 3, "00100000_00000000_00000000_00000000"},
 	}
 	for _, v := range testData {
 		s := score{}
