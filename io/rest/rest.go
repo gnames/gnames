@@ -61,7 +61,7 @@ func Run(gn gnames.GNames, port int) {
 func info(c echo.Context) error {
 	return c.String(http.StatusOK,
 		`The API is described at
-https://apidoc.globalnames.org/gnames-beta`)
+https://apidoc.globalnames.org/gnames`)
 }
 
 func ping(c echo.Context) error {
