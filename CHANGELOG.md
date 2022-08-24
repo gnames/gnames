@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.0.1]
+
+- Fix: doc link to api description
+
 ## [v1.0.0]
 
 - Add: update to v1.0.0
