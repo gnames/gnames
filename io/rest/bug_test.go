@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const urlTest = "http://:8888/api/v0/"
+const urlTest = "http://:8888/api/v1/"
 
 var bugs = []struct {
 	name           string

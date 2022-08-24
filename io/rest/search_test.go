@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const searchURL = "http://:8888/api/v0/search"
+const searchURL = "http://:8888/api/v1/search"
 
 func TestGetSearch(t *testing.T) {
 	query := url.PathEscape("n:Proh. wilsoni tx:Carnivora ds:172,11 all:t au:Gust.")

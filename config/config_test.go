@@ -21,7 +21,7 @@ func TestNew(t *testing.T) {
 		PgUser:      "postgres",
 		PgPass:      "postgres",
 		PgDB:        "gnames",
-		MatcherURL:  "https://matcher.globalnames.org/api/v0/",
+		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
 	}
 	assert.Equal(t, deflt, cnf)
 }
@@ -40,7 +40,7 @@ func TestNewOpts(t *testing.T) {
 		PgUser:      "gnm",
 		PgPass:      "secret",
 		PgDB:        "gnm",
-		MatcherURL:  "https://matcher.globalnames.org/api/v0/",
+		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
 	}
 	assert.Equal(t, updt, cnf)
 }

@@ -19,18 +19,18 @@ simpler output.
 
 <!-- vim-markdown-toc GFM -->
 
-- [Features](#features)
-- [Installation](#installation)
-  - [Installation prerequesites](#installation-prerequesites)
-  - [Installation process](#installation-process)
-- [Configuration](#configuration)
-- [Usage as API](#usage-as-api)
-- [Usage with GNverifier](#usage-with-gnverifier)
-- [Web-Logs](#web-logs)
-- [Known limitations of the verification](#known-limitations-of-the-verification)
-- [Development](#development)
-- [Authors](#authors)
-- [License](#license)
+* [Features](#features)
+* [Installation](#installation)
+  * [Installation prerequesites](#installation-prerequesites)
+  * [Installation process](#installation-process)
+* [Configuration](#configuration)
+* [Usage as API](#usage-as-api)
+* [Usage with GNverifier](#usage-with-gnverifier)
+* [Web-Logs](#web-logs)
+* [Known limitations of the verification](#known-limitations-of-the-verification)
+* [Development](#development)
+* [Authors](#authors)
+* [License](#license)
 
 <!-- vim-markdown-toc -->
 
@@ -64,7 +64,7 @@ simpler output.
 ## Installation
 
 Most of the users do not need to install [GNames] and can use remote [GNames
-API] service at `http://verifier.globalnames.org/api/v0` or use a command line
+API] service at `http://verifier.globalnames.org/api/v1` or use a command line
 client [GNverifier]. Nevertheless, it is possible to install a local copy of
 the service.
 
@@ -154,11 +154,7 @@ The meaning of configuration settings are provided in the [default gnames.yaml].
 ## Usage as API
 
 Please note, that currently developed API ([documentation][gnames api]) is
-publically served at `https://verifier.globalnames.org/api/v0`.
-
-Legacy [API v1] public service is located at
-`https://verifier.globalnames.org/api/v1`. Legacy API is not going to change,
-but it will be deprecated, when current API will reach v2.
+publically served at `https://verifier.globalnames.org/api/v1`.
 
 If you installed GNames locally and want to run its API, run:
 
@@ -232,15 +228,14 @@ The `GNames` code is released under [MIT license].
 
 [.env.example]: https://github.com/gnames/gnames/blob/master/.env.example
 [dmitry mozzherin]: https://github.com/dimus
-[gnames api]: https://apidoc.globalnames.org/gnames-beta
-[api v1]: https://apidoc.globalnames.org/gnames
+[gnames api]: https://apidoc.globalnames.org/gnames
 [gnames]: https://github.com/gnames/gnames
 [gnmatcher]: https://github.com/gnames/gnmatcher
 [gnverifier]: https://github.com/gnames/gnverifier
 [mit license]: https://github.com/gnames/gnames/blob/master/LICENSE
 [nsq]: https://nsq.io/
-[restful api documentation]: https://apidoc.globalnames.org/gnames-beta
-[restful api example]: https://verifier.globalnames.org/api/v0/verifications/Monochamus%20galloprovincialis?data_sources=1|12|170&all_matches=true
+[restful api documentation]: https://apidoc.globalnames.org/gnames
+[restful api example]: https://verifier.globalnames.org/api/v1/verifications/Monochamus%20galloprovincialis?data_sources=1|12|170&all_matches=true
 [default gnames.yaml]: https://github.com/gnames/gnames/blob/master/gnames/cmd/gnames.yaml
 [example of environment file]: https://github.com/gnames/gnames/blob/master/.env.example
 [gnames dbdump]: http://opendata.globalnames.org/dumps/gnames-latest.tar.gz

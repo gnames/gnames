@@ -22,7 +22,7 @@ import (
 	"github.com/sfgrp/lognsq/io/nsqio"
 )
 
-var apiPath = "/api/v0/"
+var apiPath = "/api/v1/"
 
 // Run starts HTTP/1 service on given port for scientific names verification.
 func Run(gn gnames.GNames, port int) {
