@@ -4,17 +4,22 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
-## [v1.0.1]
+## [v1.0.2] - 2022-09-30 Fri
 
-- Fix: doc link to api description
+- Add: update all modules and Go version.
 
-## [v1.0.0]
+## [v1.0.1] - 2022-08-24 Wed
+
+- Fix: doc link to api description.
+
+## [v1.0.0] - 2022-08-24 Wed
 
 - Add: update to v1.0.0
 
 ## [v1.0.0-RC2] - 2022-05-12 Thu
 
 - Fix [#96]: sorting for fuzzy matches with ranks.
+
 ## [v1.0.0-RC1] - 2022-05-10 Tue
 
 - Add: update gnmatcher to v1.0.0-RC1
