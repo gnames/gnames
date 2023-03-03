@@ -1,10 +1,10 @@
-FROM alpine:3.14
+FROM alpine:3.17
 
 LABEL maintainer="Dmitry Mozzherin"
 
 WORKDIR /bin
 
-COPY ./gnames/gnames /bin
+COPY ./gnames /bin
 
 ENTRYPOINT [ "gnames" ]
 

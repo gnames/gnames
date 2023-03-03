@@ -181,11 +181,11 @@ gnverifier -p 8777
 
 ## Web-Logs
 
-By default Logs are not shown. To enable the service logs change
+By default, Logs are not shown. To enable the service logs change
 `WithWebLogs` to `true` in the configuration file.
 
 To aggregate logs with an [NSQ] messaging service, provide an address for
-TCP service of `nsqd`, for example `localhost:4150` by changing
+TCP service of `nsqd`, for example `0.0.0.0:4150` by changing
 `WebLogsNsqdTCP` in configuration file, or `GN_WEB_LOGS_NSQD_TCP`.
 
 ## Known limitations of the verification
@@ -200,7 +200,7 @@ TCP service of `nsqd`, for example `localhost:4150` by changing
 
 - Fuzzy matching of a name where genus string is broken by a space.
 
-  For example we cannot match 'Abro stola triplasia' to 'Abrostola
+  For example, we cannot match 'Abro stola triplasia' to 'Abrostola
   triplasia'. There is only 1 edit distance between the strings, however we
   stem specific epithets, so in reality we fuzzy-match 'Abro stol triplas'
   to 'Abrostola triplas'. That means now we have edit distance 2 which is

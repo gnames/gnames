@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.0.3] - 2023-03-09 Thu
+
+- Add [#99]: refactor code to a better file structure.
+
 ## [v1.0.2] - 2022-09-30 Fri
 
 - Add: update all modules and Go version.
