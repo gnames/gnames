@@ -22,6 +22,7 @@ GOGET = $(GOCMD) get
 all: install
 
 test: deps install
+	@echo Run tests
 	$(GOCMD) test -shuffle=on -count=1 -race -coverprofile=coverage.txt ./...
 
 tools: deps
@@ -34,31 +35,39 @@ deps:
 	$(GOGENERATE)
 
 build:
+	@echo Building
 	$(GOGENERATE)
 	$(GOCLEAN); \
 	$(NO_C) $(GOBUILD);
 
 buildrel:
+	@echo Building release binary
+	$(GOGENERATE)
 	$(GOCLEAN); \
 	$(NO_C) $(GORELEASE);
 
 install:
+	@echo Build and install locally
 	$(GOGENERATE)
 	$(NO_C) $(GOINSTALL);
 
-dc: build
-	docker-compose build;
-
 release: dockerhub
+	@echo Make release
 	$(GOCLEAN); \
 	$(FLAGS_SHARED) GOOS=linux $(GORELEASE); \
 	tar zcvf /tmp/$(PROJ_NAME)-$(VER)-linux.tar.gz $(PROJ_NAME); \
 	$(GOCLEAN);
 
 docker: buildrel
+	@echo Build Docker images
 	docker buildx build -t gnames/$(PROJ_NAME):latest -t gnames/$(PROJ_NAME):$(VERSION) .; \
 
+dc: build
+	@echo Build Docker Compose
+	docker-compose build;
+
 dockerhub: docker
+	@echo Push Docker images to DockerHub
 	docker push gnames/$(PROJ_NAME); \
 	docker push gnames/$(PROJ_NAME):$(VERSION)
 
