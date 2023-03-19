@@ -33,7 +33,6 @@ import (
 	"github.com/gnames/gnsys"
 	"github.com/spf13/cobra"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -101,7 +100,7 @@ func init() {
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	configFile := "gnames"
-	home, err := homedir.Dir()
+	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot find home directory")
 	}

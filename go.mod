@@ -16,7 +16,6 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/lib/pq v1.10.7
-	github.com/mitchellh/go-homedir v1.1.0
 	github.com/rs/zerolog v1.29.0
 	github.com/sfgrp/lognsq v0.1.1
 	github.com/spf13/cobra v1.6.1
