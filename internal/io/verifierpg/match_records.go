@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"sort"
-	"strings"
 
 	"github.com/georgysavva/scany/sqlscan"
 	"github.com/gnames/gnames/internal/ent/verifier"
@@ -44,7 +43,7 @@ FROM verification v
 
 // MatchRecords takes matches from gnmatcher and returns back data from
 // the database that organizes data from database into matched records.
-func (dgp verifierpg) MatchRecords(
+func (vrf verifierpg) MatchRecords(
 	ctx context.Context,
 	matches []mlib.Match,
 	input vlib.Input,
@@ -57,26 +56,26 @@ func (dgp verifierpg) MatchRecords(
 	splitMatches := partitionMatches(matches)
 
 	// find matches for canonicals
-	verCan, err := dgp.nameQuery(ctx, splitMatches.canonical, input)
+	verCan, err := vrf.nameQuery(ctx, splitMatches.canonical, input)
 	if err != nil {
 		log.Warn().Err(err).Msg("Cannot get matches data")
 		return res, err
 	}
 
 	// find matches for viruses
-	verVir, err := dgp.virusQuery(ctx, splitMatches.virus, input)
+	verVir, err := vrf.virusQuery(ctx, splitMatches.virus, input)
 	if err != nil {
 		log.Warn().Err(err).Msg("Cannot get virus data")
 		return res, err
 	}
 
 	// convert matches to intermediate results
-	res = dgp.produceResultData(splitMatches, parser, verCan, verVir)
+	res = vrf.produceResultData(splitMatches, parser, verCan, verVir)
 
 	return res, nil
 }
 
-func (dgp verifierpg) produceResultData(
+func (vrf verifierpg) produceResultData(
 	ms matchSplit,
 	parser gnparser.GNparser,
 	verCan []*dbshare.VerifSQL,
@@ -107,7 +106,7 @@ func (dgp verifierpg) produceResultData(
 		}
 		sources := make(map[int]struct{})
 		for _, mi := range match.MatchItems {
-			dgp.populateVirusMatchRecord(mi, *match, &mr, verifMap, sources)
+			vrf.populateVirusMatchRecord(mi, *match, &mr, verifMap, sources)
 		}
 		setDataSources(&mr, sources)
 		allMatchRecs[match.ID] = &mr
@@ -136,7 +135,7 @@ func (dgp verifierpg) produceResultData(
 
 		sources := make(map[int]struct{})
 		for _, mi := range match.MatchItems {
-			dgp.populateMatchRecord(mi, *match, &mr, parser, verifMap, sources)
+			vrf.populateMatchRecord(mi, *match, &mr, parser, verifMap, sources)
 		}
 		setDataSources(&mr, sources)
 		allMatchRecs[match.ID] = &mr
@@ -145,7 +144,7 @@ func (dgp verifierpg) produceResultData(
 	return allMatchRecs
 }
 
-func (dgp *verifierpg) populateVirusMatchRecord(
+func (vrf *verifierpg) populateVirusMatchRecord(
 	mi mlib.MatchItem,
 	m mlib.Match,
 	mr *verifier.MatchRecord,
@@ -156,36 +155,11 @@ func (dgp *verifierpg) populateVirusMatchRecord(
 	if !ok {
 		log.Fatal().Err(fmt.Errorf("no match for %s", mi.ID))
 	}
-	for _, verifRec := range verifRecs {
-		sources[verifRec.DataSourceID] = struct{}{}
+	for _, vsql := range verifRecs {
+		sources[vsql.DataSourceID] = struct{}{}
 
-		ds := dgp.dataSourcesMap[verifRec.DataSourceID]
-		curation := ds.Curation
-
-		var outlink string
-		if ds.OutlinkURL != "" && verifRec.OutlinkID.String != "" {
-			outlink = strings.Replace(ds.OutlinkURL, "{}", verifRec.OutlinkID.String, 1)
-		}
-
-		titleShort := ds.TitleShort
-		if titleShort == "" {
-			titleShort = ds.Title
-		}
-
-		resData := vlib.ResultData{
-			RecordID:             verifRec.RecordID.String,
-			LocalID:              verifRec.LocalID.String,
-			Outlink:              outlink,
-			DataSourceID:         verifRec.DataSourceID,
-			DataSourceTitleShort: titleShort,
-			Curation:             curation,
-			EntryDate:            ds.UpdatedAt,
-			MatchedName:          verifRec.Name.String,
-			ClassificationPath:   verifRec.Classification.String,
-			ClassificationRanks:  verifRec.ClassificationRanks.String,
-			ClassificationIDs:    verifRec.ClassificationIds.String,
-			MatchType:            m.MatchType,
-		}
+		resData := vrf.addVirusMatch(vsql)
+		resData.MatchType = m.MatchType
 
 		mr.MatchResults = append(mr.MatchResults, &resData)
 	}
@@ -202,7 +176,7 @@ func setDataSources(mr *verifier.MatchRecord, sources map[int]struct{}) {
 	sort.Ints(mr.DataSourcesIDs)
 }
 
-func (dgp *verifierpg) populateMatchRecord(
+func (vrf *verifierpg) populateMatchRecord(
 	mItm mlib.MatchItem,
 	m mlib.Match,
 	mRec *verifier.MatchRecord,
@@ -218,100 +192,28 @@ func (dgp *verifierpg) populateMatchRecord(
 	recsNum := len(verifRecs)
 	var discardedExample string
 	var discardedNum int
-	for _, verifRec := range verifRecs {
+	for _, vsql := range verifRecs {
 		// if there is a lot of records, most likely many of them are surrogates
 		// that parser is not able to catch. Surrogates would parse with worst
 		// parsing quality (4)
 		mRec.Overload = recsNum > resultsThreshold
-		if recsNum > resultsThreshold && verifRec.ParseQuality == 4 {
+		if recsNum > resultsThreshold && vsql.ParseQuality == 4 {
 			if discardedExample == "" {
-				discardedExample = verifRec.Name.String
+				discardedExample = vsql.Name.String
 			}
 			discardedNum++
 			continue
 		}
-		sources[verifRec.DataSourceID] = struct{}{}
+		sources[vsql.DataSourceID] = struct{}{}
 
-		prsd := parser.ParseName(verifRec.Name.String)
-		authors, year := dbshare.ProcessAuthorship(prsd.Authorship)
+		prsd := parser.ParseName(vsql.Name.String)
+		resData := vrf.addMatch(vsql, parser, prsd)
 
-		currentRecordID := verifRec.RecordID.String
-		currentName := verifRec.Name.String
-		prsdCurrent := prsd
-		currentCan := ""
-		currentCanFull := ""
-		if verifRec.AcceptedRecordID.Valid {
-			currentRecordID = verifRec.AcceptedRecordID.String
-			currentName = verifRec.AcceptedName.String
-			prsdCurrent = parser.ParseName(currentName)
-			if prsdCurrent.Parsed {
-				currentCan = prsdCurrent.Canonical.Simple
-				currentCanFull = prsdCurrent.Canonical.Full
-			}
-		}
-
-		ds := dgp.dataSourcesMap[verifRec.DataSourceID]
-		curation := ds.Curation
-
-		var dsID, matchCard, currCard, edDist, edDistStem int
-		if m.MatchType != vlib.NoMatch {
-			matchedCardinality := int(prsd.Cardinality)
-			currentCardinality := int(prsdCurrent.Cardinality)
-
-			dsID = verifRec.DataSourceID
-			matchCard = matchedCardinality
-			currCard = currentCardinality
-			edDist = mItm.EditDistance
-			edDistStem = mItm.EditDistanceStem
-		}
-
-		var outlink string
-		if ds.OutlinkURL != "" && verifRec.OutlinkID.String != "" {
-			outlink = strings.Replace(ds.OutlinkURL, "{}", verifRec.OutlinkID.String, 1)
-		}
-
-		var matchedCanonical, matchedCanonicalFull string
-		if prsd.Parsed {
-			matchedCanonical = prsd.Canonical.Simple
-			matchedCanonicalFull = prsd.Canonical.Full
-		}
-
-		titleShort := ds.TitleShort
-		if titleShort == "" {
-			titleShort = ds.Title
-		}
-
-		resData := vlib.ResultData{
-			RecordID:               verifRec.RecordID.String,
-			LocalID:                verifRec.LocalID.String,
-			Outlink:                outlink,
-			DataSourceID:           dsID,
-			DataSourceTitleShort:   titleShort,
-			Curation:               curation,
-			EntryDate:              ds.UpdatedAt,
-			MatchedName:            verifRec.Name.String,
-			MatchedCardinality:     matchCard,
-			MatchedCanonicalSimple: matchedCanonical,
-			MatchedCanonicalFull:   matchedCanonicalFull,
-			MatchedAuthors:         authors,
-			MatchedYear:            year,
-			CurrentRecordID:        currentRecordID,
-			CurrentName:            currentName,
-			CurrentCardinality:     currCard,
-			CurrentCanonicalSimple: currentCan,
-			CurrentCanonicalFull:   currentCanFull,
-			IsSynonym:              verifRec.RecordID != verifRec.AcceptedRecordID,
-			ClassificationPath:     verifRec.Classification.String,
-			ClassificationRanks:    verifRec.ClassificationRanks.String,
-			ClassificationIDs:      verifRec.ClassificationIds.String,
-			EditDistance:           edDist,
-			StemEditDistance:       edDistStem,
-			MatchType:              mItm.MatchType,
-			ParsingQuality:         verifRec.ParseQuality,
-		}
+		resData.MatchType = mItm.MatchType
+		resData.EditDistance = mItm.EditDistance
+		resData.StemEditDistance = mItm.EditDistanceStem
 
 		mRec.MatchResults = append(mRec.MatchResults, &resData)
-
 	}
 	if discardedNum > 0 {
 		log.Warn().
@@ -333,7 +235,7 @@ func getVerifMap(vs []*dbshare.VerifSQL) map[string][]*dbshare.VerifSQL {
 	return vm
 }
 
-func (dgp *verifierpg) virusQuery(
+func (vrf *verifierpg) virusQuery(
 	ctx context.Context,
 	virMatches []*mlib.Match,
 	input vlib.Input,
@@ -351,7 +253,7 @@ func (dgp *verifierpg) virusQuery(
 		q += "\n    AND data_source_id = any($2::int[])"
 	}
 
-	err := sqlscan.Select(ctx, dgp.db, &res, q, args...)
+	err := sqlscan.Select(ctx, vrf.db, &res, q, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -359,7 +261,7 @@ func (dgp *verifierpg) virusQuery(
 	return res, nil
 }
 
-func (dgp verifierpg) nameQuery(
+func (vrf verifierpg) nameQuery(
 	ctx context.Context,
 	canMatches []*mlib.Match,
 	input vlib.Input,
@@ -378,7 +280,7 @@ func (dgp verifierpg) nameQuery(
 		q += "\n    AND data_source_id = any($2::int[])"
 	}
 
-	err := sqlscan.Select(ctx, dgp.db, &res, q, args...)
+	err := sqlscan.Select(ctx, vrf.db, &res, q, args...)
 	if err != nil {
 		return nil, err
 	}

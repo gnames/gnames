@@ -22,6 +22,9 @@ type GNames interface {
 	// Search performs a faceted search using search parameters.
 	Search(ctx context.Context, srch search.Input) search.Output
 
+	// NameByID finds a name-string according to its UUID or exact spelling.
+	NameByID(verifier.NameStringInput) (verifier.NameStringOutput, error)
+
 	// Datasources take IDs of data-sourses and return back list of corresponding
 	// metadata. If no IDs are given, it returns metadata for all data-sources.
 	DataSources(ids ...int) ([]*verifier.DataSource, error)

@@ -47,6 +47,13 @@ func (m mockVerifier) MatchRecords(
 	return res, nil
 }
 
+func (m mockVerifier) NameByID(
+	nsi vlib.NameStringInput,
+) (*verifier.MatchRecord, error) {
+	var res *verifier.MatchRecord
+	return res, nil
+}
+
 type mockFacet struct{}
 
 func (mf mockFacet) Search(

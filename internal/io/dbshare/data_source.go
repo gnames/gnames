@@ -7,7 +7,7 @@ import (
 
 	"github.com/georgysavva/scany/sqlscan"
 	vlib "github.com/gnames/gnlib/ent/verifier"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 )

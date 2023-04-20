@@ -2,6 +2,8 @@ module github.com/gnames/gnames
 
 go 1.20
 
+replace github.com/gnames/gnlib => ../gnlib
+
 require (
 	github.com/georgysavva/scany v1.2.1
 	github.com/gnames/gnfmt v0.4.1
@@ -12,7 +14,7 @@ require (
 	github.com/gnames/gnstats v0.2.1
 	github.com/gnames/gnsys v0.2.2
 	github.com/gnames/gnuuid v0.1.1
-	github.com/gofrs/uuid v4.4.0+incompatible
+	github.com/google/uuid v1.2.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/lib/pq v1.10.7
@@ -31,7 +33,6 @@ require (
 	github.com/gnames/tribool v0.1.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/snappy v0.0.3 // indirect
-	github.com/google/uuid v1.2.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

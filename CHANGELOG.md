@@ -4,6 +4,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add [#100]: add name_strings endpoint to API.
+
 ## [v1.0.3] - 2023-03-09 Thu
 
 - Add [#99]: refactor code to a better file structure.

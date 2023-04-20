@@ -25,4 +25,8 @@ type Verifier interface {
 		matches []mlib.Match,
 		input vlib.Input,
 	) (map[string]*MatchRecord, error)
+
+	// NameByID takes a name-string UUID with options and returns back
+	// matched results or an error in case of a failure.
+	NameByID(vlib.NameStringInput) (*MatchRecord, error)
 }

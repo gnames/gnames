@@ -103,6 +103,30 @@ func (g gnames) Verify(
 	return res, nil
 }
 
+func (g gnames) NameByID(
+	params vlib.NameStringInput,
+) (vlib.NameStringOutput, error) {
+	var res vlib.NameStringOutput
+	mr, err := g.vf.NameByID(params)
+	if err != nil {
+		return res, err
+	}
+	meta := vlib.NameStringMeta{
+		ID:             params.ID,
+		DataSources:    params.DataSources,
+		WithAllMatches: params.WithAllMatches,
+	}
+	res.NameStringMeta = meta
+
+	if mr == nil {
+		return res, nil
+	}
+
+	name := outputName(mr, params.WithAllMatches)
+	res.Name = &name
+	return res, nil
+}
+
 func overloadTxt(mr *verifier.MatchRecord) string {
 	if !mr.Overload {
 		return ""

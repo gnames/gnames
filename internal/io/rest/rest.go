@@ -14,6 +14,8 @@ import (
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnquery"
 	"github.com/gnames/gnquery/ent/search"
+	"github.com/gnames/gnuuid"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog/log"
@@ -46,6 +48,7 @@ func Run(gn gnames.GNames, port int) {
 	e.GET(apiPath+"version", ver(gn))
 	e.GET(apiPath+"data_sources", dataSources(gn))
 	e.GET(apiPath+"data_sources/:id", oneDataSource(gn))
+	e.GET(apiPath+"name_strings/:id", nameGET(gn))
 	e.POST(apiPath+"verifications", verificationPOST(gn))
 	e.GET(apiPath+"verifications/:names", verificationGET(gn))
 	e.POST(apiPath+"search", searchPOST(gn))
@@ -102,6 +105,40 @@ func oneDataSource(gn gnames.GNames) func(echo.Context) error {
 			return fmt.Errorf("cannot find DataSource for id '%s'", idStr)
 		}
 		return c.JSON(http.StatusOK, dataSources[0])
+	}
+}
+
+func nameGET(gn gnames.GNames) func(echo.Context) error {
+	return func(c echo.Context) error {
+		idStr := c.Param("id")
+		if idStr == "" {
+			err := errors.New("empty id input")
+			return err
+		}
+
+		if _, err := uuid.Parse(idStr); err != nil {
+			idStr = gnuuid.New(idStr).String()
+		}
+		var ds []int
+		dsStr, _ := url.QueryUnescape(c.QueryParam("data_sources"))
+		matches := c.QueryParam("all_matches") == "true"
+		for _, v := range strings.Split(dsStr, "|") {
+			if id, err := strconv.Atoi(v); err == nil {
+				ds = append(ds, id)
+			}
+		}
+		params := vlib.NameStringInput{
+			ID:             idStr,
+			DataSources:    ds,
+			WithAllMatches: matches,
+		}
+
+		name, err := gn.NameByID(params)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, name)
 	}
 }
 
