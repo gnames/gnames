@@ -11,6 +11,7 @@ import (
 	"time"
 
 	gnames "github.com/gnames/gnames/pkg"
+	"github.com/gnames/gnlib/ent/reconciler"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnquery"
 	"github.com/gnames/gnquery/ent/search"
@@ -53,6 +54,7 @@ func Run(gn gnames.GNames, port int) {
 	e.GET(apiPath+"verifications/:names", verificationGET(gn))
 	e.POST(apiPath+"search", searchPOST(gn))
 	e.GET(apiPath+"search/:query", searchGET(gn))
+	e.GET(apiPath+"reconcile", manifestGET())
 
 	addr := fmt.Sprintf(":%d", port)
 	s := &http.Server{
@@ -106,6 +108,27 @@ func oneDataSource(gn gnames.GNames) func(echo.Context) error {
 		}
 		return c.JSON(http.StatusOK, dataSources[0])
 	}
+}
+
+func manifestGET() func(echo.Context) error {
+	types := []reconciler.TypeDesc{
+		{
+			ID:   "globalnames.org/name_string",
+			Name: "NameString",
+		},
+	}
+	return func(c echo.Context) error {
+		res := reconciler.Manifest{
+			Versions:        []string{"0.2"},
+			Name:            "GlobalNames",
+			IdentifierSpace: "https://verifier.globalnames.org/api/v1/name_strings/",
+			// TODO: change to complete URL
+			SchemaSpace:  "http://apidoc.globalnames.org/gnames",
+			DefaultTypes: types,
+		}
+		return c.JSON(http.StatusOK, res)
+	}
+
 }
 
 func nameGET(gn gnames.GNames) func(echo.Context) error {

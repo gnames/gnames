@@ -4,6 +4,7 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add [#102]: add manifest for reconciliation service API.
 - Add [#100]: add name_strings endpoint to API.
 
 ## [v1.0.3] - 2023-03-09 Thu
@@ -355,6 +356,12 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.1.0]: https://github.com/gnames/gnames/compare/v1.1.0...v1.0.3
+[v1.0.3]: https://github.com/gnames/gnames/compare/v1.0.3...v1.0.2
+[v1.0.2]: https://github.com/gnames/gnames/compare/v1.0.2...v1.0.1
+[v1.0.1]: https://github.com/gnames/gnames/compare/v1.0.1...v1.0.0
+[v1.0.0]: https://github.com/gnames/gnames/compare/v1.0.0...v1.0.0-RC2
+[v1.0.0-rc2]: https://github.com/gnames/gnames/compare/v1.0.0-RC1...v1.0.0-RC2
 [v1.0.0-rc1]: https://github.com/gnames/gnames/compare/v0.13.4...v1.0.0-RC1
 [v0.13.4]: https://github.com/gnames/gnames/compare/v0.13.3...v0.13.4
 [v0.13.3]: https://github.com/gnames/gnames/compare/v0.13.2...v0.13.3
@@ -410,6 +417,16 @@ This document follows [changelog guidelines]
 
  <!-- Issues -->
 
+[#110]: https://github.com/gnames/gnames/issues/110
+[#109]: https://github.com/gnames/gnames/issues/109
+[#108]: https://github.com/gnames/gnames/issues/108
+[#107]: https://github.com/gnames/gnames/issues/107
+[#106]: https://github.com/gnames/gnames/issues/106
+[#105]: https://github.com/gnames/gnames/issues/105
+[#104]: https://github.com/gnames/gnames/issues/104
+[#103]: https://github.com/gnames/gnames/issues/103
+[#102]: https://github.com/gnames/gnames/issues/102
+[#101]: https://github.com/gnames/gnames/issues/101
 [#100]: https://github.com/gnames/gnames/issues/100
 [#99]: https://github.com/gnames/gnames/issues/99
 [#98]: https://github.com/gnames/gnames/issues/98
