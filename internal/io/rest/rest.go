@@ -111,7 +111,7 @@ func oneDataSource(gn gnames.GNames) func(echo.Context) error {
 }
 
 func manifestGET() func(echo.Context) error {
-	types := []reconciler.TypeDesc{
+	types := []reconciler.Type{
 		{
 			ID:   "globalnames.org/name_string",
 			Name: "NameString",
