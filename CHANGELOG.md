@@ -4,6 +4,7 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add [#103]: add lexicalgroups factory.
 - Add [#102]: add manifest for reconciliation service API.
 - Add [#100]: add name_strings endpoint to API.
 
