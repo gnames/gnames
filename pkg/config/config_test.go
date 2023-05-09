@@ -22,6 +22,7 @@ func TestNew(t *testing.T) {
 		PgPass:      "postgres",
 		PgDB:        "gnames",
 		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
+		WebPageURL:  "https://verifier.globalnames.org",
 	}
 	assert.Equal(t, deflt, cnf)
 }
@@ -41,6 +42,7 @@ func TestNewOpts(t *testing.T) {
 		PgPass:      "secret",
 		PgDB:        "gnm",
 		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
+		WebPageURL:  "https://example.org",
 	}
 	assert.Equal(t, updt, cnf)
 }
@@ -63,5 +65,6 @@ func opts() []config.Option {
 		config.OptPgPass("secret"),
 		config.OptPgPort(1234),
 		config.OptPgDB("gnm"),
+		config.OptWebPageURL("https://example.org"),
 	}
 }

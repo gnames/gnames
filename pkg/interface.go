@@ -5,6 +5,7 @@ import (
 
 	"github.com/gnames/gnames/pkg/config"
 	"github.com/gnames/gnlib/ent/gnvers"
+	"github.com/gnames/gnlib/ent/reconciler"
 	"github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnquery/ent/search"
 )
@@ -18,6 +19,10 @@ type GNames interface {
 	// Verify takes a slice of name-strings together with query parameters and
 	// returns back results of verification.
 	Verify(ctx context.Context, params verifier.Input) (verifier.Output, error)
+
+	// Reconcile takes the result of verification and converts it into
+	// lexical reconciliation groups.
+	Reconcile(verif verifier.Output, ids []string) reconciler.Output
 
 	// Search performs a faceted search using search parameters.
 	Search(ctx context.Context, srch search.Input) search.Output

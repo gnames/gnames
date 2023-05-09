@@ -26,10 +26,15 @@
 #
 # JobsNum: 4
 
-# MatcherURL is a url to a gnmatcher service.
+# MatcherURL is a URL to a GNmatcher service.
 # Example for localhost: http://0.0.0.0:8080/api/v1/
 #
 # MatcherURL: "https://matcher.globalnames.org/api/v1/"
+
+# WebPageURL provides a URL to the Web UI of GNverifier. It is used by
+# reconciliation service to show details about name-string variants.
+#
+# WebPageURL: "https://verifier.globalnames.org"
 
 # NsqdTCPAddress provides an address to the NSQ messenger TCP service. If
 # this value is set and valid, the logs will be published to the NSQ.

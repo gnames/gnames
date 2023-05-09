@@ -50,6 +50,7 @@ type config struct {
 	CacheDir           string
 	JobsNum            int
 	MatcherURL         string
+	WebPageURL         string
 	MaxEditDist        int
 	PgDB               string
 	PgHost             string
@@ -84,8 +85,7 @@ The app has provides REST API for GNverifier and stand-alone use.`,
 func Execute() {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal().Err(err).Msg("")
 	}
 }
 
@@ -115,6 +115,7 @@ func initConfig() {
 	_ = viper.BindEnv("CacheDir", "GN_CACHE_DIR")
 	_ = viper.BindEnv("JobsNum", "GN_JOBS_NUM")
 	_ = viper.BindEnv("MatcherURL", "GN_MATCHER_URL")
+	_ = viper.BindEnv("WebPageURL", "GN_WEB_PAGE_URL")
 	_ = viper.BindEnv("MaxEditDist", "GN_MAX_EDIT_DIST")
 	_ = viper.BindEnv("NsqdContainsFilter", "GN_NSQD_CONTAINS_FILTER")
 	_ = viper.BindEnv("NsqdRegexFilter", "GN_NSQD_REGEX_FILTER")
@@ -176,6 +177,9 @@ func getOpts() []gncnf.Option {
 	}
 	if cfg.MatcherURL != "" {
 		opts = append(opts, gncnf.OptMatcherURL(cfg.MatcherURL))
+	}
+	if cfg.WebPageURL != "" {
+		opts = append(opts, gncnf.OptWebPageURL(cfg.WebPageURL))
 	}
 	if cfg.NsqdTCPAddress != "" {
 		opts = append(opts, gncnf.OptNsqdTCPAddress(cfg.NsqdTCPAddress))

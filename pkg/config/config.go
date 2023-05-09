@@ -27,6 +27,11 @@ type Config struct {
 	// It is used to get source-agnostic name-matching.
 	MatcherURL string
 
+	// WebPageURL provides URL which is used to access GNverifier Web GUI.
+	// This URL is used by reconciliation service to create URLs for
+	// name-string link and widget.
+	WebPageURL string
+
 	// PgDB is the name of GNames database.
 	PgDB string
 
@@ -166,6 +171,13 @@ func OptMatcherURL(s string) Option {
 	}
 }
 
+// OptWebPageURL sets the name of gnames database
+func OptWebPageURL(s string) Option {
+	return func(cnf *Config) {
+		cnf.WebPageURL = s
+	}
+}
+
 // OptNsqdTCPAddress provides a URL to NSQ messanging service.
 func OptNsqdTCPAddress(s string) Option {
 	return func(cfg *Config) {
@@ -204,6 +216,7 @@ func New(opts ...Option) Config {
 		CacheDir:    workDir,
 		JobsNum:     8,
 		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
+		WebPageURL:  "https://verifier.globalnames.org",
 		MaxEditDist: 1,
 		PgDB:        "gnames",
 		PgHost:      "0.0.0.0",

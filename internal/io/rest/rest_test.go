@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const restURL = "http://:8888/api/v1/"
+const restURL = "http://0.0.0.0:8888/api/v1/"
 
 func TestPing(t *testing.T) {
 	resp, err := http.Get(restURL + "ping")

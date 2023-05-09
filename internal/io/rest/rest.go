@@ -11,6 +11,7 @@ import (
 	"time"
 
 	gnames "github.com/gnames/gnames/pkg"
+	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnlib/ent/reconciler"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnquery"
@@ -50,11 +51,16 @@ func Run(gn gnames.GNames, port int) {
 	e.GET(apiPath+"data_sources", dataSources(gn))
 	e.GET(apiPath+"data_sources/:id", oneDataSource(gn))
 	e.GET(apiPath+"name_strings/:id", nameGET(gn))
+	// same as verify, kept for backward compatibility
 	e.POST(apiPath+"verifications", verificationPOST(gn))
+	// same as verify, kept for backward compatibility
 	e.GET(apiPath+"verifications/:names", verificationGET(gn))
+	e.POST(apiPath+"verify", verificationPOST(gn))
+	e.GET(apiPath+"verify/:names", verificationGET(gn))
 	e.POST(apiPath+"search", searchPOST(gn))
 	e.GET(apiPath+"search/:query", searchGET(gn))
-	e.GET(apiPath+"reconcile", manifestGET())
+	e.GET(apiPath+"reconcile", reconcileGET(gn))
+	e.POST(apiPath+"reconcile", reconcilePOST(gn))
 
 	addr := fmt.Sprintf(":%d", port)
 	s := &http.Server{
@@ -110,25 +116,119 @@ func oneDataSource(gn gnames.GNames) func(echo.Context) error {
 	}
 }
 
-func manifestGET() func(echo.Context) error {
+func reconcileGET(gn gnames.GNames) func(echo.Context) error {
+	return func(c echo.Context) error {
+		enc := gnfmt.GNjson{}
+		if c.QueryParam("queries") == "" {
+			return manifest(c, gn)
+		}
+		var params map[string]reconciler.Query
+		q, err := url.QueryUnescape(c.QueryParam("queries"))
+		if err != nil {
+			return err
+		}
+		err = enc.Decode([]byte(q), &params)
+		if err != nil {
+			return err
+		}
+		res, err := reconcile(gn, params)
+
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func reconcilePOST(gn gnames.GNames) func(echo.Context) error {
+	return func(c echo.Context) error {
+		ctx, cancel := getContext(c)
+		defer cancel()
+		chErr := make(chan error)
+
+		go func() {
+			defer close(chErr)
+
+			var err error
+			var params map[string]reconciler.Query
+			var res reconciler.Output
+			q := []byte(c.FormValue("queries"))
+			ent := gnfmt.GNjson{}
+
+			err = ent.Decode(q, &params)
+			if err == nil {
+				res, err = reconcile(gn, params)
+			}
+
+			if err == nil {
+				err = c.JSON(http.StatusOK, res)
+			}
+
+			chErr <- err
+		}()
+
+		select {
+		case <-ctx.Done():
+			<-chErr
+			return ctx.Err()
+		case err := <-chErr:
+			return err
+		case <-time.After(6 * time.Minute):
+			return errors.New("request took too long")
+		}
+	}
+}
+
+func reconcile(
+	gn gnames.GNames,
+	params map[string]reconciler.Query,
+) (reconciler.Output, error) {
+	var err error
+	var res reconciler.Output
+	var verified vlib.Output
+	var names, ids []string
+	for k, v := range params {
+		ids = append(ids, k)
+		names = append(names, v.Query)
+	}
+	inp := vlib.Input{
+		NameStrings:    names,
+		WithAllMatches: true,
+	}
+	verified, err = gn.Verify(context.Background(), inp)
+	if err != nil {
+		return res, err
+	}
+	res = gn.Reconcile(verified, ids)
+	return res, nil
+}
+
+func manifest(c echo.Context, gn gnames.GNames) error {
+	gnvURL := gn.GetConfig().WebPageURL
 	types := []reconciler.Type{
 		{
-			ID:   "globalnames.org/name_string",
+			ID:   "/name_strings",
 			Name: "NameString",
 		},
 	}
-	return func(c echo.Context) error {
-		res := reconciler.Manifest{
-			Versions:        []string{"0.2"},
-			Name:            "GlobalNames",
-			IdentifierSpace: "https://verifier.globalnames.org/api/v1/name_strings/",
-			// TODO: change to complete URL
-			SchemaSpace:  "http://apidoc.globalnames.org/gnames",
-			DefaultTypes: types,
-		}
-		return c.JSON(http.StatusOK, res)
+	preview := reconciler.Preview{
+		Width:  350,
+		Height: 250,
+		URL:    gnvURL + "/name_strings/widget/{{id}}",
 	}
 
+	view := reconciler.View{
+		URL: gnvURL + "/name_strings/{{id}}?all_matches=true",
+	}
+
+	res := reconciler.Manifest{
+		Versions:        []string{"0.2"},
+		Name:            "GlobalNames",
+		IdentifierSpace: "https://verifier.globalnames.org/api/v1/name_strings/",
+		// TODO: change to complete URL when documentation is added.
+		SchemaSpace:  "http://apidoc.globalnames.org/gnames",
+		DefaultTypes: types,
+		Preview:      preview,
+		View:         view,
+	}
+	return c.JSON(http.StatusOK, res)
 }
 
 func nameGET(gn gnames.GNames) func(echo.Context) error {
@@ -189,7 +289,7 @@ func verificationPOST(gn gnames.GNames) func(echo.Context) error {
 					Int("namesNum", l).
 					Str("example", params.NameStrings[0]).
 					Str("parsedBy", "REST API").
-					Str("method", "GET").
+					Str("method", "POST").
 					Msg("Verification")
 			}
 

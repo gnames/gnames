@@ -74,15 +74,6 @@ func TestLexGroupCarex(t *testing.T) {
 	err = enc.Decode(txt, &n)
 	assert.Nil(err)
 	grps := lexgroup.NameToLexicalGroups(n)
-
-	// for i := range grps {
-	// 	pretty.Printf("GRP: %#v\n\n", grps[i])
-	// 	for _, v := range grps[i].Data {
-	// 		fmt.Println(v.MatchedName)
-	// 	}
-	// 	fmt.Printf("\n\n")
-	// }
-
 	assert.Equal(3, len(grps))
 }
 
@@ -94,14 +85,5 @@ func TestLexGroupStrongylapsis(t *testing.T) {
 	err = enc.Decode(txt, &n)
 	assert.Nil(err)
 	grps := lexgroup.NameToLexicalGroups(n)
-
-	// for i := range grps {
-	// 	pretty.Printf("GRP: %#v\n\n", grps[i])
-	// 	for _, v := range grps[i].Data {
-	// 		fmt.Println(v.MatchedName)
-	// 	}
-	// 	fmt.Printf("\n\n")
-	// }
-
 	assert.Equal(41, len(grps))
 }

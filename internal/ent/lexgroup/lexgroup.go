@@ -14,7 +14,9 @@ import (
 // LexicalGroup combines together name-strings which seem to belong to the
 // same scientific name.
 type LexicalGroup struct {
+	ID              string
 	Name            string
+	Score           float64
 	LexicalVariants []string
 	Data            []*verifier.ResultData
 }
@@ -22,7 +24,9 @@ type LexicalGroup struct {
 // New creates new LexicalGroup instance out of a *verifier.ResultData.
 func New(rd *verifier.ResultData) LexicalGroup {
 	res := LexicalGroup{
+		ID:              rd.MatchedNameID,
 		Name:            rd.MatchedName,
+		Score:           rd.SortScore,
 		LexicalVariants: []string{rd.MatchedName},
 		Data:            []*verifier.ResultData{rd},
 	}
@@ -57,6 +61,7 @@ type group struct {
 // only one lexical groups with one mamber is returned.
 func NameToLexicalGroups(n verifier.Name) []LexicalGroup {
 	var res []LexicalGroup
+
 	// return nil if no matches are found
 	if n.MatchType == verifier.NoMatch {
 		return res
@@ -78,7 +83,6 @@ func NameToLexicalGroups(n verifier.Name) []LexicalGroup {
 	if n.MatchType == verifier.Virus {
 		return lexGroupVirus(n)
 	}
-
 	// in all other cases try to find all lexical variants
 	return lexGroups(n)
 }
@@ -86,10 +90,7 @@ func NameToLexicalGroups(n verifier.Name) []LexicalGroup {
 // lexGroupVirus deals with a special case where the matches are virus
 // name-strings.
 func lexGroupVirus(n verifier.Name) []LexicalGroup {
-	lg := LexicalGroup{
-		Name: n.Results[0].MatchedName,
-		Data: n.Results,
-	}
+	lg := New(n.Results[0])
 	var names []string
 	namesMap := make(map[string]struct{})
 	rs := n.Results
@@ -119,6 +120,7 @@ func lexGroups(n verifier.Name) []LexicalGroup {
 			rd:  n.Results[i],
 		}
 	}
+
 	var res []group
 	// first see if simple canonical differ. It is quite possible to
 	// happen, because matching happens between stemmed versions of names.
@@ -261,6 +263,9 @@ func matchByOrig(g group) []group {
 			v = append(v, noAu[i])
 		}
 		res = append(res, group{data: v})
+	}
+	if len(res) == 0 && len(noAu) > 0 {
+		res = []group{{data: noAu}}
 	}
 	return res
 }

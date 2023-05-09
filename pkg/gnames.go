@@ -6,12 +6,14 @@ import (
 	"unicode"
 
 	"github.com/gnames/gnames/internal/ent/facet"
+	"github.com/gnames/gnames/internal/ent/lexgroup"
 	"github.com/gnames/gnames/internal/ent/score"
 	"github.com/gnames/gnames/internal/ent/verifier"
 	"github.com/gnames/gnames/internal/io/matcher"
 	"github.com/gnames/gnames/pkg/config"
 	"github.com/gnames/gnlib/ent/gnvers"
 	mlib "github.com/gnames/gnlib/ent/matcher"
+	"github.com/gnames/gnlib/ent/reconciler"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	gnmatcher "github.com/gnames/gnmatcher/pkg"
 	gncfg "github.com/gnames/gnmatcher/pkg/config"
@@ -101,6 +103,28 @@ func (g gnames) Verify(
 	}
 	res := vlib.Output{Meta: meta(input, namesRes), Names: namesRes}
 	return res, nil
+}
+
+func (g gnames) Reconcile(verif vlib.Output, ids []string) reconciler.Output {
+	res := reconciler.Output(make(map[string]reconciler.ReconciliationResult))
+
+	for i, v := range verif.Names {
+		lgs := lexgroup.NameToLexicalGroups(v)
+		var rcs []reconciler.ReconciliationCandidate
+
+		for _, vv := range lgs {
+			rc := reconciler.ReconciliationCandidate{
+				ID:    vv.ID,
+				Score: vv.Score,
+				Name:  vv.Name,
+			}
+			rcs = append(rcs, rc)
+		}
+		res[ids[i]] = reconciler.ReconciliationResult{
+			Result: rcs,
+		}
+	}
+	return res
 }
 
 func (g gnames) NameByID(
