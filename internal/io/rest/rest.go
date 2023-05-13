@@ -196,7 +196,7 @@ func reconcile(
 	if err != nil {
 		return res, err
 	}
-	res = gn.Reconcile(verified, ids)
+	res = gn.Reconcile(verified, params, ids)
 	return res, nil
 }
 
@@ -204,13 +204,13 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 	gnvURL := gn.GetConfig().WebPageURL
 	types := []reconciler.Type{
 		{
-			ID:   "/name_strings",
-			Name: "NameString",
+			ID:   "6cc124e1-dc3d-5a00-8619-b14e149c2a9b",
+			Name: "ScientificName",
 		},
 	}
 	preview := reconciler.Preview{
 		Width:  350,
-		Height: 250,
+		Height: 233,
 		URL:    gnvURL + "/name_strings/widget/{{id}}",
 	}
 

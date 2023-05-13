@@ -3,6 +3,8 @@ package gnames
 import (
 	"context"
 	"sort"
+	"strconv"
+	"strings"
 	"unicode"
 
 	"github.com/gnames/gnames/internal/ent/facet"
@@ -105,11 +107,17 @@ func (g gnames) Verify(
 	return res, nil
 }
 
-func (g gnames) Reconcile(verif vlib.Output, ids []string) reconciler.Output {
+func (g gnames) Reconcile(
+	verif vlib.Output,
+	qs map[string]reconciler.Query,
+	ids []string,
+) reconciler.Output {
 	res := reconciler.Output(make(map[string]reconciler.ReconciliationResult))
 
 	for i, v := range verif.Names {
+		prs := qs[ids[i]].Properties
 		lgs := lexgroup.NameToLexicalGroups(v)
+		lgs = filterLexGrpByProperties(lgs, prs)
 		var rcs []reconciler.ReconciliationCandidate
 
 		for _, vv := range lgs {
@@ -293,4 +301,100 @@ func sortNames(mrs map[string]*verifier.MatchRecord) []string {
 
 func (g gnames) GetConfig() config.Config {
 	return g.cfg
+}
+
+func filterLexGrpByProperties(
+	lgs []lexgroup.LexicalGroup,
+	prs []reconciler.Property,
+) []lexgroup.LexicalGroup {
+	var res []lexgroup.LexicalGroup
+	if len(prs) == 0 {
+		return lgs
+	}
+	for i := range lgs {
+		grp := filterGroup(lgs[i], prs)
+		if len(grp.Data) > 0 {
+			res = append(res, grp)
+		}
+	}
+	return res
+}
+
+func filterGroup(
+	lg lexgroup.LexicalGroup,
+	prs []reconciler.Property,
+) lexgroup.LexicalGroup {
+	var res lexgroup.LexicalGroup
+	fs := make(map[string]string)
+	for i := range prs {
+		fs[prs[i].PID] = prs[i].Value
+	}
+	if taxon, ok := fs["higherTaxon"]; ok {
+		res = filterByTaxon(lg, taxon)
+	} else {
+		res = lg
+	}
+	if idStr, ok := fs["dataSourceIds"]; ok {
+		ids := getDataSourceIDs(idStr)
+		if len(ids) > 0 {
+			res = filterByDataSource(lg, ids)
+		}
+	}
+	return res
+}
+
+func getDataSourceIDs(s string) map[int]struct{} {
+	res := make(map[int]struct{})
+	elements := strings.Split(s, ",")
+	for _, v := range elements {
+		v = strings.TrimSpace(v)
+		id, err := strconv.Atoi(v)
+		if err == nil {
+			res[id] = struct{}{}
+		}
+	}
+	return res
+}
+
+func filterByTaxon(
+	lg lexgroup.LexicalGroup,
+	taxon string,
+) lexgroup.LexicalGroup {
+	var res lexgroup.LexicalGroup
+	var ds []*vlib.ResultData
+	d := lg.Data
+	for i := range d {
+		if d[i].ClassificationPath == "" {
+			continue
+		}
+		if strings.Index(d[i].ClassificationPath, taxon) > -1 {
+			ds = append(ds, d[i])
+		}
+	}
+	if len(ds) > 0 {
+		res = lexgroup.New(ds[0])
+		res.Data = ds
+	}
+	return res
+}
+
+func filterByDataSource(
+	lg lexgroup.LexicalGroup,
+	ids map[int]struct{},
+) lexgroup.LexicalGroup {
+	var res lexgroup.LexicalGroup
+	var ds []*vlib.ResultData
+
+	d := lg.Data
+	for i := range d {
+		if _, ok := ids[d[i].DataSourceID]; ok {
+			ds = append(ds, d[i])
+		}
+	}
+
+	if len(ds) > 0 {
+		res = lexgroup.New(ds[0])
+		res.Data = ds
+	}
+	return res
 }

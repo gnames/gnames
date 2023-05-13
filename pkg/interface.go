@@ -22,7 +22,11 @@ type GNames interface {
 
 	// Reconcile takes the result of verification and converts it into
 	// lexical reconciliation groups.
-	Reconcile(verif verifier.Output, ids []string) reconciler.Output
+	Reconcile(
+		verif verifier.Output,
+		qs map[string]reconciler.Query,
+		ids []string,
+	) reconciler.Output
 
 	// Search performs a faceted search using search parameters.
 	Search(ctx context.Context, srch search.Input) search.Output

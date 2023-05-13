@@ -4,6 +4,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add [#104]: filter reconciliation results using properties.
+
 ## [v1.1.0] - 2023-05-12 Fri
 
 - Add [#101]: implement W3C reconciliation API.
