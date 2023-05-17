@@ -50,6 +50,8 @@ func Run(gn gnames.GNames, port int) {
 	e.GET(apiPath+"version", ver(gn))
 	e.GET(apiPath+"data_sources", dataSources(gn))
 	e.GET(apiPath+"data_sources/:id", oneDataSource(gn))
+	e.GET(apiPath+"name_strings", nameInfoGET(gn))
+	e.GET(apiPath+"name_strings/", nameInfoGET(gn))
 	e.GET(apiPath+"name_strings/:id", nameGET(gn))
 	// same as verify, kept for backward compatibility
 	e.POST(apiPath+"verifications", verificationPOST(gn))
@@ -204,8 +206,8 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 	gnvURL := gn.GetConfig().WebPageURL
 	types := []reconciler.Type{
 		{
-			ID:   "6cc124e1-dc3d-5a00-8619-b14e149c2a9b",
-			Name: "ScientificName",
+			ID:   "name_string",
+			Name: "ScientificNameString",
 		},
 	}
 	preview := reconciler.Preview{
@@ -222,13 +224,63 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 		Versions:        []string{"0.2"},
 		Name:            "GlobalNames",
 		IdentifierSpace: "https://verifier.globalnames.org/api/v1/name_strings/",
-		// TODO: change to complete URL when documentation is added.
-		SchemaSpace:  "http://apidoc.globalnames.org/gnames",
-		DefaultTypes: types,
-		Preview:      preview,
-		View:         view,
+		SchemaSpace:     "http://apidoc.globalnames.org/gnames#",
+		DefaultTypes:    types,
+		Preview:         preview,
+		View:            view,
 	}
 	return c.JSON(http.StatusOK, res)
+}
+
+func nameInfoGET(gn gnames.GNames) func(echo.Context) error {
+	return func(c echo.Context) error {
+		txt := `
+The "Scientific Name-String" represents a scientific biological name. The
+generation of scientific names is governed by codes of nomenclature, including:
+
+The International Code of Zoological Nomenclature
+The International Code of Nomenclature for algae, fungi, and plants
+The International Code of Nomenclature for Cultivated Plants
+The International Code of Nomenclature of Prokaryotes
+The International Code of Virus Classification and Nomenclature
+
+However, these codes do not provide universal, strict rules on how names must
+be spelled out. As a result, a scientific name can be represented by various
+name-strings.
+
+Examples of different representations for "Carex scirpoidea var.
+convoluta" are:
+
+Carex scirpoidea var. convoluta
+Carex scirpoidea var. convoluta Kük.
+Carex scirpoidea Michx. var. convoluta Kükenth.
+Carex scirpoidea var. convoluta Kükenthal
+
+It's important to note that the code for viruses does not follow binomial
+nomenclature.
+
+This endpoint resolves a specific spelling of a scientific name to data-source
+records where that name-string was used. Appending the URL with the name-string
+GlobalNames identifier, or the string itself will provide more details of the
+"best match".
+		
+It is also possible to expand search to all relevant results, and
+filter out results to particular data-sources by providing their IDs.
+
+Example:
+
+https://verifier.globalnames.org/api/v1/name_strings/0eeccd70-eaf2-5c51-ad8b-46cfb3db1645?all_matches=true&data_sources=1,11
+
+The list of DataSource IDs can be found at
+
+https://verifier.globalnames.org/api/v1/data_sources
+
+or
+
+https://verifier.globalnames.org/data_sources
+`
+		return c.String(http.StatusOK, txt)
+	}
 }
 
 func nameGET(gn gnames.GNames) func(echo.Context) error {
@@ -245,7 +297,7 @@ func nameGET(gn gnames.GNames) func(echo.Context) error {
 		var ds []int
 		dsStr, _ := url.QueryUnescape(c.QueryParam("data_sources"))
 		matches := c.QueryParam("all_matches") == "true"
-		for _, v := range strings.Split(dsStr, "|") {
+		for _, v := range strings.Split(dsStr, ",") {
 			if id, err := strconv.Atoi(v); err == nil {
 				ds = append(ds, id)
 			}

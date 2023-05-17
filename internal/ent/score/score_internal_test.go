@@ -195,11 +195,14 @@ func TestCompareAuth(t *testing.T) {
 	testData := []struct {
 		desc, au1, au2, res string
 	}{
-		{"no match2", "L", "Banks", "false|false"},
+		{"no match1", "L", "Banks", "false|false"},
 		{"no match2", "Banks", "L", "false|true"},
-		{"no match2", "Banks", "B", "true|false"},
-		{"no match2", "Banks", "Banz", "false|true"},
-		{"no match2", "Banks", "Banks", "true|false"},
+		{"match1", "Banks", "B", "true|false"},
+		{"no match3", "Banks", "Banz", "false|true"},
+		{"no match4", "Banks", "Banks", "true|false"},
+		{"match2", "Bruguier", "Bruguière", "true|true"},
+		{"match3", "Recluz", "Récluz", "true|true"},
+		{"match4", "", "", "true|false"},
 	}
 	for _, v := range testData {
 		match, giveup := compareAuth(v.au1, v.au2)
@@ -215,10 +218,10 @@ func TestAuthNormalize(t *testing.T) {
 		{"empty", "", ""},
 		{"abbr1", "L.", "L"},
 		{"abbr2", "Linn.", "Linn"},
-		{"initial1", "A. Linn.", "Linn"},
-		{"initial2", "A. B. Lin", "Lin"},
-		{"initial3", "A. B.", ""},
-		{"two words", "A. B. Koza Koza", "Koza Koza"},
+		{"initial1", "Linn.", "Linn"},
+		{"initial2", "Lin", "Lin"},
+		{"initial3", "B.", "B"},
+		{"two words", "Koza Koza", "Koza Koza"},
 	}
 	for _, v := range testData {
 		assert.Equal(t, v.res, authNormalize(v.auth), v.desc)

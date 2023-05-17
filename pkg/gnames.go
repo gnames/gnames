@@ -2,6 +2,7 @@ package gnames
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -120,11 +121,41 @@ func (g gnames) Reconcile(
 		lgs = filterLexGrpByProperties(lgs, prs)
 		var rcs []reconciler.ReconciliationCandidate
 
-		for _, vv := range lgs {
+		for i, lg := range lgs {
+			var canonical, first, auth, cur float64
+
+			if i == 0 {
+				first = 1
+			}
+			if lg.Data[0].MatchType == vlib.Exact {
+				canonical = 1
+			}
+			if lg.Data[0].ScoreDetails.AuthorMatchScore > 0 {
+				auth = 1
+			}
+			if lg.Data[0].ScoreDetails.CuratedDataScore > 0 {
+				cur = 1
+			}
+
+			features := []reconciler.Feature{
+				{ID: "first_result", Value: first},
+				{ID: "same_canonical", Value: canonical},
+				{ID: "authors_compatible", Value: auth},
+				{ID: "some_data_check", Value: cur},
+			}
+			txCategory := make(map[string]struct{})
 			rc := reconciler.ReconciliationCandidate{
-				ID:    vv.ID,
-				Score: vv.Score,
-				Name:  vv.Name,
+				ID:       lg.ID,
+				Score:    lg.Score,
+				Features: features,
+				Name:     lg.Name,
+			}
+			if lg.TaxonCategory != "" {
+				txCategory[lg.TaxonCategory] = struct{}{}
+			}
+			if first+canonical+auth+cur >= 4 &&
+				len(txCategory) < 2 {
+				rc.Match = true
 			}
 			rcs = append(rcs, rc)
 		}
@@ -327,14 +358,15 @@ func filterGroup(
 	var res lexgroup.LexicalGroup
 	fs := make(map[string]string)
 	for i := range prs {
-		fs[prs[i].PID] = prs[i].Value
+		pid := strings.ToLower(prs[i].PID)
+		fs[pid] = prs[i].Value
 	}
-	if taxon, ok := fs["higherTaxon"]; ok {
+	if taxon, ok := fs["highertaxon"]; ok {
 		res = filterByTaxon(lg, taxon)
 	} else {
 		res = lg
 	}
-	if idStr, ok := fs["dataSourceIds"]; ok {
+	if idStr, ok := fs["datasourceids"]; ok {
 		ids := getDataSourceIDs(idStr)
 		if len(ids) > 0 {
 			res = filterByDataSource(lg, ids)
@@ -388,6 +420,7 @@ func filterByDataSource(
 	d := lg.Data
 	for i := range d {
 		if _, ok := ids[d[i].DataSourceID]; ok {
+			fmt.Printf("NAME: %s, DSID: %d", d[i].MatchedName, d[i].DataSourceID)
 			ds = append(ds, d[i])
 		}
 	}

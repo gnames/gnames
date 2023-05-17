@@ -3,10 +3,15 @@ package score
 import (
 	"sort"
 	"strings"
+
+	"golang.org/x/text/collate"
+	"golang.org/x/text/language"
 )
 
 // authMatch covers all possible states of authors matching.
 type authMatch int
+
+var clt = collate.New(language.English, collate.Loose)
 
 const (
 	// noOverlap: authors do not overlap.
@@ -98,7 +103,6 @@ OUTER:
 	}
 
 	nomatchShort = append(nomatchShort, short[cursor:]...)
-
 	if len(nomatchLong)+len(nomatchShort) == 0 {
 		return identical
 	}
@@ -120,7 +124,11 @@ func compareAuth(au1, au2 string) (bool, bool) {
 	if len(au1) > len(au2) {
 		short, long = au2, au1
 	}
-	return strings.HasPrefix(long, short), au1 < au2
+	rsShort := []rune(short)
+	rs := []rune(long)[0:len(rsShort)]
+	short2 := string(rs)
+
+	return clt.CompareString(short, short2) == 0, au1 < au2
 }
 
 // authorsNormalize normalizes a list of authors.
@@ -128,9 +136,6 @@ func authorsNormalize(auths []string) []string {
 	res := make([]string, 0, len(auths))
 	for _, v := range auths {
 		auth := authNormalize(v)
-		if auth == "" {
-			continue
-		}
 		res = append(res, auth)
 	}
 	sort.Strings(res)
@@ -140,18 +145,26 @@ func authorsNormalize(auths []string) []string {
 // authNormalize normalizes one author.
 func authNormalize(auth string) string {
 	words := strings.Split(auth, " ")
-	if len(words) == 1 {
-		return strings.TrimRight(words[0], ".")
+	l := len(words) - 1
+
+	auth = words[l]
+	if auth == "Linne" {
+		auth = "Linn"
 	}
 
-	res := make([]string, 0, len(words))
-	for _, v := range words {
-		if v[len(v)-1] == '.' && len(v) == 2 {
+	other := words[0:l]
+	if len(other) == 0 {
+		return strings.TrimRight(auth, ".")
+	}
+	var pre []string
+	for _, v := range other {
+		if len(v) == 2 || strings.HasSuffix(v, ".") {
 			continue
 		}
-		res = append(res, strings.TrimRight(v, "."))
+		v = strings.TrimRight(v, ".")
+		pre = append(pre, v)
 	}
-	return strings.Join(res, " ")
+	return strings.Join(pre, " ") + " " + auth
 }
 
 // findYearsMatch determines how two years values relate to each other.

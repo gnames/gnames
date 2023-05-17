@@ -4,6 +4,7 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add [#107]: auto-match for reconciliation.
 - Add [#104]: filter reconciliation results using properties.
 
 ## [v1.1.0] - 2023-05-12 Fri

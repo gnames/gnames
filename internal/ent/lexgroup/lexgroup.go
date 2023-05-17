@@ -17,6 +17,9 @@ type LexicalGroup struct {
 	ID              string
 	Name            string
 	Score           float64
+	TaxonCategory   string
+	AuthMatch       float32
+	CanonicalFull   string
 	LexicalVariants []string
 	Data            []*verifier.ResultData
 }
@@ -26,6 +29,9 @@ func New(rd *verifier.ResultData) LexicalGroup {
 	res := LexicalGroup{
 		ID:              rd.MatchedNameID,
 		Name:            rd.MatchedName,
+		TaxonCategory:   getTaxonCategory(rd),
+		CanonicalFull:   rd.MatchedCanonicalFull,
+		AuthMatch:       rd.ScoreDetails.AuthorMatchScore,
 		Score:           rd.SortScore,
 		LexicalVariants: []string{rd.MatchedName},
 		Data:            []*verifier.ResultData{rd},
@@ -138,6 +144,7 @@ func lexGroups(n verifier.Name) []LexicalGroup {
 			res = append(res, gs2...)
 		}
 	}
+
 	// convert results into lexical groups
 	return toLexicalGroups(res)
 }
@@ -408,4 +415,23 @@ func toLexicalGroups(gs []group) []LexicalGroup {
 		res[i] = lg
 	}
 	return res
+}
+
+func getTaxonCategory(rd *verifier.ResultData) string {
+	if rd.MatchType == verifier.Virus {
+		return "Virus"
+	}
+
+	if rd.ClassificationPath == "" {
+		return ""
+	}
+
+	if strings.Index(rd.ClassificationPath, "Plantae") > -1 {
+		return "Plantae"
+	}
+
+	if strings.Index(rd.ClassificationPath, "Animalia") > -1 {
+		return "Animalia"
+	}
+	return ""
 }
