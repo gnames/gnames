@@ -122,7 +122,11 @@ func (g gnames) Reconcile(
 		var rcs []reconciler.ReconciliationCandidate
 
 		for i, lg := range lgs {
-			var canonical, first, auth, cur float64
+			first := 0.9
+			canonical := 0.75
+			auth := 0.9
+			cur := 0.9
+			oneCode := 0.75
 
 			if i == 0 {
 				first = 1
@@ -136,26 +140,26 @@ func (g gnames) Reconcile(
 			if lg.Data[0].ScoreDetails.CuratedDataScore > 0 {
 				cur = 1
 			}
+			if len(lg.NomCodes) < 2 {
+				oneCode = 1
+			}
+
+			score := first * canonical * auth * cur * oneCode
 
 			features := []reconciler.Feature{
 				{ID: "first_result", Value: first},
 				{ID: "same_canonical", Value: canonical},
 				{ID: "authors_compatible", Value: auth},
 				{ID: "some_data_check", Value: cur},
+				{ID: "single_nomenclatural_code", Value: oneCode},
 			}
-			txCategory := make(map[string]struct{})
+
 			rc := reconciler.ReconciliationCandidate{
 				ID:       lg.ID,
-				Score:    lg.Score,
+				Score:    score,
+				Match:    score == 1,
 				Features: features,
 				Name:     lg.Name,
-			}
-			if lg.TaxonCategory != "" {
-				txCategory[lg.TaxonCategory] = struct{}{}
-			}
-			if first+canonical+auth+cur >= 4 &&
-				len(txCategory) < 2 {
-				rc.Match = true
 			}
 			rcs = append(rcs, rc)
 		}

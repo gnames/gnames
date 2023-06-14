@@ -14,14 +14,29 @@ import (
 // LexicalGroup combines together name-strings which seem to belong to the
 // same scientific name.
 type LexicalGroup struct {
-	ID              string
-	Name            string
-	Score           float64
-	TaxonCategory   string
-	AuthMatch       float32
-	CanonicalFull   string
+	// ID corresponds to ID of a matched name UUID v5.
+	ID string
+
+	// Name is the matched name.
+	Name string
+
+	// Score is the same as a sort score for a match.
+	Score float64
+
+	// NomCodes contains nomenclatural codes detected for this lexical group.
+	NomCodes map[string]struct{}
+
+	// AuthMatch is the score for author matching.
+	AuthMatch float32
+
+	// CanonicalFull is the full canonical form of the matched name.
+	CanonicalFull string
+
+	// LexicalVariants is a slice of all spellings compatible with this group.
 	LexicalVariants []string
-	Data            []*verifier.ResultData
+
+	// Data is a slice of all corresponding matched data.
+	Data []*verifier.ResultData
 }
 
 // New creates new LexicalGroup instance out of a *verifier.ResultData.
@@ -29,12 +44,16 @@ func New(rd *verifier.ResultData) LexicalGroup {
 	res := LexicalGroup{
 		ID:              rd.MatchedNameID,
 		Name:            rd.MatchedName,
-		TaxonCategory:   getTaxonCategory(rd),
 		CanonicalFull:   rd.MatchedCanonicalFull,
 		AuthMatch:       rd.ScoreDetails.AuthorMatchScore,
 		Score:           rd.SortScore,
+		NomCodes:        make(map[string]struct{}),
 		LexicalVariants: []string{rd.MatchedName},
 		Data:            []*verifier.ResultData{rd},
+	}
+	code := getCode(rd)
+	if code != "" {
+		res.NomCodes[code] = struct{}{}
 	}
 	return res
 }
@@ -409,7 +428,13 @@ func toLexicalGroups(gs []group) []LexicalGroup {
 		for j := range gs[i].data {
 			if j == 0 {
 				lg = New(gs[i].data[j].rd)
+			} else {
+				code := getCode(gs[i].data[j].rd)
+				if code != "" {
+					lg.NomCodes[code] = struct{}{}
+				}
 			}
+
 			lg.Data = append(lg.Data, gs[i].data[j].rd)
 		}
 		res[i] = lg
@@ -417,21 +442,30 @@ func toLexicalGroups(gs []group) []LexicalGroup {
 	return res
 }
 
-func getTaxonCategory(rd *verifier.ResultData) string {
+func getCode(rd *verifier.ResultData) string {
 	if rd.MatchType == verifier.Virus {
-		return "Virus"
+		return "ICVCN"
 	}
 
 	if rd.ClassificationPath == "" {
 		return ""
 	}
 
-	if strings.Index(rd.ClassificationPath, "Plantae") > -1 {
-		return "Plantae"
+	if strings.Index(rd.ClassificationPath, "Animalia") > -1 {
+		return "ICZN"
 	}
 
-	if strings.Index(rd.ClassificationPath, "Animalia") > -1 {
-		return "Animalia"
+	if strings.Index(rd.ClassificationPath, "Plantae") > -1 {
+		return "ICN"
 	}
+
+	if strings.Index(rd.ClassificationPath, "Fungi") > -1 {
+		return "ICN"
+	}
+
+	if strings.Index(rd.ClassificationPath, "Bacteria") > -1 {
+		return "ICN"
+	}
+
 	return ""
 }
