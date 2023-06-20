@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.1.2]: 2023-06-20 Tue
+
+- Add [#108]: optional uninomial fuzzy-matching.
+
 ## [v1.1.1] - 2023-06-14 Wed
 
 - Add [#107]: auto-match for reconciliation.
@@ -365,10 +369,12 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
-[v1.1.0]: https://github.com/gnames/gnames/compare/v1.1.0...v1.0.3
-[v1.0.3]: https://github.com/gnames/gnames/compare/v1.0.3...v1.0.2
-[v1.0.2]: https://github.com/gnames/gnames/compare/v1.0.2...v1.0.1
-[v1.0.1]: https://github.com/gnames/gnames/compare/v1.0.1...v1.0.0
+[v1.1.2]: https://github.com/gnames/gnames/compare/v1.1.1...v1.1.2
+[v1.1.1]: https://github.com/gnames/gnames/compare/v1.1.0...v1.1.1
+[v1.1.0]: https://github.com/gnames/gnames/compare/v1.0.3...v1.1.0
+[v1.0.3]: https://github.com/gnames/gnames/compare/v1.0.2...v1.0.3
+[v1.0.2]: https://github.com/gnames/gnames/compare/v1.0.1...v1.0.2
+[v1.0.1]: https://github.com/gnames/gnames/compare/v1.0.0...v1.0.1
 [v1.0.0]: https://github.com/gnames/gnames/compare/v1.0.0...v1.0.0-RC2
 [v1.0.0-rc2]: https://github.com/gnames/gnames/compare/v1.0.0-RC1...v1.0.0-RC2
 [v1.0.0-rc1]: https://github.com/gnames/gnames/compare/v0.13.4...v1.0.0-RC1
@@ -426,6 +432,16 @@ This document follows [changelog guidelines]
 
  <!-- Issues -->
 
+[#120]: https://github.com/gnames/gnames/issues/120
+[#119]: https://github.com/gnames/gnames/issues/119
+[#118]: https://github.com/gnames/gnames/issues/118
+[#117]: https://github.com/gnames/gnames/issues/117
+[#116]: https://github.com/gnames/gnames/issues/116
+[#115]: https://github.com/gnames/gnames/issues/115
+[#114]: https://github.com/gnames/gnames/issues/114
+[#113]: https://github.com/gnames/gnames/issues/113
+[#112]: https://github.com/gnames/gnames/issues/112
+[#111]: https://github.com/gnames/gnames/issues/111
 [#110]: https://github.com/gnames/gnames/issues/110
 [#109]: https://github.com/gnames/gnames/issues/109
 [#108]: https://github.com/gnames/gnames/issues/108

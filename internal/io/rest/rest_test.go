@@ -131,6 +131,60 @@ func TestFuzzy(t *testing.T) {
 	assert.Equal(t, 1, fuz1.BestResult.EditDistance)
 }
 
+// Issue  https://github.com/gnames/gnames/issues/108
+// Checks if uninomials go through fuzzy matching
+func TestUniFuzzy(t *testing.T) {
+	tests := []struct {
+		msg, name, res string
+		ds             []int
+		matchType      vlib.MatchTypeValue
+	}{
+		{
+			msg:       "fuzzy",
+			name:      "Simulidae",
+			res:       "Simuliidae",
+			ds:        []int{3},
+			matchType: vlib.Fuzzy,
+		},
+		{
+			msg:       "partialFuzzy",
+			name:      "Pomatmus abcdefg",
+			res:       "Pomatomus",
+			ds:        []int{1},
+			matchType: vlib.PartialFuzzy,
+		},
+	}
+
+	for _, v := range tests {
+		var response vlib.Output
+		request := vlib.Input{
+			NameStrings:             []string{v.name},
+			DataSources:             v.ds,
+			WithUninomialFuzzyMatch: true,
+			WithAllMatches:          true,
+		}
+		req, err := gnfmt.GNjson{}.Encode(request)
+		assert.Nil(t, err)
+		r := bytes.NewReader(req)
+		resp, err := http.Post(restURL+"verifications", "application/json", r)
+		assert.Nil(t, err)
+		respBytes, err := io.ReadAll(resp.Body)
+		assert.Nil(t, err)
+		err = gnfmt.GNjson{}.Decode(respBytes, &response)
+		assert.Nil(t, err)
+		name := response.Names[0]
+		var isFuzzy bool
+		for _, vv := range name.Results {
+			if v.res == vv.CurrentCanonicalSimple {
+				assert.Equal(t, v.matchType, vv.MatchType, v.msg)
+				isFuzzy = true
+			}
+		}
+		assert.True(t, isFuzzy)
+	}
+
+}
+
 // TestPrefDS checks if prefferred data sources works correclty.
 func TestPrefDS(t *testing.T) {
 	var response vlib.Output

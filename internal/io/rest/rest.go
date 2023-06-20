@@ -372,6 +372,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		capitalize := c.QueryParam("capitalize") == "true"
 		spGrp := c.QueryParam("species_group") == "true"
 		stats := c.QueryParam("stats") == "true"
+		fuzzyUni := c.QueryParam("fuzzy_uninomial") == "true"
 		mainTxnThresholdStr := c.QueryParam("main_taxon_threshold")
 		matches := c.QueryParam("all_matches") == "true"
 
@@ -384,13 +385,14 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		}
 
 		params := vlib.Input{
-			NameStrings:        names,
-			DataSources:        ds,
-			WithCapitalization: capitalize,
-			WithAllMatches:     matches,
-			WithStats:          stats,
-			WithSpeciesGroup:   spGrp,
-			MainTaxonThreshold: float32(mainTxnThreshold),
+			NameStrings:             names,
+			DataSources:             ds,
+			WithCapitalization:      capitalize,
+			WithAllMatches:          matches,
+			WithStats:               stats,
+			WithSpeciesGroup:        spGrp,
+			WithUninomialFuzzyMatch: fuzzyUni,
+			MainTaxonThreshold:      float32(mainTxnThreshold),
 		}
 		verified, err := gn.Verify(context.Background(), params)
 		if err != nil {

@@ -48,9 +48,10 @@ func (mr matcherREST) MatchNames(
 	var response mlib.Output
 	cfg := gnmcfg.New(opts...)
 	req, err := mr.enc.Encode(mlib.Input{
-		Names:            names,
-		WithSpeciesGroup: cfg.WithSpeciesGroup,
-		DataSources:      cfg.DataSources,
+		Names:                   names,
+		WithSpeciesGroup:        cfg.WithSpeciesGroup,
+		WithUninomialFuzzyMatch: cfg.WithUninomialFuzzyMatch,
+		DataSources:             cfg.DataSources,
 	})
 	if err != nil {
 		log.Warn().Err(err).Msg("Cannot encode name-strings")
