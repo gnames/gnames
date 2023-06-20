@@ -25,7 +25,7 @@ func TestChain(t *testing.T) {
 		).
 		accepted("12", "12").
 		parsingQuality(3)
-	assert.Equal(t, "11001101_01101000_00000000_00000000", s.String())
+	assert.Equal(t, "11001101_10101000_00000000_00000000", s.String())
 }
 
 func TestCardinality(t *testing.T) {
@@ -121,9 +121,9 @@ func TestCuration(t *testing.T) {
 		score  string
 	}{
 		{"no cur", 67, vlib.NotCurated, "00000000_00000000_00000000_00000000"},
-		{"auto cur", 67, vlib.AutoCurated, "00000010_00000000_00000000_00000000"},
-		{"cur", 67, vlib.Curated, "00000100_00000000_00000000_00000000"},
-		{"CoL", 1, vlib.Curated, "00000110_00000000_00000000_00000000"},
+		{"auto cur", 67, vlib.AutoCurated, "00000000_01000000_00000000_00000000"},
+		{"cur", 67, vlib.Curated, "00000000_10000000_00000000_00000000"},
+		{"CoL", 1, vlib.Curated, "00000000_11000000_00000000_00000000"},
 	}
 	for _, v := range testData {
 		s := score{}
@@ -138,21 +138,21 @@ func TestAuth(t *testing.T) {
 		year1, year2 int
 		score        string
 	}{
-		{"empty1", []string{}, []string{}, 0, 0, "00000000_01000000_00000000_00000000"},
-		{"empty2", []string{"L."}, []string{}, 1758, 0, "00000000_01000000_00000000_00000000"},
-		{"empty3", []string{}, []string{"L."}, 0, 1758, "00000000_01000000_00000000_00000000"},
+		{"empty1", []string{}, []string{}, 0, 0, "00000001_00000000_00000000_00000000"},
+		{"empty2", []string{"L."}, []string{}, 1758, 0, "00000001_00000000_00000000_00000000"},
+		{"empty3", []string{}, []string{"L."}, 0, 1758, "00000010_00000000_00000000_00000000"},
 		{"no match1", []string{"Banks"}, []string{"L."}, 0, 0, "00000000_00000000_00000000_00000000"},
 		{"no match2", []string{"L."}, []string{"Banks"}, 1758, 1758, "00000000_00000000_00000000_00000000"},
-		{"overlap", []string{"Tomm.", "L.", "Banks", "Muetze"}, []string{"Kuntze", "Linn", "Hopkins"}, 1758, 1758, "00000001_01000000_00000000_00000000"},
-		{"full subset, yes yr", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1758, 1758, "00000001_10000000_00000000_00000000"},
-		{"full subset, aprx yr1", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1757, 1758, "00000001_01000000_00000000_00000000"},
-		{"full subset, aprx yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1757, 1756, "00000001_01000000_00000000_00000000"},
-		{"full subset, n/a yr1", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 0, 1756, "00000001_00000000_00000000_00000000"},
-		{"full subset, n/a yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 0, "00000001_00000000_00000000_00000000"},
-		{"full subset, no yr", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 1800, "00000000_11000000_00000000_00000000"},
-		{"match, yes yr", []string{"L.", "Thomson"}, []string{"Linn", "Thomson"}, 1800, 1800, "00000001_11000000_00000000_00000000"},
-		{"match, aprx yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1799, 1800, "00000001_10000000_00000000_00000000"},
-		{"match, n/a yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 0, 0, "00000001_01000000_00000000_00000000"},
+		{"overlap", []string{"Tomm.", "L.", "Banks", "Muetze"}, []string{"Kuntze", "Linn", "Hopkins"}, 1758, 1758, "00000101_00000000_00000000_00000000"},
+		{"full subset, yes yr", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1758, 1758, "00000110_00000000_00000000_00000000"},
+		{"full subset, aprx yr1", []string{"Hopkins", "L.", "Thomson"}, []string{"Thomson", "Linn."}, 1757, 1758, "00000101_00000000_00000000_00000000"},
+		{"full subset, aprx yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1757, 1756, "00000101_00000000_00000000_00000000"},
+		{"full subset, n/a yr1", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 0, 1756, "00000100_00000000_00000000_00000000"},
+		{"full subset, n/a yr2", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 0, "00000100_00000000_00000000_00000000"},
+		{"full subset, no yr", []string{"L.", "Thomson"}, []string{"Thomson", "Linn.", "Hopkins"}, 1756, 1800, "00000001_00000000_00000000_00000000"},
+		{"match, yes yr", []string{"L.", "Thomson"}, []string{"Linn", "Thomson"}, 1800, 1800, "00000111_00000000_00000000_00000000"},
+		{"match, aprx yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1799, 1800, "00000110_00000000_00000000_00000000"},
+		{"match, n/a yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 0, 0, "00000101_00000000_00000000_00000000"},
 		{"match, bad yr", []string{"Herenson", "Thomson"}, []string{"Thomson", "H."}, 1750, 1755, "00000001_00000000_00000000_00000000"},
 	}
 	for _, v := range testData {
@@ -221,7 +221,7 @@ func TestAuthNormalize(t *testing.T) {
 		{"initial1", "Linn.", "Linn"},
 		{"initial2", "Lin", "Lin"},
 		{"initial3", "B.", "B"},
-		{"two words", "Koza Koza", "Koza Koza"},
+		{"two words", "Koza Koza", "Koza"},
 	}
 	for _, v := range testData {
 		assert.Equal(t, v.res, authNormalize(v.auth), v.desc)
@@ -261,12 +261,12 @@ func TestScoreDetails(t *testing.T) {
 		},
 		{
 			"curated",
-			uint32(0b00000010_00000000_00000000_00000000),
+			uint32(0b00000000_01000000_00000000_00000000),
 			0, 0, 0, 0.33, 0, 0, 0,
 		},
 		{
 			"auth",
-			uint32(0b00000000_01000000_00000000_00000000),
+			uint32(0b00000001_00000000_00000000_00000000),
 			0, 0, 0, 0, 0.1428, 0, 0,
 		},
 		{

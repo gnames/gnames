@@ -285,13 +285,11 @@ func matchByOrig(g group) []group {
 		}
 	}
 	for _, v := range gmap {
-		for i := range noAu {
-			v = append(v, noAu[i])
-		}
 		res = append(res, group{data: v})
 	}
-	if len(res) == 0 && len(noAu) > 0 {
-		res = []group{{data: noAu}}
+	// if len(res) == 0 && len(noAu) > 0 {
+	if len(noAu) > 0 {
+		res = append(res, group{data: noAu})
 	}
 	return res
 }

@@ -1,6 +1,7 @@
 package score
 
 import (
+	"math"
 	"sort"
 	"strings"
 
@@ -148,23 +149,14 @@ func authNormalize(auth string) string {
 	l := len(words) - 1
 
 	auth = words[l]
+	if strings.HasPrefix(auth, "d'") {
+		auth = auth[2:]
+	}
+	auth = strings.TrimRight(auth, ".")
 	if auth == "Linne" {
 		auth = "Linn"
 	}
-
-	other := words[0:l]
-	if len(other) == 0 {
-		return strings.TrimRight(auth, ".")
-	}
-	var pre []string
-	for _, v := range other {
-		if len(v) == 2 || strings.HasSuffix(v, ".") {
-			continue
-		}
-		v = strings.TrimRight(v, ".")
-		pre = append(pre, v)
-	}
-	return strings.Join(pre, " ") + " " + auth
+	return auth
 }
 
 // findYearsMatch determines how two years values relate to each other.
@@ -172,11 +164,11 @@ func findYearsMatch(y1, y2 int) yearMatch {
 	if y1 == 0 || y2 == 0 {
 		return notAvailable
 	}
-	diff := y1 - y2
+	diff := math.Abs(float64(y1) - float64(y2))
 	if diff == 0 {
 		return perfectMatch
 	}
-	if diff == -1 || diff == 1 {
+	if diff <= 2 {
 		return approxMatch
 	}
 	return noMatch

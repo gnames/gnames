@@ -109,6 +109,40 @@ func TestVerifyExact(t *testing.T) {
 	assert.Equal(t, "", cand.Error)
 }
 
+func TestAuthors(t *testing.T) {
+	assert := assert.New(t)
+	tests := []struct {
+		msg, name, match string
+		src              int
+		matchType        vlib.MatchTypeValue
+	}{
+		{
+			msg:       "Bandon",
+			name:      "Rissoa abbreviata Baudon, 1853",
+			match:     "Rissoa abbreviata Baudon, 1853",
+			src:       9,
+			matchType: vlib.Exact,
+		},
+	}
+	for _, v := range tests {
+		var response vlib.Output
+		request := vlib.Input{NameStrings: []string{v.name}}
+		req, err := gnfmt.GNjson{}.Encode(request)
+		assert.Nil(err)
+		r := bytes.NewReader(req)
+		resp, err := http.Post(restURL+"verifications", "application/json", r)
+		assert.Nil(err)
+		respBytes, err := io.ReadAll(resp.Body)
+		assert.Nil(err)
+		err = gnfmt.GNjson{}.Decode(respBytes, &response)
+		assert.Nil(err)
+		name := response.Names[0]
+		assert.Equal(v.match, name.BestResult.MatchedName)
+		assert.Equal(v.src, name.BestResult.DataSourceID)
+		assert.Equal(v.matchType, name.BestResult.MatchType)
+	}
+}
+
 func TestFuzzy(t *testing.T) {
 	var response vlib.Output
 	names := []string{

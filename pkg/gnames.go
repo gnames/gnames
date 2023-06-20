@@ -2,7 +2,6 @@ package gnames
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -128,7 +127,7 @@ func (g gnames) Reconcile(
 			first := 0.9
 			canonical := 0.75
 			auth := 0.9
-			cur := 0.9
+			cur := 0.95
 			oneCode := 0.75
 
 			if i == 0 {
@@ -137,7 +136,7 @@ func (g gnames) Reconcile(
 			if lg.Data[0].MatchType == vlib.Exact {
 				canonical = 1
 			}
-			if lg.Data[0].ScoreDetails.AuthorMatchScore > 0 {
+			if lg.Data[0].ScoreDetails.AuthorMatchScore > 0.2 {
 				auth = 1
 			}
 			if lg.Data[0].ScoreDetails.CuratedDataScore > 0 {
@@ -368,12 +367,12 @@ func filterGroup(
 		pid := strings.ToLower(prs[i].PID)
 		fs[pid] = prs[i].Value
 	}
-	if taxon, ok := fs["highertaxon"]; ok {
+	if taxon, ok := fs["higher-taxon"]; ok {
 		res = filterByTaxon(lg, taxon)
 	} else {
 		res = lg
 	}
-	if idStr, ok := fs["datasourceids"]; ok {
+	if idStr, ok := fs["data-source-ids"]; ok {
 		ids := getDataSourceIDs(idStr)
 		if len(ids) > 0 {
 			res = filterByDataSource(lg, ids)
@@ -427,7 +426,6 @@ func filterByDataSource(
 	d := lg.Data
 	for i := range d {
 		if _, ok := ids[d[i].DataSourceID]; ok {
-			fmt.Printf("NAME: %s, DSID: %d", d[i].MatchedName, d[i].DataSourceID)
 			ds = append(ds, d[i])
 		}
 	}

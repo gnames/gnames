@@ -4,7 +4,12 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
-## [v1.1.2]: 2023-06-20 Tue
+## [v1.1.3] - 2023-06-21 Wed
+
+- Add [#110]: make authorship a higher priority than curation for score.
+- Add [#109]: do not use initials for matching authorship.
+
+## [v1.1.2] - 2023-06-20 Tue
 
 - Add [#108]: optional uninomial fuzzy-matching.
 
@@ -369,6 +374,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.1.3]: https://github.com/gnames/gnames/compare/v1.1.2...v1.1.3
 [v1.1.2]: https://github.com/gnames/gnames/compare/v1.1.1...v1.1.2
 [v1.1.1]: https://github.com/gnames/gnames/compare/v1.1.0...v1.1.1
 [v1.1.0]: https://github.com/gnames/gnames/compare/v1.0.3...v1.1.0

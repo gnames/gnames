@@ -13,17 +13,25 @@ import (
 //
 // x0000000_00000000_00000000_00000000: matching cardinality
 // 00 - cardinality does not match
-//    `Aus bus cus` vs `Aus bus`
+//
+//	`Aus bus cus` vs `Aus bus`
+//
 // 01 - cardinality match
-//    `Aus bus cus` vs `Aus bus f. cus`
+//
+//	`Aus bus cus` vs `Aus bus f. cus`
 //
 // 0xx00000_00000000_00000000_00000000: matching rank for ranked infraspecies
 // 00 - rank does not match
-//    `Aus bus var. cus` vs `Aus bus f. cus`
+//
+//	`Aus bus var. cus` vs `Aus bus f. cus`
+//
 // 01 - match is unknown
-//    `Aus bus cus` vs `Aus bus f. cus`
+//
+//	`Aus bus cus` vs `Aus bus f. cus`
+//
 // 10 - rank matches
-//    `Aus bus var. cus` vs `Aus bus var. cus`
+//
+//	`Aus bus var. cus` vs `Aus bus var. cus`
 //
 // 000xx000_00000000_00000000_00000000: edit distance
 // 00 - edit distance is 3 or more
@@ -31,53 +39,66 @@ import (
 // 10 - edit distance 1
 // 11 - edit distance 0
 //
-// 00000xx0_00000000_00000000_00000000: curation
+// 00000xxx_00000000_00000000_00000000: matching authorship
+//
+// 000 - authorship does not match.
+//
+//	`Linn.` vs `Banks`
+//
+// 001 - Authorship is not comparable.
+//
+//	`` vs ``
+//
+// 001 - Authorship is not comparable, input has no authorship, but
+//
+//	output has authorship.
+//	`` vs `Auth1, Auth2, 1880`
+//
+// 010 - Authors overlap, but years do not match.
+//
+//	`Auth1, Auth2 1778` vs `Auth1, Auth3 1785`
+//
+// 011 - one set of authors fully included into other set,
+//
+//	yers do not match.
+//	`Auth1, Auth2, 1880` vs `Auth1, Auth2, Auth3, 1887`
+//
+// 100 - Authors are identical, years do not match.
+//
+//	`Auth1, Auth2, 1880` vs `Auth1, Auth2, 1887`
+//
+// 101 - a,y+: Authors overlap, but there are additional authors
+//
+//	for both sets. Years either match somewhat or not available.
+//	`Auth1, Auth2, 1888` vs `Auth1, Auth3, 1887`
+//
+// 101 - aaa,y?: Authors are identical, year is not comparable.
+//
+//	`Auth1, Auth2` vs `Auth1, Auth2, 1888`
+//
+// 101 - aa,yy: One set of authors is fully included into other,
+//
+//	years are close.
+//	`Auth1, Auth2, Auth3, 1888` vs `Auth1, Auth2, 1887`
+//
+// 110 - aa,yyy: One set of authors is fully included into another,
+//
+//	same years.
+//
+// 110 - aaa,yy: Authors are identical, years are close.
+//
+//	`Auth1, Auth2, 1888` vs `Auth1, Auth2, 1887`
+//	`Auth1, Auth2, Auth3, 1888` vs `Auth1, Auth2, 1888`
+//
+// 111 - aaa,yyy: Authors and years are identical.
+//
+//	`Auth1, Auth2, 1888` vs `Auth1, Auth2, 1888`
+//
+// 00000000_xx000000_00000000_00000000: curation
 // 00 - uncurated sources only
 // 01 - auto-curated sources
 // 10 - human-curated sources
 // 11 - Catalogue of Life
-//
-// 0000000x_xx000000_00000000_00000000: matching authorship
-// 000 - authorship does not match.
-//       `Linn.` vs `Banks`
-//
-// 001 - Authorship is not comparable.
-//       `` vs ``
-//
-// 001 - Authorship is not comparable, input has no authorship, but
-//       output has authorship.
-//       `` vs `Auth1, Auth2, 1880`
-//
-// 010 - Authors overlap, but years do not match.
-//       `Auth1, Auth2 1778` vs `Auth1, Auth3 1785`
-//
-// 011 - one set of authors fully included into other set,
-//       yers do not match.
-//       `Auth1, Auth2, 1880` vs `Auth1, Auth2, Auth3, 1887`
-//
-// 100 - Authors are identical, years do not match.
-//       `Auth1, Auth2, 1880` vs `Auth1, Auth2, 1887`
-//
-// 101 - a,y+: Authors overlap, but there are additional authors
-//       for both sets. Years either match somewhat or not available.
-//       `Auth1, Auth2, 1888` vs `Auth1, Auth3, 1887`
-//
-// 101 - aaa,y?: Authors are identical, year is not comparable.
-//       `Auth1, Auth2` vs `Auth1, Auth2, 1888`
-//
-// 101 - aa,yy: One set of authors is fully included into other,
-//       years are close.
-//       `Auth1, Auth2, Auth3, 1888` vs `Auth1, Auth2, 1887`
-//
-// 110 - aa,yyy: One set of authors is fully included into another,
-//       same years.
-//
-// 110 - aaa,yy: Authors are identical, years are close.
-//       `Auth1, Auth2, 1888` vs `Auth1, Auth2, 1887`
-//       `Auth1, Auth2, Auth3, 1888` vs `Auth1, Auth2, 1888`
-//
-// 111 - aaa,yyy: Authors and years are identical.
-//       `Auth1, Auth2, 1888` vs `Auth1, Auth2, 1888`
 //
 // 00000000_00x00000_00000000_00000000: accepted name
 // 0 - name is a synonym
@@ -96,8 +117,8 @@ var (
 	cardinalityShift    = 31
 	rankShift           = 29
 	fuzzyShift          = 27
-	curationShift       = 25
-	authShift           = 22
+	authShift           = 24
+	curationShift       = 22
 	acceptedShift       = 21
 	parsingQualityShift = 19
 )
@@ -226,7 +247,7 @@ func (s score) auth(auth1, auth2 []string, year1, year2 int) score {
 		case notAvailable:
 			i = 0b101 //5
 		case noMatch:
-			i = 0b100 //4
+			i = 0b001 //1
 		}
 	} else if authors == fullInclusion {
 		switch years {
@@ -237,7 +258,7 @@ func (s score) auth(auth1, auth2 []string, year1, year2 int) score {
 		case notAvailable:
 			i = 0b100 //4
 		case noMatch:
-			i = 0b011 //3
+			i = 0b001 //1
 		}
 	} else if authors == overlap {
 		switch years {
@@ -246,12 +267,12 @@ func (s score) auth(auth1, auth2 []string, year1, year2 int) score {
 		case approxMatch:
 			i = 0b100 //4
 		case notAvailable:
-			i = 0b010 //3
-		case noMatch:
 			i = 0b010 //2
+		case noMatch:
+			i = 0b001 //1
 		}
 	} else if authors == noAuthVsAuth {
-		i = 0b001 //1
+		i = 0b010 //2
 	} else if authors == incomparable {
 		i = 0b001 //1
 	}

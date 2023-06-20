@@ -83,7 +83,7 @@ func TestSortBugs(t *testing.T) {
 	tests := []struct {
 		msg, name, matchName string
 	}{
-		{"Willd", "Trichomanes bifidum Willd", "Trichomanes bifidum Vent. ex Willd."},
+		{"Willd", "Trichomanes bifidum Willd", "Trichomanes bifidum Willd."},
 	}
 
 	ns := make([]string, len(tests))
