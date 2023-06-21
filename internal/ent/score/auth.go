@@ -147,6 +147,10 @@ func authorsNormalize(auths []string) []string {
 func authNormalize(auth string) string {
 	words := strings.Split(auth, " ")
 	l := len(words) - 1
+	if l > 0 {
+		words = authTrimAnnot(words)
+		l = len(words) - 1
+	}
 
 	auth = words[l]
 	if strings.HasPrefix(auth, "d'") {
@@ -155,6 +159,17 @@ func authNormalize(auth string) string {
 	auth = strings.TrimRight(auth, ".")
 	if auth == "Linne" {
 		auth = "Linn"
+	}
+	return auth
+}
+
+func authTrimAnnot(auth []string) []string {
+	el := []string{"fil.", "I", "II", "III"}
+	l := len(auth)
+	for i := range el {
+		if auth[l-1] == el[i] {
+			return auth[0 : l-1]
+		}
 	}
 	return auth
 }

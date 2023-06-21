@@ -123,6 +123,20 @@ func TestAuthors(t *testing.T) {
 			src:       9,
 			matchType: vlib.Exact,
 		},
+		{
+			msg:       "I",
+			name:      "Helix acuminata Sowerby, 1841",
+			match:     "Helix acuminata G. B. Sowerby I, 1841",
+			src:       1,
+			matchType: vlib.Exact,
+		},
+		{
+			msg:       "filius",
+			name:      "Bubo bubo Linn. f.",
+			match:     "Bubo bubo (Linnaeus, 1758)",
+			src:       1,
+			matchType: vlib.Exact,
+		},
 	}
 	for _, v := range tests {
 		var response vlib.Output

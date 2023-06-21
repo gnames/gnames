@@ -6,6 +6,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## [v1.1.3] - 2023-06-21 Wed
 
+- Add [#110]: score for authorship ignores 'fil.', 'I', 'II', 'III' at the
+              end of an author name.
 - Add [#110]: make authorship a higher priority than curation for score.
 - Add [#109]: do not use initials for matching authorship.
 
