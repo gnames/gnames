@@ -286,19 +286,21 @@ func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 		}
 	}
 	res := vlib.Meta{
-		NamesNumber:         len(input.NameStrings),
-		WithAllSources:      allSources,
-		WithAllMatches:      input.WithAllMatches,
-		WithStats:           input.WithStats,
-		WithCapitalization:  input.WithCapitalization,
-		MainTaxonThreshold:  input.MainTaxonThreshold,
-		DataSources:         input.DataSources,
-		MainTaxon:           c.MainTaxon.Name,
-		MainTaxonPercentage: c.MainTaxonPercentage,
-		StatsNamesNum:       len(hs),
-		Kingdom:             c.Kingdom.Name,
-		KingdomPercentage:   c.KingdomPercentage,
-		Kingdoms:            ks,
+		NamesNumber:             len(input.NameStrings),
+		WithAllSources:          allSources,
+		WithAllMatches:          input.WithAllMatches,
+		WithStats:               input.WithStats,
+		WithCapitalization:      input.WithCapitalization,
+		WithSpeciesGroup:        input.WithSpeciesGroup,
+		WithUninomialFuzzyMatch: input.WithUninomialFuzzyMatch,
+		MainTaxonThreshold:      input.MainTaxonThreshold,
+		DataSources:             input.DataSources,
+		MainTaxon:               c.MainTaxon.Name,
+		MainTaxonPercentage:     c.MainTaxonPercentage,
+		StatsNamesNum:           len(hs),
+		Kingdom:                 c.Kingdom.Name,
+		KingdomPercentage:       c.KingdomPercentage,
+		Kingdoms:                ks,
 	}
 	return res
 }

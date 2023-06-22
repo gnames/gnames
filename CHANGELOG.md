@@ -4,6 +4,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add: metadata about species group and uninomial fuzzy match.
+
 ## [v1.1.3] - 2023-06-21 Wed
 
 - Add [#110]: score for authorship ignores 'fil.', 'I', 'II', 'III' at the
