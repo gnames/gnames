@@ -4,7 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.1.4] - 2023-06-24 Sat
+
 - Add: metadata about species group and uninomial fuzzy match.
+- Fix [#112]: improve reconciliation of trinomials.
 
 ## [v1.1.3] - 2023-06-21 Wed
 
@@ -378,6 +381,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.1.4]: https://github.com/gnames/gnames/compare/v1.1.3...v1.1.4
 [v1.1.3]: https://github.com/gnames/gnames/compare/v1.1.2...v1.1.3
 [v1.1.2]: https://github.com/gnames/gnames/compare/v1.1.1...v1.1.2
 [v1.1.1]: https://github.com/gnames/gnames/compare/v1.1.0...v1.1.1

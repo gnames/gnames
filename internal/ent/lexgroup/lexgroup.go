@@ -208,26 +208,16 @@ func getAuthors(p parsed.Parsed) *authors {
 func splitByFullCanonical(gs []group) []group {
 	var res []group
 	for i := range gs {
-		var tmp []record
 		mp := make(map[string][]record)
 		for j := range gs[i].data {
 			rd := gs[i].data[j].rd
-			if rd.MatchedCanonicalSimple == rd.MatchedCanonicalFull {
-				tmp = append(tmp, gs[i].data[j])
-				continue
-			}
 			can := rd.MatchedCanonicalFull
-			if _, ok := mp[can]; ok {
-				mp[can] = append(mp[can], gs[i].data[j])
-			} else {
-				mp[can] = []record{gs[i].data[j]}
-			}
+			mp[can] = append(mp[can], gs[i].data[j])
 		}
 
 		for _, v := range mp {
 			g := toGroup(v)
 			gs := splitByAuthorship(g)
-			gs = addByAuthorship(gs, tmp)
 			res = append(res, gs...)
 		}
 	}

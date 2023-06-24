@@ -74,7 +74,7 @@ func TestLexGroupCarex(t *testing.T) {
 	err = enc.Decode(txt, &n)
 	assert.Nil(err)
 	grps := lexgroup.NameToLexicalGroups(n)
-	assert.Equal(5, len(grps))
+	assert.Equal(8, len(grps))
 }
 
 func TestLexGroupStrongylapsis(t *testing.T) {
@@ -86,4 +86,15 @@ func TestLexGroupStrongylapsis(t *testing.T) {
 	assert.Nil(err)
 	grps := lexgroup.NameToLexicalGroups(n)
 	assert.Equal(43, len(grps))
+}
+
+func TestBug112(t *testing.T) {
+	assert := assert.New(t)
+	txt, err := os.ReadFile("../../testdata/lexgroup4.json")
+	assert.Nil(err)
+	var n verifier.Name
+	err = enc.Decode(txt, &n)
+	assert.Nil(err)
+	grps := lexgroup.NameToLexicalGroups(n)
+	assert.Equal(1, len(grps))
 }
