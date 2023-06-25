@@ -27,6 +27,8 @@ import (
 )
 
 var apiPath = "/api/v1/"
+var reconcileType = "ScientificNameString"
+var reconcileID = "name_string"
 
 // Run starts HTTP/1 service on given port for scientific names verification.
 func Run(gn gnames.GNames, port int) {
@@ -206,8 +208,8 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 	gnvURL := gn.GetConfig().WebPageURL
 	types := []reconciler.Type{
 		{
-			ID:   "name_string",
-			Name: "ScientificNameString",
+			ID:   reconcileID,
+			Name: reconcileType,
 		},
 	}
 	preview := reconciler.Preview{
@@ -228,6 +230,7 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 		DefaultTypes:    types,
 		Preview:         preview,
 		View:            view,
+		BatchSize:       50,
 	}
 	return c.JSON(http.StatusOK, res)
 }
