@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.1.5] - 2023-06-25 Sun
+
+- Add [#113]: improve reconciliation score to separate match categories.
+
 ## [v1.1.4] - 2023-06-24 Sat
 
 - Add: metadata about species group and uninomial fuzzy match.

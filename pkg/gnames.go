@@ -124,18 +124,33 @@ func (g gnames) Reconcile(
 		var rcs []reconciler.ReconciliationCandidate
 
 		for i, lg := range lgs {
-			first := 0.9
-			canonical := 0.75
-			auth := 0.9
 			cur := 0.95
-			oneCode := 0.75
+			first := 0.9
+			auth := 0.9
+			exact := 0.70
+			complete := 0.4
+			oneCode := 0.80
 
 			if i == 0 {
 				first = 1
 			}
+
 			if lg.Data[0].MatchType == vlib.Exact {
-				canonical = 1
+				exact = 1
+				complete = 1
+			} else if lg.Data[0].MatchType == vlib.Fuzzy {
+				complete = 1
+			} else if lg.Data[0].MatchType == vlib.PartialExact {
+				exact = 1
+				if lg.Data[0].MatchedCardinality == 1 {
+					complete = 0.2
+				}
+			} else if lg.Data[0].MatchType == vlib.PartialFuzzy {
+				if lg.Data[0].MatchedCardinality == 1 {
+					complete = 0.2
+				}
 			}
+
 			if lg.Data[0].ScoreDetails.AuthorMatchScore > 0.2 {
 				auth = 1
 			}
@@ -146,13 +161,14 @@ func (g gnames) Reconcile(
 				oneCode = 1
 			}
 
-			score := first * canonical * auth * cur * oneCode
+			score := first * auth * cur * oneCode * exact * complete
 
 			features := []reconciler.Feature{
 				{ID: "first_result", Value: first},
-				{ID: "same_canonical", Value: canonical},
+				{ID: "exact_match", Value: exact},
+				{ID: "complete_canonical_match", Value: complete},
 				{ID: "authors_compatible", Value: auth},
-				{ID: "some_data_check", Value: cur},
+				{ID: "has_curation_process", Value: cur},
 				{ID: "single_nomenclatural_code", Value: oneCode},
 			}
 
