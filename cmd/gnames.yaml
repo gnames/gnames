@@ -36,6 +36,14 @@
 #
 # WebPageURL: "https://verifier.globalnames.org"
 
+# GnamesHostURL provides a URL where gnames service resides. It is used by
+# reconciliation extension service to provide additional information about
+# reconciliated name-strings. In case of 'official' gnverifier service
+# this url is the same as WebPageURL. Note, that in Reconciliation API
+# the path (/api/v1/) is provided in a separate field.
+#
+# GnamesHostURL: "https://verifier.globalnames.org"
+
 # NsqdTCPAddress provides an address to the NSQ messenger TCP service. If
 # this value is set and valid, the logs will be published to the NSQ.
 # The option is ignored if `Port` is not set.

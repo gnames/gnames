@@ -28,6 +28,13 @@ type GNames interface {
 		ids []string,
 	) reconciler.Output
 
+	// ExtendReconcile takes an Extension query according to
+	// Reconciliation Service API and returns back the
+	// result according to the API corresponding schema.
+	ExtendReconcile(
+		reconciler.ExtendQuery,
+	) (reconciler.ExtendOutput, error)
+
 	// Search performs a faceted search using search parameters.
 	Search(ctx context.Context, srch search.Input) search.Output
 

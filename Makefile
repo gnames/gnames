@@ -6,17 +6,17 @@ DATE = $(shell date -u '+%Y-%m-%d_%H:%M:%S%Z')
 
 NO_C = CGO_ENABLED=0
 FLAGS_SHARED = $(NO_C) GOARCH=amd64
-FLAGS_LD=-ldflags "-X github.com/gnames/$(PROJ_NAME).Build=$(DATE) \
-                  -X github.com/gnames/$(PROJ_NAME).Version=$(VERSION)"
+FLAGS_LD = -ldflags "-X github.com/gnames/$(PROJ_NAME)/pkg.Build=$(DATE) \
+                  -X github.com/gnames/$(PROJ_NAME)/pkg.Version=$(VERSION)"
 FLAGS_REL = -trimpath -ldflags "-s -w \
 						-X github.com/gnames/$(PROJ_NAME)/pkg.Build=$(DATE)"
 
-GOCMD=go
-GOINSTALL=$(GOCMD) install $(FLAGS_LD)
-GOBUILD=$(GOCMD) build $(FLAGS_LD)
+GOCMD = go
+GOBUILD = $(GOCMD) build $(FLAGS_LD)
 GORELEASE = $(GOCMD) build $(FLAGS_REL)
-GOCLEAN=$(GOCMD) clean
-GOGENERATE=$(GOCMD) generate
+GOINSTALL = $(GOCMD) install $(FLAGS_LD)
+GOCLEAN = $(GOCMD) clean
+GOGENERATE = $(GOCMD) generate
 GOGET = $(GOCMD) get
 
 all: install

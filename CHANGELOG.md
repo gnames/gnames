@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.1.7] - 2023-08-31 Thu
+
+- Add [#105]: extend reconciliated data with additional information.
+
 ## [v1.1.6] - 2023-08-22 Tue
 
 - Add: update gnparser and other modules.

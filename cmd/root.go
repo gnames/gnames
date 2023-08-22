@@ -24,7 +24,6 @@ package cmd
 import (
 	_ "embed"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -51,6 +50,7 @@ type config struct {
 	JobsNum            int
 	MatcherURL         string
 	WebPageURL         string
+	GnamesHostURL      string
 	MaxEditDist        int
 	PgDB               string
 	PgHost             string
@@ -116,6 +116,7 @@ func initConfig() {
 	_ = viper.BindEnv("JobsNum", "GN_JOBS_NUM")
 	_ = viper.BindEnv("MatcherURL", "GN_MATCHER_URL")
 	_ = viper.BindEnv("WebPageURL", "GN_WEB_PAGE_URL")
+	_ = viper.BindEnv("GnamesHostURL", "GN_GNAMES_HOST_URL")
 	_ = viper.BindEnv("MaxEditDist", "GN_MAX_EDIT_DIST")
 	_ = viper.BindEnv("NsqdContainsFilter", "GN_NSQD_CONTAINS_FILTER")
 	_ = viper.BindEnv("NsqdRegexFilter", "GN_NSQD_REGEX_FILTER")
@@ -181,6 +182,9 @@ func getOpts() []gncnf.Option {
 	if cfg.WebPageURL != "" {
 		opts = append(opts, gncnf.OptWebPageURL(cfg.WebPageURL))
 	}
+	if cfg.GnamesHostURL != "" {
+		opts = append(opts, gncnf.OptGnamesHostURL(cfg.GnamesHostURL))
+	}
 	if cfg.NsqdTCPAddress != "" {
 		opts = append(opts, gncnf.OptNsqdTCPAddress(cfg.NsqdTCPAddress))
 	}
@@ -227,7 +231,7 @@ func createConfig(path string) {
 		log.Fatal().Err(err).Msgf("Cannot create dir %s", path)
 	}
 
-	err = ioutil.WriteFile(path, []byte(configText), 0644)
+	err = os.WriteFile(path, []byte(configText), 0644)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("Cannot write to file %s", path)
 	}

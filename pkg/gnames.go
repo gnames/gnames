@@ -9,6 +9,7 @@ import (
 
 	"github.com/gnames/gnames/internal/ent/facet"
 	"github.com/gnames/gnames/internal/ent/lexgroup"
+	"github.com/gnames/gnames/internal/ent/recon"
 	"github.com/gnames/gnames/internal/ent/score"
 	"github.com/gnames/gnames/internal/ent/verifier"
 	"github.com/gnames/gnames/internal/io/matcher"
@@ -188,6 +189,58 @@ func (g gnames) Reconcile(
 	return res
 }
 
+func (g gnames) ExtendReconcile(q reconciler.ExtendQuery) (reconciler.ExtendOutput, error) {
+	rows := make(map[string]map[string][]reconciler.PropertyValue)
+	var props []reconciler.Property
+	for _, v := range q.Properties {
+		prop := recon.NewProp(v.ID)
+		if prop == recon.Unknown {
+			continue
+		}
+		props = append(props, prop.Property())
+	}
+	res := reconciler.ExtendOutput{
+		Meta: props,
+		Rows: rows,
+	}
+	propRes := make(map[string]string)
+	for _, v := range q.IDs {
+		ns, err := g.NameByID(vlib.NameStringInput{
+			ID:             v,
+			WithAllMatches: false,
+		})
+		if err != nil {
+			return res, err
+		}
+		if ns.BestResult == nil {
+			continue
+		}
+		propRes[recon.CurrentName.Property().ID] = ns.BestResult.CurrentName
+		propRes[recon.Classification.Property().ID] =
+			ns.BestResult.ClassificationPath
+		propRes[recon.DataSource.Property().ID] =
+			ns.BestResult.DataSourceTitleShort
+		propRes[recon.OutlinkURL.Property().ID] = ns.BestResult.Outlink
+		row := extensionRow(q.Properties, propRes)
+		res.Rows[v] = row
+		clear(propRes)
+	}
+	return res, nil
+}
+
+func extensionRow(
+	props []reconciler.Property,
+	propsRes map[string]string,
+) map[string][]reconciler.PropertyValue {
+	res := make(map[string][]reconciler.PropertyValue)
+	for _, v := range props {
+		if _, ok := propsRes[v.ID]; ok {
+			res[v.ID] = []reconciler.PropertyValue{{Str: propsRes[v.ID]}}
+		}
+	}
+	return res
+}
+
 func (g gnames) NameByID(
 	params vlib.NameStringInput,
 ) (vlib.NameStringOutput, error) {
@@ -360,7 +413,7 @@ func (g gnames) GetConfig() config.Config {
 
 func filterLexGrpByProperties(
 	lgs []lexgroup.LexicalGroup,
-	prs []reconciler.Property,
+	prs []reconciler.PropertyInfo,
 ) []lexgroup.LexicalGroup {
 	var res []lexgroup.LexicalGroup
 	if len(prs) == 0 {
@@ -377,20 +430,20 @@ func filterLexGrpByProperties(
 
 func filterGroup(
 	lg lexgroup.LexicalGroup,
-	prs []reconciler.Property,
+	prs []reconciler.PropertyInfo,
 ) lexgroup.LexicalGroup {
 	var res lexgroup.LexicalGroup
 	fs := make(map[string]string)
 	for i := range prs {
-		pid := strings.ToLower(prs[i].PID)
-		fs[pid] = prs[i].Value
+		pid := strings.ToLower(prs[i].PropertyID)
+		fs[pid] = prs[i].PropertyValue
 	}
-	if taxon, ok := fs["higher-taxon"]; ok {
+	if taxon, ok := fs[recon.HigherTaxon.Property().ID]; ok {
 		res = filterByTaxon(lg, taxon)
 	} else {
 		res = lg
 	}
-	if idStr, ok := fs["data-source-ids"]; ok {
+	if idStr, ok := fs[recon.DataSourceIDs.Property().ID]; ok {
 		ids := getDataSourceIDs(idStr)
 		if len(ids) > 0 {
 			res = filterByDataSource(lg, ids)

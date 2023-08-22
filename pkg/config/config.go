@@ -32,6 +32,11 @@ type Config struct {
 	// name-string link and widget.
 	WebPageURL string
 
+	// GnamesHostURL provides base URL of the Gnames service. This URL for
+	// official service would be the same as WebPageURL. All path information
+	// (/api/v?) is stripped off.
+	GnamesHostURL string
+
 	// PgDB is the name of GNames database.
 	PgDB string
 
@@ -164,17 +169,24 @@ func OptPgDB(s string) Option {
 	}
 }
 
-// OptMatcherURL sets the name of gnames database
+// OptMatcherURL sets the URL to the gnmatcher service.
 func OptMatcherURL(s string) Option {
 	return func(cnf *Config) {
 		cnf.MatcherURL = s
 	}
 }
 
-// OptWebPageURL sets the name of gnames database
+// OptWebPageURL sets the URL to the web user interface of gnverifier.
 func OptWebPageURL(s string) Option {
 	return func(cnf *Config) {
 		cnf.WebPageURL = s
+	}
+}
+
+// OptGnamesHostURL sets the host URL to the gnames service.
+func OptGnamesHostURL(s string) Option {
+	return func(cnf *Config) {
+		cnf.GnamesHostURL = s
 	}
 }
 
@@ -213,17 +225,18 @@ func OptWithWebLogs(b bool) Option {
 func New(opts ...Option) Config {
 	workDir, _ := gnsys.ConvertTilda("~/.cache/gnames")
 	cnf := Config{
-		CacheDir:    workDir,
-		JobsNum:     8,
-		MatcherURL:  "https://matcher.globalnames.org/api/v1/",
-		WebPageURL:  "https://verifier.globalnames.org",
-		MaxEditDist: 1,
-		PgDB:        "gnames",
-		PgHost:      "0.0.0.0",
-		PgPass:      "postgres",
-		PgPort:      5432,
-		PgUser:      "postgres",
-		Port:        8888,
+		CacheDir:      workDir,
+		JobsNum:       8,
+		MatcherURL:    "https://matcher.globalnames.org/api/v1/",
+		WebPageURL:    "https://verifier.globalnames.org",
+		GnamesHostURL: "https://verifier.globalnames.org",
+		MaxEditDist:   1,
+		PgDB:          "gnames",
+		PgHost:        "0.0.0.0",
+		PgPass:        "postgres",
+		PgPort:        5432,
+		PgUser:        "postgres",
+		Port:          8888,
 	}
 
 	for _, opt := range opts {

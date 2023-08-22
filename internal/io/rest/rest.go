@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gnames/gnames/internal/ent/recon"
 	gnames "github.com/gnames/gnames/pkg"
 	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnlib/ent/reconciler"
@@ -26,9 +27,11 @@ import (
 	"github.com/sfgrp/lognsq/io/nsqio"
 )
 
-var apiPath = "/api/v1/"
-var reconcileType = "ScientificNameString"
-var reconcileID = "name_string"
+var (
+	apiPath       = "/api/v1/"
+	reconcileType = "ScientificNameString"
+	reconcileID   = "name_string"
+)
 
 // Run starts HTTP/1 service on given port for scientific names verification.
 func Run(gn gnames.GNames, port int) {
@@ -65,6 +68,7 @@ func Run(gn gnames.GNames, port int) {
 	e.GET(apiPath+"search/:query", searchGET(gn))
 	e.GET(apiPath+"reconcile", reconcileGET(gn))
 	e.POST(apiPath+"reconcile", reconcilePOST(gn))
+	e.GET(apiPath+"reconcile/properties", propertiesGET(gn))
 
 	addr := fmt.Sprintf(":%d", port)
 	s := &http.Server{
@@ -123,6 +127,13 @@ func oneDataSource(gn gnames.GNames) func(echo.Context) error {
 func reconcileGET(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
 		enc := gnfmt.GNjson{}
+		if c.QueryParam("extend") != "" {
+			res, err := extend(gn, c.QueryParam("extend"))
+			if err != nil {
+				return err
+			}
+			return c.JSON(http.StatusOK, res)
+		}
 		if c.QueryParam("queries") == "" {
 			return manifest(c, gn)
 		}
@@ -136,9 +147,23 @@ func reconcileGET(gn gnames.GNames) func(echo.Context) error {
 			return err
 		}
 		res, err := reconcile(gn, params)
+		if err != nil {
+			return err
+		}
 
 		return c.JSON(http.StatusOK, res)
 	}
+}
+
+func extend(gn gnames.GNames, q string) (reconciler.ExtendOutput, error) {
+	var res reconciler.ExtendOutput
+	enc := gnfmt.GNjson{}
+	var params reconciler.ExtendQuery
+	err := enc.Decode([]byte(q), &params)
+	if err != nil {
+		return res, err
+	}
+	return gn.ExtendReconcile(params)
 }
 
 func reconcilePOST(gn gnames.GNames) func(echo.Context) error {
@@ -149,14 +174,28 @@ func reconcilePOST(gn gnames.GNames) func(echo.Context) error {
 
 		go func() {
 			defer close(chErr)
+			enc := gnfmt.GNjson{}
 
 			var err error
+			ext := []byte(c.FormValue("extend"))
+			if len(ext) > 0 {
+				var params reconciler.ExtendQuery
+				var extRes reconciler.ExtendOutput
+				err := enc.Decode([]byte(ext), &params)
+				if err == nil {
+					extRes, err = gn.ExtendReconcile(params)
+				}
+				if err == nil {
+					err = c.JSON(http.StatusOK, extRes)
+				}
+				chErr <- err
+			}
+
 			var params map[string]reconciler.Query
 			var res reconciler.Output
 			q := []byte(c.FormValue("queries"))
-			ent := gnfmt.GNjson{}
 
-			err = ent.Decode(q, &params)
+			err = enc.Decode(q, &params)
 			if err == nil {
 				res, err = reconcile(gn, params)
 			}
@@ -204,8 +243,37 @@ func reconcile(
 	return res, nil
 }
 
+func propertiesGET(gn gnames.GNames) func(echo.Context) error {
+	return func(c echo.Context) error {
+		t, err := url.QueryUnescape(c.QueryParam("type"))
+		if err != nil {
+			return err
+		}
+		t = strings.TrimSpace(t)
+		if t != reconcileID {
+			t = reconcileID
+		}
+		res := properties(gn, t)
+
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func properties(gn gnames.GNames, typ string) reconciler.PropertyOutput {
+	return reconciler.PropertyOutput{
+		Type: reconcileType,
+		Properties: []reconciler.Property{
+			recon.CurrentName.Property(),
+			recon.Classification.Property(),
+			recon.DataSource.Property(),
+			recon.OutlinkURL.Property(),
+		},
+	}
+}
+
 func manifest(c echo.Context, gn gnames.GNames) error {
 	gnvURL := gn.GetConfig().WebPageURL
+	gnamesURL := gn.GetConfig().GnamesHostURL
 	types := []reconciler.Type{
 		{
 			ID:   reconcileID,
@@ -222,6 +290,13 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 		URL: gnvURL + "/name_strings/{{id}}?all_matches=true",
 	}
 
+	ext := reconciler.Extend{
+		ProposeProperties: reconciler.ProposeProperties{
+			ServiceURL:  gnamesURL,
+			ServicePath: apiPath + "reconcile/properties",
+		},
+	}
+
 	res := reconciler.Manifest{
 		Versions:        []string{"0.2"},
 		Name:            "GlobalNames",
@@ -231,6 +306,7 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 		Preview:         preview,
 		View:            view,
 		BatchSize:       50,
+		Extend:          ext,
 	}
 	return c.JSON(http.StatusOK, res)
 }
