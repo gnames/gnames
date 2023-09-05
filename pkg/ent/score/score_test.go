@@ -3,8 +3,8 @@ package score_test
 import (
 	"testing"
 
-	"github.com/gnames/gnames/internal/ent/score"
-	"github.com/gnames/gnames/internal/ent/verifier"
+	"github.com/gnames/gnames/pkg/ent/score"
+	"github.com/gnames/gnames/pkg/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )

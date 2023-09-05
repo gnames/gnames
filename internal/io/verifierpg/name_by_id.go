@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/georgysavva/scany/sqlscan"
-	"github.com/gnames/gnames/internal/ent/verifier"
 	"github.com/gnames/gnames/internal/io/dbshare"
+	"github.com/gnames/gnames/pkg/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser"
 	"github.com/gnames/gnparser/ent/parsed"

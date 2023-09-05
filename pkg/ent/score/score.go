@@ -5,7 +5,7 @@ import (
 	"math"
 	"sort"
 
-	"github.com/gnames/gnames/internal/ent/verifier"
+	"github.com/gnames/gnames/pkg/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 

@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/gnames/gnames/internal/ent/facet"
-	"github.com/gnames/gnames/internal/ent/verifier"
 	"github.com/gnames/gnames/internal/io/dbshare"
 	"github.com/gnames/gnames/pkg/config"
+	"github.com/gnames/gnames/pkg/ent/facet"
+	"github.com/gnames/gnames/pkg/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser/ent/parsed"
 	"github.com/gnames/gnquery/ent/search"

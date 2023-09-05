@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gnames/gnames/internal/ent/lexgroup"
+	"github.com/gnames/gnames/pkg/ent/lexgroup"
 	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"

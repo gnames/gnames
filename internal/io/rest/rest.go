@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gnames/gnames/internal/ent/recon"
 	gnames "github.com/gnames/gnames/pkg"
+	"github.com/gnames/gnames/pkg/ent/recon"
 	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnlib/ent/reconciler"
 	vlib "github.com/gnames/gnlib/ent/verifier"

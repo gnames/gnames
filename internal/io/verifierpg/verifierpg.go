@@ -4,9 +4,9 @@ package verifierpg
 import (
 	"database/sql"
 
-	"github.com/gnames/gnames/internal/ent/verifier"
 	"github.com/gnames/gnames/internal/io/dbshare"
 	"github.com/gnames/gnames/pkg/config"
+	"github.com/gnames/gnames/pkg/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/rs/zerolog/log"
 

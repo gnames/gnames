@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/gnames/gnames/internal/ent/verifier"
 	gnames "github.com/gnames/gnames/pkg"
 	"github.com/gnames/gnames/pkg/config"
+	"github.com/gnames/gnames/pkg/ent/verifier"
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnquery/ent/search"

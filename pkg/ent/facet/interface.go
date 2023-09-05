@@ -3,7 +3,7 @@ package facet
 import (
 	"context"
 
-	"github.com/gnames/gnames/internal/ent/verifier"
+	"github.com/gnames/gnames/pkg/ent/verifier"
 	"github.com/gnames/gnquery/ent/search"
 )
 
