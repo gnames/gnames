@@ -4,6 +4,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.1.8] - 2023-09-08 Fri
+
 - Add [#117]: extend reconciled data with CanonicalForm field.
 
 ## [v1.1.7] - 2023-08-31 Thu
