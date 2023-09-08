@@ -61,6 +61,7 @@ release: dockerhub
 docker: buildrel
 	@echo Build Docker images
 	docker buildx build -t gnames/$(PROJ_NAME):latest -t gnames/$(PROJ_NAME):$(VERSION) .; \
+	$(GOCLEAN);
 
 dc: build
 	@echo Build Docker Compose

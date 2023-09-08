@@ -263,6 +263,7 @@ func properties(gn gnames.GNames, typ string) reconciler.PropertyOutput {
 	return reconciler.PropertyOutput{
 		Type: reconcileType,
 		Properties: []reconciler.Property{
+			recon.CanonicalForm.Property(),
 			recon.CurrentName.Property(),
 			recon.Classification.Property(),
 			recon.DataSource.Property(),

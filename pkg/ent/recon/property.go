@@ -8,6 +8,7 @@ const (
 	Unknown GnamesProperty = iota
 	HigherTaxon
 	DataSourceIDs
+	CanonicalForm
 	CurrentName
 	Classification
 	DataSource
@@ -20,6 +21,8 @@ func NewProp(id string) GnamesProperty {
 		return HigherTaxon
 	case "data_source_ids":
 		return DataSourceIDs
+	case "canonical_form":
+		return CanonicalForm
 	case "current_name":
 		return CurrentName
 	case "classification":
@@ -42,6 +45,9 @@ func (p GnamesProperty) Property() reconciler.Property {
 	case DataSourceIDs:
 		id = "data_source_ids"
 		name = "DataSourceIds"
+	case CanonicalForm:
+		id = "canonical_form"
+		name = "CanonicalForm"
 	case CurrentName:
 		id = "current_name"
 		name = "CurrentName"

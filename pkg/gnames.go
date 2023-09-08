@@ -215,6 +215,8 @@ func (g gnames) ExtendReconcile(q reconciler.ExtendQuery) (reconciler.ExtendOutp
 		if ns.BestResult == nil {
 			continue
 		}
+		propRes[recon.CanonicalForm.Property().ID] =
+			ns.BestResult.MatchedCanonicalSimple
 		propRes[recon.CurrentName.Property().ID] = ns.BestResult.CurrentName
 		propRes[recon.Classification.Property().ID] =
 			ns.BestResult.ClassificationPath
