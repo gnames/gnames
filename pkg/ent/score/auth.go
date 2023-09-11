@@ -30,6 +30,12 @@ const (
 	identical
 )
 
+var authNorm = map[string]string{
+	"Linné":   "Linn",
+	"Linne":   "Linn",
+	"Sokolov": "Sokoloff",
+}
+
 // yearMatch covers possible states of matching years.
 type yearMatch int
 
@@ -157,8 +163,8 @@ func authNormalize(auth string) string {
 		auth = auth[2:]
 	}
 	auth = strings.TrimRight(auth, ".")
-	if auth == "Linne" {
-		auth = "Linn"
+	if v, ok := authNorm[auth]; ok {
+		auth = v
 	}
 	return auth
 }
