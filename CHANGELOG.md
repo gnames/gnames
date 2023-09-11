@@ -6,7 +6,7 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## [v1.1.9] - 2023-09-11 Mon
 
-- Fix [#107] - normalize some authors names for better score calculation.
+- Fix [#119] - normalize some authors names for better score calculation.
 
 ## [v1.1.8] - 2023-09-08 Fri
 
