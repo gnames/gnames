@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.1.10] - 2023-09-26 Tue
+
+- Add: update gnparser and other modules.
+
 ## [v1.1.9] - 2023-09-11 Mon
 
 - Fix [#119] - normalize some authors names for better score calculation.
