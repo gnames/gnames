@@ -61,6 +61,8 @@ func New(rd *verifier.ResultData) LexicalGroup {
 // record contains data required for matching by canonical form or by
 // authorship
 type record struct {
+	// idx is the position of a result in a Name.Results,
+	// the smaller is its valuei the better is the match.
 	idx int
 	p   parsed.Parsed
 	au  *authors
@@ -147,8 +149,8 @@ func lexGroups(n verifier.Name) []LexicalGroup {
 	}
 
 	var res []group
-	// first see if simple canonical differ. It is quite possible to
-	// happen, because matching happens between stemmed versions of names.
+	// first see if simple canonical differ. It is quite possible
+	// because matching happens between stemmed versions of names.
 	gs := splitByCanonical(ds)
 
 	if ds[0].rd.MatchedCardinality > 2 {
@@ -397,16 +399,19 @@ func toLexicalGroups(gs []group) []LexicalGroup {
 	// by the position in matching results.
 	for i := range gs {
 		sort.Slice(gs[i].data, func(j, k int) bool {
+			// names with authorship are 'better' than names without
 			if gs[i].data[j].au != nil && gs[i].data[k].au == nil {
 				return true
 			} else if gs[i].data[j].au == nil && gs[i].data[k].au != nil {
 				return false
 			}
+			// the smaller index, the better
 			return gs[i].data[j].idx < gs[i].data[k].idx
 		})
 	}
 	// then sort groups themselves by position in matching results.
 	sort.Slice(gs, func(i, j int) bool {
+		// groups with smaller index win
 		return gs[i].data[0].idx < gs[j].data[0].idx
 	})
 
