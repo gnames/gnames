@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sort"
+	"slices"
 	"testing"
 
 	"github.com/gnames/gnfmt"
@@ -143,7 +143,7 @@ func TestMissedMatchType(t *testing.T) {
 		ary[i] = k
 		i++
 	}
-	sort.Strings(ary)
+	slices.Sort(ary)
 	assert.Equal(t, ary, []string{"Isoetes longissima", "Isoetes longissimum"})
 }
 

@@ -3,7 +3,8 @@
 package lexgroup
 
 import (
-	"sort"
+	"cmp"
+	"slices"
 	"strings"
 
 	"github.com/gnames/gnlib/ent/verifier"
@@ -398,21 +399,22 @@ func toLexicalGroups(gs []group) []LexicalGroup {
 	// sort within groups according to provided authorship and then
 	// by the position in matching results.
 	for i := range gs {
-		sort.Slice(gs[i].data, func(j, k int) bool {
-			// names with authorship are 'better' than names without
-			if gs[i].data[j].au != nil && gs[i].data[k].au == nil {
-				return true
-			} else if gs[i].data[j].au == nil && gs[i].data[k].au != nil {
-				return false
+		slices.SortFunc(gs[i].data, func(a, b record) int {
+			// results with authors are better than ones without authors.
+			if a.au != nil && b.au == nil {
+				return -1
+			} else if a.au == nil && b.au != nil {
+				return 1
 			}
-			// the smaller index, the better
-			return gs[i].data[j].idx < gs[i].data[k].idx
+			// the smaller is the index (position in results), the better.
+			return cmp.Compare(a.idx, b.idx)
 		})
 	}
-	// then sort groups themselves by position in matching results.
-	sort.Slice(gs, func(i, j int) bool {
-		// groups with smaller index win
-		return gs[i].data[0].idx < gs[j].data[0].idx
+	// then sort groups themselves. Take the best record from each group and
+	// sort by its index. The closer record to the best result (smaller its
+	// index), the better
+	slices.SortFunc(gs, func(a, b group) int {
+		return cmp.Compare(a.data[0].idx, b.data[0].idx)
 	})
 
 	res := make([]LexicalGroup, len(gs))

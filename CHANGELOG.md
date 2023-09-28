@@ -4,6 +4,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add: switch sorting to `slices` package.
+
 ## [v1.1.10] - 2023-09-26 Tue
 
 - Add: update gnparser and other modules.

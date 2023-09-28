@@ -1,6 +1,7 @@
 package rest_test
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -67,6 +68,7 @@ func TestReconcileExact(t *testing.T) {
 	assert.Nil(err)
 	for _, v := range tests {
 		res := o[v.msg]
+		fmt.Printf("RES: %#v\n", res)
 		assert.Equal(v.len, len(res.Result), v.msg)
 		if len(res.Result) > 0 {
 			assert.Equal(v.match, res.Result[0].Match, v.msg)

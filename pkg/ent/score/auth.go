@@ -2,7 +2,7 @@ package score
 
 import (
 	"math"
-	"sort"
+	"slices"
 	"strings"
 
 	"golang.org/x/text/collate"
@@ -145,7 +145,7 @@ func authorsNormalize(auths []string) []string {
 		auth := authNormalize(v)
 		res = append(res, auth)
 	}
-	sort.Strings(res)
+	slices.Sort(res)
 	return res
 }
 

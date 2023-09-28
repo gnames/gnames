@@ -1,9 +1,10 @@
 package score
 
 import (
+	"cmp"
 	"fmt"
 	"math"
-	"sort"
+	"slices"
 
 	"github.com/gnames/gnames/pkg/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
@@ -58,8 +59,8 @@ func (s score) SortResults(mr *verifier.MatchRecord) {
 	// Sort (in reverse) according to the score. First element has
 	// the highest score, the last has the lowest.
 	mrs := mr.MatchResults
-	sort.SliceStable(mrs, func(i, j int) bool {
-		return mrs[i].SortScore > mrs[j].SortScore
+	slices.SortStableFunc(mrs, func(a, b *vlib.ResultData) int {
+		return cmp.Compare(b.SortScore, a.SortScore)
 	})
 	mr.Sorted = true
 }

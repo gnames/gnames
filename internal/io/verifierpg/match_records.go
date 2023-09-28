@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sort"
+	"slices"
 
 	"github.com/georgysavva/scany/sqlscan"
 	"github.com/gnames/gnames/internal/io/dbshare"
@@ -173,7 +173,7 @@ func setDataSources(mr *verifier.MatchRecord, sources map[int]struct{}) {
 		mr.DataSourcesIDs[i] = k
 		i++
 	}
-	sort.Ints(mr.DataSourcesIDs)
+	slices.Sort(mr.DataSourcesIDs)
 }
 
 func (vrf *verifierpg) populateMatchRecord(

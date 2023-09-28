@@ -2,7 +2,7 @@ package gnames
 
 import (
 	"context"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode"
@@ -405,7 +405,7 @@ func sortNames(mrs map[string]*verifier.MatchRecord) []string {
 		res[count] = k
 		count++
 	}
-	sort.Strings(res)
+	slices.Sort(res)
 	return res
 }
 
