@@ -304,12 +304,12 @@ func outputName(mr *verifier.MatchRecord, allMatches bool) vlib.Name {
 	s := score.New()
 	s.SortResults(mr)
 	item := vlib.Name{
-		ID:               mr.ID,
-		Name:             mr.Name,
-		DataSourcesNum:   mr.DataSourcesNum,
-		DataSourcesIDs:   mr.DataSourcesIDs,
-		Cardinality:      mr.Cardinality,
-		OverloadDetected: overloadTxt(mr),
+		ID:                 mr.ID,
+		Name:               mr.Name,
+		DataSourcesNum:     mr.DataSourcesNum,
+		DataSourcesDetails: mr.DataSourcesDetails,
+		Cardinality:        mr.Cardinality,
+		OverloadDetected:   overloadTxt(mr),
 	}
 	bestResult := s.BestResult(mr)
 	if bestResult != nil {

@@ -2,6 +2,8 @@ module github.com/gnames/gnames
 
 go 1.21
 
+replace github.com/gnames/gnlib => ../gnlib
+
 require (
 	github.com/georgysavva/scany v1.2.1
 	github.com/gnames/gnfmt v0.4.2
