@@ -4,6 +4,9 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.2.1] - 2023-10-06 Fri
+
+- Add [#118]: reconcile extension to show all good matches.
 - Add: switch sorting to `slices` package.
 
 ## [v1.1.10] - 2023-09-26 Tue

@@ -39,7 +39,9 @@ type GNames interface {
 	Search(ctx context.Context, srch search.Input) search.Output
 
 	// NameByID finds a name-string according to its UUID or exact spelling.
-	NameByID(verifier.NameStringInput) (verifier.NameStringOutput, error)
+	// The boolean argument allows to return not only identical strings, but
+	// all strings that match name-string connected to the ID.
+	NameByID(verifier.NameStringInput, bool) (verifier.NameStringOutput, error)
 
 	// Datasources take IDs of data-sourses and return back list of corresponding
 	// metadata. If no IDs are given, it returns metadata for all data-sources.

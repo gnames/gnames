@@ -35,6 +35,14 @@ func (vrf verifierpg) NameByID(
 	return res, nil
 }
 
+func (vrf verifierpg) NameStringByID(id string) (string, error) {
+	var res string
+	row :=
+		vrf.db.QueryRow("SELECT name FROM name_strings WHERE id = $1", id)
+	err := row.Scan(&res)
+	return res, err
+}
+
 func (vrf verifierpg) idData(
 	parser gnparser.GNparser,
 	match []*dbshare.VerifSQL,

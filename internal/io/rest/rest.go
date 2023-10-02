@@ -267,6 +267,7 @@ func properties(gn gnames.GNames, typ string) reconciler.PropertyOutput {
 			recon.CurrentName.Property(),
 			recon.Classification.Property(),
 			recon.DataSource.Property(),
+			recon.AllDataSources.Property(),
 			recon.OutlinkURL.Property(),
 		},
 	}
@@ -388,7 +389,7 @@ func nameGET(gn gnames.GNames) func(echo.Context) error {
 			WithAllMatches: matches,
 		}
 
-		name, err := gn.NameByID(params)
+		name, err := gn.NameByID(params, false)
 		if err != nil {
 			return err
 		}

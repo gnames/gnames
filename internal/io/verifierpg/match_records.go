@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"slices"
 
 	"github.com/georgysavva/scany/sqlscan"
 	"github.com/gnames/gnames/internal/io/dbshare"
@@ -104,11 +103,9 @@ func (vrf verifierpg) produceResultData(
 			Name:     match.Name,
 			Overload: len(match.MatchItems) > 20,
 		}
-		sources := make(map[int]struct{})
 		for _, mi := range match.MatchItems {
-			vrf.populateVirusMatchRecord(mi, *match, &mr, verifMap, sources)
+			vrf.populateVirusMatchRecord(mi, *match, &mr, verifMap)
 		}
-		setDataSources(&mr, sources)
 		allMatchRecs[match.ID] = &mr
 	}
 
@@ -133,11 +130,9 @@ func (vrf verifierpg) produceResultData(
 			Year:            year,
 		}
 
-		sources := make(map[int]struct{})
 		for _, mi := range match.MatchItems {
-			vrf.populateMatchRecord(mi, *match, &mr, parser, verifMap, sources)
+			vrf.populateMatchRecord(mi, *match, &mr, parser, verifMap)
 		}
-		setDataSources(&mr, sources)
 		allMatchRecs[match.ID] = &mr
 	}
 
@@ -149,31 +144,18 @@ func (vrf *verifierpg) populateVirusMatchRecord(
 	m mlib.Match,
 	mr *verifier.MatchRecord,
 	verifMap map[string][]*dbshare.VerifSQL,
-	sources map[int]struct{},
 ) {
 	verifRecs, ok := verifMap[mi.ID]
 	if !ok {
 		log.Fatal().Err(fmt.Errorf("no match for %s", mi.ID))
 	}
-	for _, vsql := range verifRecs {
-		sources[vsql.DataSourceID] = struct{}{}
 
+	for _, vsql := range verifRecs {
 		resData := vrf.addVirusMatch(vsql)
 		resData.MatchType = m.MatchType
 
 		mr.MatchResults = append(mr.MatchResults, &resData)
 	}
-}
-
-func setDataSources(mr *verifier.MatchRecord, sources map[int]struct{}) {
-	mr.DataSourcesNum = len(sources)
-	mr.DataSourcesIDs = make([]int, len(sources))
-	var i int
-	for k := range sources {
-		mr.DataSourcesIDs[i] = k
-		i++
-	}
-	slices.Sort(mr.DataSourcesIDs)
 }
 
 func (vrf *verifierpg) populateMatchRecord(
@@ -182,7 +164,6 @@ func (vrf *verifierpg) populateMatchRecord(
 	mRec *verifier.MatchRecord,
 	parser gnparser.GNparser,
 	verifMap map[string][]*dbshare.VerifSQL,
-	sources map[int]struct{},
 ) {
 	verifRecs, ok := verifMap[mItm.ID]
 	if !ok {
@@ -204,7 +185,6 @@ func (vrf *verifierpg) populateMatchRecord(
 			discardedNum++
 			continue
 		}
-		sources[vsql.DataSourceID] = struct{}{}
 
 		prsd := parser.ParseName(vsql.Name.String)
 		resData := vrf.addMatch(vsql, parser, prsd)

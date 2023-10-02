@@ -54,6 +54,10 @@ func (m mockVerifier) NameByID(
 	return res, nil
 }
 
+func (m mockVerifier) NameStringByID(s string) (string, error) {
+	return "", nil
+}
+
 type mockFacet struct{}
 
 func (mf mockFacet) Search(

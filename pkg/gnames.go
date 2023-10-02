@@ -3,25 +3,18 @@ package gnames
 import (
 	"context"
 	"slices"
-	"strconv"
-	"strings"
-	"unicode"
 
 	"github.com/gnames/gnames/internal/io/matcher"
 	"github.com/gnames/gnames/pkg/config"
 	"github.com/gnames/gnames/pkg/ent/facet"
-	"github.com/gnames/gnames/pkg/ent/lexgroup"
-	"github.com/gnames/gnames/pkg/ent/recon"
 	"github.com/gnames/gnames/pkg/ent/score"
 	"github.com/gnames/gnames/pkg/ent/verifier"
 	"github.com/gnames/gnlib/ent/gnvers"
 	mlib "github.com/gnames/gnlib/ent/matcher"
-	"github.com/gnames/gnlib/ent/reconciler"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	gnmatcher "github.com/gnames/gnmatcher/pkg"
 	gncfg "github.com/gnames/gnmatcher/pkg/config"
 	"github.com/gnames/gnparser/ent/str"
-	"github.com/gnames/gnquery/ent/search"
 	"github.com/gnames/gnstats/ent/stats"
 	"github.com/gnames/gnuuid"
 	"github.com/rs/zerolog/log"
@@ -55,42 +48,22 @@ func (g gnames) GetVersion() gnvers.Version {
 	}
 }
 
+func (g gnames) GetConfig() config.Config {
+	return g.cfg
+}
+
+func (g gnames) DataSources(ids ...int) ([]*vlib.DataSource, error) {
+	return g.vf.DataSources(ids...)
+}
+
 func (g gnames) Verify(
 	ctx context.Context,
 	input vlib.Input,
 ) (vlib.Output, error) {
-	namesNum := len(input.NameStrings)
-	if namesNum > 0 {
-		log.Info().Str("action", "verification").
-			Int("namesNum", len(input.NameStrings)).
-			Str("example", input.NameStrings[0])
-	}
+	var errString string
 	namesRes := make([]vlib.Name, len(input.NameStrings))
 
-	var matchOut mlib.Output
-	var opts []gncfg.Option
-	if input.WithSpeciesGroup {
-		opts = append(opts, gncfg.OptWithSpeciesGroup(true))
-	}
-	if input.WithUninomialFuzzyMatch {
-		opts = append(opts, gncfg.OptWithUninomialFuzzyMatch(true))
-	}
-	if len(input.DataSources) > 0 {
-		opts = append(opts, gncfg.OptDataSources(input.DataSources))
-	}
-
-	if input.WithCapitalization {
-		names := make([]string, len(input.NameStrings))
-		for i := range input.NameStrings {
-			names[i] = str.CapitalizeName(input.NameStrings[i])
-		}
-		matchOut = g.matcher.MatchNames(names, opts...)
-	} else {
-		matchOut = g.matcher.MatchNames(input.NameStrings, opts...)
-	}
-
-	var errString string
-	matchRecords, err := g.vf.MatchRecords(ctx, matchOut.Matches, input)
+	matchRecords, matchOut, err := g.getMatchRecords(ctx, input)
 	if err != nil {
 		errString = err.Error()
 	}
@@ -111,219 +84,36 @@ func (g gnames) Verify(
 	return res, nil
 }
 
-func (g gnames) Reconcile(
-	verif vlib.Output,
-	qs map[string]reconciler.Query,
-	ids []string,
-) reconciler.Output {
-	res := reconciler.Output(make(map[string]reconciler.ReconciliationResult))
-
-	for i, v := range verif.Names {
-		prs := qs[ids[i]].Properties
-		lgs := lexgroup.NameToLexicalGroups(v)
-		lgs = filterLexGrpByProperties(lgs, prs)
-		var rcs []reconciler.ReconciliationCandidate
-
-		for i, lg := range lgs {
-			cur := 0.95
-			first := 0.9
-			auth := 0.9
-			exact := 0.70
-			complete := 0.4
-			oneCode := 0.80
-
-			if i == 0 {
-				first = 1
-			}
-
-			if lg.Data[0].MatchType == vlib.Exact {
-				exact = 1
-				complete = 1
-			} else if lg.Data[0].MatchType == vlib.Fuzzy {
-				complete = 1
-			} else if lg.Data[0].MatchType == vlib.PartialExact {
-				exact = 1
-				if lg.Data[0].MatchedCardinality == 1 {
-					complete = 0.2
-				}
-			} else if lg.Data[0].MatchType == vlib.PartialFuzzy {
-				if lg.Data[0].MatchedCardinality == 1 {
-					complete = 0.2
-				}
-			}
-
-			if lg.Data[0].ScoreDetails.AuthorMatchScore > 0.2 {
-				auth = 1
-			}
-			if lg.Data[0].ScoreDetails.CuratedDataScore > 0 {
-				cur = 1
-			}
-			if len(lg.NomCodes) < 2 {
-				oneCode = 1
-			}
-
-			score := first * auth * cur * oneCode * exact * complete
-
-			features := []reconciler.Feature{
-				{ID: "first_result", Value: first},
-				{ID: "exact_match", Value: exact},
-				{ID: "complete_canonical_match", Value: complete},
-				{ID: "authors_compatible", Value: auth},
-				{ID: "has_curation_process", Value: cur},
-				{ID: "single_nomenclatural_code", Value: oneCode},
-			}
-
-			rc := reconciler.ReconciliationCandidate{
-				ID:       lg.ID,
-				Score:    score,
-				Match:    score == 1,
-				Features: features,
-				Name:     lg.Name,
-			}
-			rcs = append(rcs, rc)
-		}
-		res[ids[i]] = reconciler.ReconciliationResult{
-			Result: rcs,
-		}
-	}
-	return res
-}
-
-func (g gnames) ExtendReconcile(q reconciler.ExtendQuery) (reconciler.ExtendOutput, error) {
-	rows := make(map[string]map[string][]reconciler.PropertyValue)
-	var props []reconciler.Property
-	for _, v := range q.Properties {
-		prop := recon.NewProp(v.ID)
-		if prop == recon.Unknown {
-			continue
-		}
-		props = append(props, prop.Property())
-	}
-	res := reconciler.ExtendOutput{
-		Meta: props,
-		Rows: rows,
-	}
-	propRes := make(map[string]string)
-	for _, v := range q.IDs {
-		ns, err := g.NameByID(vlib.NameStringInput{
-			ID:             v,
-			WithAllMatches: false,
-		})
-		if err != nil {
-			return res, err
-		}
-		if ns.BestResult == nil {
-			continue
-		}
-		propRes[recon.CanonicalForm.Property().ID] =
-			ns.BestResult.MatchedCanonicalSimple
-		propRes[recon.CurrentName.Property().ID] = ns.BestResult.CurrentName
-		propRes[recon.Classification.Property().ID] =
-			ns.BestResult.ClassificationPath
-		propRes[recon.DataSource.Property().ID] =
-			ns.BestResult.DataSourceTitleShort
-		propRes[recon.OutlinkURL.Property().ID] = ns.BestResult.Outlink
-		row := extensionRow(q.Properties, propRes)
-		res.Rows[v] = row
-		clear(propRes)
-	}
-	return res, nil
-}
-
-func extensionRow(
-	props []reconciler.Property,
-	propsRes map[string]string,
-) map[string][]reconciler.PropertyValue {
-	res := make(map[string][]reconciler.PropertyValue)
-	for _, v := range props {
-		if _, ok := propsRes[v.ID]; ok {
-			res[v.ID] = []reconciler.PropertyValue{{Str: propsRes[v.ID]}}
-		}
-	}
-	return res
-}
-
-func (g gnames) NameByID(
-	params vlib.NameStringInput,
-) (vlib.NameStringOutput, error) {
-	var res vlib.NameStringOutput
-	mr, err := g.vf.NameByID(params)
-	if err != nil {
-		return res, err
-	}
-	meta := vlib.NameStringMeta{
-		ID:             params.ID,
-		DataSources:    params.DataSources,
-		WithAllMatches: params.WithAllMatches,
-	}
-	res.NameStringMeta = meta
-
-	if mr == nil {
-		return res, nil
-	}
-
-	name := outputName(mr, params.WithAllMatches)
-	res.Name = &name
-	return res, nil
-}
-
-func overloadTxt(mr *verifier.MatchRecord) string {
-	if !mr.Overload {
-		return ""
-	}
-	return "Too many records (possibly strains), some results are truncated"
-}
-
-func (g gnames) Search(
-	ctx context.Context,
-	input search.Input,
-) search.Output {
-	input.Query = input.ToQuery()
-	log.Info().Str("action", "search").Str("query", input.Query)
-
-	res := search.Output{Meta: search.Meta{Input: input}}
-	matchRecords, err := g.facet.Search(ctx, input)
-	if err != nil {
-		res.Error = err.Error()
-	}
-	res.NamesNumber = len(matchRecords)
-
-	sortedNames := sortNames(matchRecords)
-	resNames := make([]vlib.Name, len(matchRecords))
-
-	for i, v := range sortedNames {
-		mr := matchRecords[v]
-		resNames[i] = outputName(mr, input.WithAllMatches)
-	}
-
-	res.Names = resNames
-	return res
-}
-
 func outputName(mr *verifier.MatchRecord, allMatches bool) vlib.Name {
 	s := score.New()
 	s.SortResults(mr)
 	item := vlib.Name{
-		ID:               mr.ID,
-		Name:             mr.Name,
-		DataSourcesNum:   mr.DataSourcesNum,
-		DataSourcesIDs:   mr.DataSourcesIDs,
-		Cardinality:      mr.Cardinality,
-		OverloadDetected: overloadTxt(mr),
-	}
-	bestResult := s.BestResult(mr)
-	if bestResult != nil {
-		item.Curation = bestResult.Curation
-		item.MatchType = bestResult.MatchType
-	} else {
-		item.OverloadDetected = ""
+		ID:                 mr.ID,
+		Name:               mr.Name,
+		DataSourcesNum:     mr.DataSourcesNum,
+		DataSourcesDetails: mr.DataSourcesDetails,
+		Cardinality:        mr.Cardinality,
+		OverloadDetected:   overloadTxt(mr),
 	}
 
-	if allMatches {
-		item.Results = s.Results(mr)
-	} else {
-		item.BestResult = bestResult
+	results := s.Results(mr)
+	if len(results) == 0 {
+		item.OverloadDetected = ""
+		return item
 	}
+
+	bestResult := results[0]
+	item.Curation = bestResult.Curation
+	item.MatchType = bestResult.MatchType
+
+	if allMatches {
+		item.Results = results
+		return item
+	}
+
+	item.BestResult = bestResult
+	item.DataSourcesIDs = getDataSourcesIDs(results)
+	item.DataSourcesNum = len(item.DataSourcesIDs)
 	return item
 }
 
@@ -376,136 +166,62 @@ func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 	return res
 }
 
-func (g gnames) DataSources(ids ...int) ([]*vlib.DataSource, error) {
-	return g.vf.DataSources(ids...)
+func (g gnames) getMatchRecords(
+	ctx context.Context,
+	input vlib.Input,
+) (map[string]*verifier.MatchRecord, mlib.Output, error) {
+
+	namesNum := len(input.NameStrings)
+	if namesNum > 0 {
+		log.Info().Str("action", "verification").
+			Int("namesNum", len(input.NameStrings)).
+			Str("example", input.NameStrings[0])
+	}
+
+	var matchOut mlib.Output
+	var opts []gncfg.Option
+	if input.WithSpeciesGroup {
+		opts = append(opts, gncfg.OptWithSpeciesGroup(true))
+	}
+	if input.WithUninomialFuzzyMatch {
+		opts = append(opts, gncfg.OptWithUninomialFuzzyMatch(true))
+	}
+	if len(input.DataSources) > 0 {
+		opts = append(opts, gncfg.OptDataSources(input.DataSources))
+	}
+
+	if input.WithCapitalization {
+		names := make([]string, len(input.NameStrings))
+		for i := range input.NameStrings {
+			names[i] = str.CapitalizeName(input.NameStrings[i])
+		}
+		matchOut = g.matcher.MatchNames(names, opts...)
+	} else {
+		matchOut = g.matcher.MatchNames(input.NameStrings, opts...)
+	}
+
+	mRec, err := g.vf.MatchRecords(ctx, matchOut.Matches, input)
+	return mRec, matchOut, err
 }
 
-func FirstUpperCase(name string) string {
-	runes := []rune(name)
-	if len(runes) < 2 {
-		return name
+func overloadTxt(mr *verifier.MatchRecord) string {
+	if !mr.Overload {
+		return ""
 	}
-
-	one := runes[0]
-	two := runes[1]
-	if unicode.IsUpper(one) || !unicode.IsLetter(one) {
-		return name
-	}
-	if one == 'x' && (two == ' ' || unicode.IsUpper(two)) {
-		return name
-	}
-	runes[0] = unicode.ToUpper(one)
-	return string(runes)
+	return "Too many records (possibly strains), some results are truncated"
 }
 
-func sortNames(mrs map[string]*verifier.MatchRecord) []string {
-	res := make([]string, len(mrs))
+func getDataSourcesIDs(rs []*vlib.ResultData) []int {
+	resMap := make(map[int]struct{})
+	for _, v := range rs {
+		resMap[v.DataSourceID] = struct{}{}
+	}
+	res := make([]int, len(resMap))
 	var count int
-	for k := range mrs {
+	for k := range resMap {
 		res[count] = k
 		count++
 	}
 	slices.Sort(res)
-	return res
-}
-
-func (g gnames) GetConfig() config.Config {
-	return g.cfg
-}
-
-func filterLexGrpByProperties(
-	lgs []lexgroup.LexicalGroup,
-	prs []reconciler.PropertyInfo,
-) []lexgroup.LexicalGroup {
-	var res []lexgroup.LexicalGroup
-	if len(prs) == 0 {
-		return lgs
-	}
-	for i := range lgs {
-		grp := filterGroup(lgs[i], prs)
-		if len(grp.Data) > 0 {
-			res = append(res, grp)
-		}
-	}
-	return res
-}
-
-func filterGroup(
-	lg lexgroup.LexicalGroup,
-	prs []reconciler.PropertyInfo,
-) lexgroup.LexicalGroup {
-	var res lexgroup.LexicalGroup
-	fs := make(map[string]string)
-	for i := range prs {
-		pid := strings.ToLower(prs[i].PropertyID)
-		fs[pid] = prs[i].PropertyValue
-	}
-	if taxon, ok := fs[recon.HigherTaxon.Property().ID]; ok {
-		res = filterByTaxon(lg, taxon)
-	} else {
-		res = lg
-	}
-	if idStr, ok := fs[recon.DataSourceIDs.Property().ID]; ok {
-		ids := getDataSourceIDs(idStr)
-		if len(ids) > 0 {
-			res = filterByDataSource(lg, ids)
-		}
-	}
-	return res
-}
-
-func getDataSourceIDs(s string) map[int]struct{} {
-	res := make(map[int]struct{})
-	elements := strings.Split(s, ",")
-	for _, v := range elements {
-		v = strings.TrimSpace(v)
-		id, err := strconv.Atoi(v)
-		if err == nil {
-			res[id] = struct{}{}
-		}
-	}
-	return res
-}
-
-func filterByTaxon(
-	lg lexgroup.LexicalGroup,
-	taxon string,
-) lexgroup.LexicalGroup {
-	var res lexgroup.LexicalGroup
-	var ds []*vlib.ResultData
-	d := lg.Data
-	for i := range d {
-		if d[i].ClassificationPath == "" {
-			continue
-		}
-		if strings.Index(d[i].ClassificationPath, taxon) > -1 {
-			ds = append(ds, d[i])
-		}
-	}
-	if len(ds) > 0 {
-		res = lexgroup.New(ds[0])
-		res.Data = ds
-	}
-	return res
-}
-
-func filterByDataSource(
-	lg lexgroup.LexicalGroup,
-	ids map[int]struct{},
-) lexgroup.LexicalGroup {
-	var res lexgroup.LexicalGroup
-	var ds []*vlib.ResultData
-
-	d := lg.Data
-	for i := range d {
-		if _, ok := ids[d[i].DataSourceID]; ok {
-			ds = append(ds, d[i])
-		}
-	}
-
-	if len(ds) > 0 {
-		res = lexgroup.New(ds[0])
-		res.Data = ds
-	}
 	return res
 }

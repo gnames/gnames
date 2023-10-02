@@ -29,4 +29,8 @@ type Verifier interface {
 	// NameByID takes a name-string UUID with options and returns back
 	// matched results or an error in case of a failure.
 	NameByID(vlib.NameStringInput) (*MatchRecord, error)
+
+	// NameStringByID takes UUID as an argument and returns back a name-string
+	// that corresponds to that UUID.
+	NameStringByID(string) (string, error)
 }
