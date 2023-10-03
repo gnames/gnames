@@ -65,19 +65,6 @@ func (s score) SortResults(mr *verifier.MatchRecord) {
 	mr.Sorted = true
 }
 
-// BestResult returns the highest runked vlib.ResultData according to
-// scoring algorithm.
-func (s score) BestResult(mr *verifier.MatchRecord) *vlib.ResultData {
-	if mr.MatchResults == nil {
-		return nil
-	}
-
-	if !mr.Sorted {
-		s.SortResults(mr)
-	}
-	return mr.MatchResults[0]
-}
-
 // Results returns the best scoring vlib.ResultData for each of
 // the preffered data-source. From 0 to 1 results per data-source are allowed.
 func (s score) Results(
