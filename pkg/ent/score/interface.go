@@ -20,10 +20,6 @@ type Score interface {
 	// lowest-scored record is the last.
 	SortResults(*verifier.MatchRecord)
 
-	// BestResult returns the pointer to the best result according to score
-	// altorithm.
-	BestResult(*verifier.MatchRecord) *vlib.ResultData
-
 	// Results returns the best-scoring result for each of the
 	// given selected data-sources.
 	Results(mr *verifier.MatchRecord) []*vlib.ResultData

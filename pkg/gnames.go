@@ -311,20 +311,40 @@ func outputName(mr *verifier.MatchRecord, allMatches bool) vlib.Name {
 		Cardinality:        mr.Cardinality,
 		OverloadDetected:   overloadTxt(mr),
 	}
-	bestResult := s.BestResult(mr)
-	if bestResult != nil {
-		item.Curation = bestResult.Curation
-		item.MatchType = bestResult.MatchType
-	} else {
+
+	results := s.Results(mr)
+	if len(results) == 0 {
 		item.OverloadDetected = ""
+		return item
 	}
 
+	bestResult := results[0]
+	item.Curation = bestResult.Curation
+	item.MatchType = bestResult.MatchType
+
 	if allMatches {
-		item.Results = s.Results(mr)
-	} else {
-		item.BestResult = bestResult
+		item.Results = results
+		return item
 	}
+
+	item.BestResult = bestResult
+	item.DataSourcesIDs = getDataSourceIDs(results)
 	return item
+}
+
+func getDataSourceIDs(rs []*vlib.ResultData) []int {
+	resMap := make(map[int]struct{})
+	for _, v := range rs {
+		resMap[v.DataSourceID] = struct{}{}
+	}
+	res := make([]int, len(resMap))
+	var count int
+	for k := range resMap {
+		res[count] = k
+		count++
+	}
+	slices.Sort(res)
+	return res
 }
 
 func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
@@ -446,7 +466,7 @@ func filterGroup(
 		res = lg
 	}
 	if idStr, ok := fs[recon.DataSourceIDs.Property().ID]; ok {
-		ids := getDataSourceIDs(idStr)
+		ids := getDataSourcesIDs(idStr)
 		if len(ids) > 0 {
 			res = filterByDataSource(lg, ids)
 		}
@@ -454,7 +474,7 @@ func filterGroup(
 	return res
 }
 
-func getDataSourceIDs(s string) map[int]struct{} {
+func getDataSourcesIDs(s string) map[int]struct{} {
 	res := make(map[int]struct{})
 	elements := strings.Split(s, ",")
 	for _, v := range elements {
