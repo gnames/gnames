@@ -328,23 +328,9 @@ func outputName(mr *verifier.MatchRecord, allMatches bool) vlib.Name {
 	}
 
 	item.BestResult = bestResult
-	item.DataSourcesIDs = getDataSourceIDs(results)
+	item.DataSourcesIDs = getDataSourcesIDs(results)
+	item.DataSourcesNum = len(item.DataSourcesIDs)
 	return item
-}
-
-func getDataSourceIDs(rs []*vlib.ResultData) []int {
-	resMap := make(map[int]struct{})
-	for _, v := range rs {
-		resMap[v.DataSourceID] = struct{}{}
-	}
-	res := make([]int, len(resMap))
-	var count int
-	for k := range resMap {
-		res[count] = k
-		count++
-	}
-	slices.Sort(res)
-	return res
 }
 
 func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
@@ -466,7 +452,7 @@ func filterGroup(
 		res = lg
 	}
 	if idStr, ok := fs[recon.DataSourceIDs.Property().ID]; ok {
-		ids := getDataSourcesIDs(idStr)
+		ids := filteredDataSrcIDs(idStr)
 		if len(ids) > 0 {
 			res = filterByDataSource(lg, ids)
 		}
@@ -474,7 +460,7 @@ func filterGroup(
 	return res
 }
 
-func getDataSourcesIDs(s string) map[int]struct{} {
+func filteredDataSrcIDs(s string) map[int]struct{} {
 	res := make(map[int]struct{})
 	elements := strings.Split(s, ",")
 	for _, v := range elements {
@@ -527,5 +513,20 @@ func filterByDataSource(
 		res = lexgroup.New(ds[0])
 		res.Data = ds
 	}
+	return res
+}
+
+func getDataSourcesIDs(rs []*vlib.ResultData) []int {
+	resMap := make(map[int]struct{})
+	for _, v := range rs {
+		resMap[v.DataSourceID] = struct{}{}
+	}
+	res := make([]int, len(resMap))
+	var count int
+	for k := range resMap {
+		res[count] = k
+		count++
+	}
+	slices.Sort(res)
 	return res
 }
