@@ -5,14 +5,14 @@ go 1.21
 require (
 	github.com/georgysavva/scany v1.2.1
 	github.com/gnames/gnfmt v0.4.3
-	github.com/gnames/gnlib v0.21.0
+	github.com/gnames/gnlib v0.24.0
 	github.com/gnames/gnmatcher v1.1.8
-	github.com/gnames/gnparser v1.8.0
+	github.com/gnames/gnparser v1.9.0
 	github.com/gnames/gnquery v0.3.4
 	github.com/gnames/gnstats v0.2.1
 	github.com/gnames/gnsys v0.2.3
 	github.com/gnames/gnuuid v0.1.2
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.4.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/lib/pq v1.10.9

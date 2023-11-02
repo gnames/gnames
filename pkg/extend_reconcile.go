@@ -1,8 +1,6 @@
 package gnames
 
 import (
-	"cmp"
-	"slices"
 	"strings"
 
 	"github.com/gnames/gnames/pkg/ent/recon"
@@ -82,7 +80,9 @@ func jsonClassification(cl string, rnk string) string {
 	return string(res)
 }
 
-func getDataSourcesDetails(rs []*vlib.ResultData) []vlib.DataSourceDetails {
+func getDataSourcesDetails(
+	rs []*vlib.ResultData,
+) map[string]vlib.DataSourceDetails {
 	resMap := make(map[int]vlib.DataSourceDetails)
 	for _, v := range rs {
 		if strings.HasPrefix(v.RecordID, "gn_") ||
@@ -94,6 +94,7 @@ func getDataSourcesDetails(rs []*vlib.ResultData) []vlib.DataSourceDetails {
 			RecordID:   v.RecordID,
 			NameString: v.MatchedName,
 			AuthScore:  v.ScoreDetails.AuthorMatchScore > 0,
+			Outlink:    v.Outlink,
 		}
 		if !match.AuthScore {
 			continue
@@ -109,15 +110,10 @@ func getDataSourcesDetails(rs []*vlib.ResultData) []vlib.DataSourceDetails {
 			}
 		}
 	}
-	res := make([]vlib.DataSourceDetails, len(resMap))
-	var count int
+	res := make(map[string]vlib.DataSourceDetails)
 	for _, v := range resMap {
-		res[count] = v
-		count++
+		res[v.TitleShort] = v
 	}
-	slices.SortFunc(res, func(a, b vlib.DataSourceDetails) int {
-		return cmp.Compare(a.TitleShort, b.TitleShort)
-	})
 	return res
 }
 
