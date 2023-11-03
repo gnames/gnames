@@ -4,6 +4,11 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.2.2] - 2023-11-03 Fri
+
+- Add: update modules
+- Add: reconciliation extend returns hash instead of array for all matches.
+
 ## [v1.2.1] - 2023-10-06 Fri
 
 - Add [#118]: reconcile extension to show all good matches.
