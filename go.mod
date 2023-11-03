@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/georgysavva/scany v1.2.1
 	github.com/gnames/gnfmt v0.4.3
-	github.com/gnames/gnlib v0.24.0
+	github.com/gnames/gnlib v0.25.0
 	github.com/gnames/gnmatcher v1.1.8
 	github.com/gnames/gnparser v1.9.0
 	github.com/gnames/gnquery v0.3.4

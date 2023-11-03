@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.2.3] - 2023-11-03 Fri
+
+- Fix: wrong match_type.
+
 ## [v1.2.2] - 2023-11-03 Fri
 
 - Add: update modules
