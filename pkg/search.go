@@ -5,11 +5,16 @@ import (
 	"log/slog"
 	"slices"
 
-	"github.com/gnames/gnames/pkg/ent/verifier"
+	"github.com/gnames/gnames/pkg/ent/verif"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnquery/ent/search"
 )
 
+// Search finds scientific names that match the provided partial
+// information. For example, it can handle cases where the genus is
+// abbreviated or only part of the specific epithet is known.
+// It can also utilize year and year range information to narrow
+// down the search.
 func (g gnames) Search(
 	ctx context.Context,
 	input search.Input,
@@ -18,7 +23,7 @@ func (g gnames) Search(
 	slog.Info("Search", "query", input.Query)
 
 	res := search.Output{Meta: search.Meta{Input: input}}
-	matchRecords, err := g.facet.Search(ctx, input)
+	matchRecords, err := g.sr.AdvancedSearch(ctx, input)
 	if err != nil {
 		res.Error = err.Error()
 	}
@@ -36,7 +41,7 @@ func (g gnames) Search(
 	return res
 }
 
-func sortNames(mrs map[string]*verifier.MatchRecord) []string {
+func sortNames(mrs map[string]*verif.MatchRecord) []string {
 	res := make([]string, len(mrs))
 	var count int
 	for k := range mrs {

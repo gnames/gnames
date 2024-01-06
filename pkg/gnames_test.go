@@ -6,7 +6,7 @@ import (
 
 	gnames "github.com/gnames/gnames/pkg"
 	"github.com/gnames/gnames/pkg/config"
-	"github.com/gnames/gnames/pkg/ent/verifier"
+	"github.com/gnames/gnames/pkg/ent/verif"
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnquery/ent/search"
@@ -19,7 +19,7 @@ func TestVerifier(t *testing.T) {
 	ctx := context.Background()
 	vf := mockVerifier{}
 	fct := mockFacet{}
-	g = gnames.NewGNames(cfg, vf, fct)
+	g = gnames.New(cfg, vf, fct)
 	testData := []struct {
 		name string
 	}{
@@ -33,24 +33,24 @@ func TestVerifier(t *testing.T) {
 
 type mockVerifier struct{}
 
-func (m mockVerifier) DataSources(ids ...int) ([]*vlib.DataSource, error) {
+func (m mockVerifier) DataSources(ids ...int) []*vlib.DataSource {
 	var res []*vlib.DataSource
-	return res, nil
+	return res
 }
 
 func (m mockVerifier) MatchRecords(
 	ctx context.Context,
 	fmatches []mlib.Match,
 	input vlib.Input,
-) (map[string]*verifier.MatchRecord, error) {
-	var res map[string]*verifier.MatchRecord
+) (map[string]*verif.MatchRecord, error) {
+	var res map[string]*verif.MatchRecord
 	return res, nil
 }
 
 func (m mockVerifier) NameByID(
 	nsi vlib.NameStringInput,
-) (*verifier.MatchRecord, error) {
-	var res *verifier.MatchRecord
+) (*verif.MatchRecord, error) {
+	var res *verif.MatchRecord
 	return res, nil
 }
 
@@ -60,10 +60,10 @@ func (m mockVerifier) NameStringByID(s string) (string, error) {
 
 type mockFacet struct{}
 
-func (mf mockFacet) Search(
+func (mf mockFacet) AdvancedSearch(
 	ctx context.Context,
 	inp search.Input,
-) (map[string]*verifier.MatchRecord, error) {
-	var res map[string]*verifier.MatchRecord
+) (map[string]*verif.MatchRecord, error) {
+	var res map[string]*verif.MatchRecord
 	return res, nil
 }

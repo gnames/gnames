@@ -1,16 +1,21 @@
-package facetpg
+package pgio
 
 import (
 	"fmt"
 	"strings"
 
 	"github.com/gnames/gnparser/ent/parsed"
-	"github.com/lib/pq"
+	"github.com/gnames/gnquery/ent/search"
 )
 
-func (f *facetpg) spQuery() (string, []interface{}) {
-	sp, insertStr := f.prepareSpWord()
-	args := []interface{}{sp, pq.Array(f.spWordIDs)}
+func spQuery(
+	inp search.Input,
+	spWordIDs []int,
+	spWord string,
+) (string, []any) {
+	// prepare species epithet word for SQL
+	sp, insertStr := prepareSpWord(spWord)
+	args := []any{sp, spWordIDs}
 	q := fmt.Sprintf(`
 WITH sp AS (
   SELECT DISTINCT v.name_string_id
@@ -22,7 +27,8 @@ WITH sp AS (
       AND type_id = any($2::int[])`, insertStr,
 	)
 	spQ := []string{q}
-	gen := f.prepareGenWord()
+	// prepare genus word for SQL
+	gen := prepareGenWord(inp)
 	if gen != "" {
 		args = append(args, gen)
 		genQ := fmt.Sprintf("      AND c.name LIKE $%d", len(args))
@@ -30,8 +36,8 @@ WITH sp AS (
 	}
 
 	// add higher taxon constraint
-	if tx := f.ParentTaxon; tx != "" {
-    tx = "%" + tx + "%"
+	if tx := inp.ParentTaxon; tx != "" {
+		tx = "%" + tx + "%"
 		args = append(args, tx)
 		clQ := fmt.Sprintf("      AND v.classification LIKE $%d", len(args))
 		spQ = append(spQ, clQ)
@@ -42,9 +48,11 @@ WITH sp AS (
 	return res, args
 }
 
-func (f *facetpg) prepareSpWord() (string, string) {
+// prepareSpWord prepares a species epithet word to be compatible with
+// SQL.
+func prepareSpWord(spWord string) (string, string) {
 	iStr := "normalized like $1"
-	bs := []byte(f.spWord)
+	bs := []byte(spWord)
 	l := len(bs)
 	if bs[l-1] == '.' {
 		bs[l-1] = '%'
@@ -52,12 +60,14 @@ func (f *facetpg) prepareSpWord() (string, string) {
 	}
 
 	iStr = "modified = $1"
-	st := parsed.NormalizeByType(f.spWord, parsed.SpEpithetType)
+	st := parsed.NormalizeByType(spWord, parsed.SpEpithetType)
 	return st, iStr
 }
 
-func (f *facetpg) prepareGenWord() string {
-	g := f.Genus
+// prepareGenWord prepares a genus epithet word to be compatible with
+// SQL.
+func prepareGenWord(inp search.Input) string {
+	g := inp.Genus
 	if len(g) < 2 {
 		return ""
 	}

@@ -6,7 +6,7 @@ import (
 	"math"
 	"slices"
 
-	"github.com/gnames/gnames/pkg/ent/verifier"
+	"github.com/gnames/gnames/pkg/ent/verif"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 
@@ -42,7 +42,7 @@ func (s score) sortScore() float64 {
 
 // SortResults goes through vlib.ResultData aggregated by a match and
 // assigns each of them a score accoring to the scoring algorithms.
-func (s score) SortResults(mr *verifier.MatchRecord) {
+func (s score) SortResults(mr *verif.MatchRecord) {
 	for _, rd := range mr.MatchResults {
 		s = s.cardinality(mr.Cardinality, rd.MatchedCardinality).
 			rank(mr.CanonicalFull, rd.MatchedCanonicalFull,
@@ -68,7 +68,7 @@ func (s score) SortResults(mr *verifier.MatchRecord) {
 // Results returns the best scoring vlib.ResultData for each of
 // the preffered data-source. From 0 to 1 results per data-source are allowed.
 func (s score) Results(
-	mr *verifier.MatchRecord,
+	mr *verif.MatchRecord,
 ) []*vlib.ResultData {
 
 	if !mr.Sorted {

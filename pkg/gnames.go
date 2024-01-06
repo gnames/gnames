@@ -7,9 +7,9 @@ import (
 
 	"github.com/gnames/gnames/internal/io/matcher"
 	"github.com/gnames/gnames/pkg/config"
-	"github.com/gnames/gnames/pkg/ent/facet"
 	"github.com/gnames/gnames/pkg/ent/score"
-	"github.com/gnames/gnames/pkg/ent/verifier"
+	"github.com/gnames/gnames/pkg/ent/srch"
+	"github.com/gnames/gnames/pkg/ent/verif"
 	"github.com/gnames/gnlib/ent/gnvers"
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
@@ -22,21 +22,21 @@ import (
 
 type gnames struct {
 	cfg     config.Config
-	vf      verifier.Verifier
-	facet   facet.Facet
+	vf      verif.Verifier
+	sr      srch.Searcher
 	matcher gnmatcher.GNmatcher
 }
 
-// NewGNames is a constructor that returns implmentation of GNames interface.
-func NewGNames(
+// New is a constructor that returns implmentation of GNames interface.
+func New(
 	cfg config.Config,
-	vf verifier.Verifier,
-	fc facet.Facet,
+	vf verif.Verifier,
+	sr srch.Searcher,
 ) GNames {
 	return gnames{
 		cfg:     cfg,
 		vf:      vf,
-		facet:   fc,
+		sr:      sr,
 		matcher: matcher.New(cfg.MatcherURL),
 	}
 }
@@ -52,7 +52,7 @@ func (g gnames) GetConfig() config.Config {
 	return g.cfg
 }
 
-func (g gnames) DataSources(ids ...int) ([]*vlib.DataSource, error) {
+func (g gnames) DataSources(ids ...int) []*vlib.DataSource {
 	return g.vf.DataSources(ids...)
 }
 
@@ -84,7 +84,7 @@ func (g gnames) Verify(
 	return res, nil
 }
 
-func outputName(mr *verifier.MatchRecord, allMatches bool) vlib.Name {
+func outputName(mr *verif.MatchRecord, allMatches bool) vlib.Name {
 	s := score.New()
 	s.SortResults(mr)
 	item := vlib.Name{
@@ -169,7 +169,7 @@ func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 func (g gnames) getMatchRecords(
 	ctx context.Context,
 	input vlib.Input,
-) (map[string]*verifier.MatchRecord, mlib.Output, error) {
+) (map[string]*verif.MatchRecord, mlib.Output, error) {
 
 	namesNum := len(input.NameStrings)
 	if namesNum > 0 {
@@ -206,7 +206,7 @@ func (g gnames) getMatchRecords(
 	return mRec, matchOut, err
 }
 
-func overloadTxt(mr *verifier.MatchRecord) string {
+func overloadTxt(mr *verif.MatchRecord) string {
 	if !mr.Overload {
 		return ""
 	}

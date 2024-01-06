@@ -4,7 +4,7 @@ package score
 import (
 	"fmt"
 
-	"github.com/gnames/gnames/pkg/ent/verifier"
+	"github.com/gnames/gnames/pkg/ent/verif"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 
@@ -18,9 +18,9 @@ type Score interface {
 	// for all MatachResults and sorts them in reverse order according to
 	// the calculated score. The highest-scored record is the first, and the
 	// lowest-scored record is the last.
-	SortResults(*verifier.MatchRecord)
+	SortResults(*verif.MatchRecord)
 
 	// Results returns the best-scoring result for each of the
 	// given selected data-sources.
-	Results(mr *verifier.MatchRecord) []*vlib.ResultData
+	Results(mr *verif.MatchRecord) []*vlib.ResultData
 }

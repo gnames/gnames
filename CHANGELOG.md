@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.2.5] - 01/09/2024 Tue
+
+- Fix: Move database interactions to pgx library and connection Pool.
+
 ## [v1.2.4] - 2024-01-08 Mon
 
 - Fix: running condition in auth file. It was crashing gnames from time

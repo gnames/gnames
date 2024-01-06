@@ -1,7 +1,4 @@
-// Package verifier provides data about biodiversity
-// data-sources and metadata about scientific names aggregated from them.
-// The package includes an interface for the data access.
-package verifier
+package verif
 
 import (
 	"context"
@@ -10,12 +7,12 @@ import (
 	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 
-// Verifier is an interface that can be implemented by any data provider
-// able to prepare raw data for verification.
 type Verifier interface {
-	// DataSources returns a slice of all data-sources known to gnames. If
-	// idd are provided, it returns a slice of requested data-sources.
-	DataSources(ids ...int) ([]*vlib.DataSource, error)
+
+	// DataSources takes a list of data-source IDs and returns a slice of
+	// data-sources that correspond to these IDs. If no ids are provided, return
+	// all data-sources.
+	DataSources(ids ...int) []*vlib.DataSource
 
 	// MatchRecords function returns unsorted records corresponding to Input
 	// matches.  Matches contain an input name-string, and strings that matched

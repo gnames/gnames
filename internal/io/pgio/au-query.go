@@ -1,18 +1,19 @@
-package facetpg
+package pgio
 
 import (
 	"fmt"
 
-	"github.com/gnames/gnames/internal/io/dbshare"
 	"github.com/gnames/gnparser/ent/parsed"
+	"github.com/gnames/gnquery/ent/search"
 )
 
-func (f *facetpg) auQuery(
+func auQuery(
 	q string,
+	inp search.Input,
 	args []interface{},
 ) (string, []interface{}) {
 	var auStr string
-	auStr, args = f.prepareAuWord(args)
+	auStr, args = prepareAuWord(inp, args)
 	args = append(args, int(parsed.AuthorWordType))
 	auQ := fmt.Sprintf(`
 au AS (
@@ -26,19 +27,20 @@ au AS (
 SELECT distinct %s
   FROM verification v
     RIGHT JOIN au ON v.name_string_id = au.name_string_id
-    WHERE 1=1`, auStr, len(args), dbshare.QueryFields)
+    WHERE 1=1`, auStr, len(args), queryFields)
 
-	auQ, args = f.queryEnd(auQ, args)
+	auQ, args = queryEnd(auQ, inp, args)
 	auQ = q + "," + auQ
 
 	return auQ, args
 }
 
-func (f *facetpg) prepareAuWord(
+func prepareAuWord(
+	inp search.Input,
 	args []interface{},
 ) (string, []interface{}) {
 	var str string
-	au := parsed.NormalizeByType(f.Author, parsed.AuthorWordType)
+	au := parsed.NormalizeByType(inp.Author, parsed.AuthorWordType)
 	bs := []byte(au)
 	l := len(bs)
 	if bs[l-1] == '.' {

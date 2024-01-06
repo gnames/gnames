@@ -1,22 +1,15 @@
-package dbshare
+package pgio
 
 import (
 	"database/sql"
-	"fmt"
 	"strconv"
 
-	"github.com/gnames/gnames/pkg/config"
 	"github.com/gnames/gnparser/ent/parsed"
+	"github.com/jackc/pgx/v5"
 )
 
-func DBURL(cnf config.Config) string {
-	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
-		cnf.PgUser, cnf.PgPass, cnf.PgHost, cnf.PgPort, cnf.PgDB)
-}
-
-// MatchRecords connects result data to input name-string. Input name-string
-// is a key.
-type VerifSQL struct {
+// verifSQL is an intermediate data to create verif.MatchRecords
+type verifSQL struct {
 	CanonicalID         sql.NullString
 	Canonical           sql.NullString
 	CanonicalFull       sql.NullString
@@ -36,15 +29,28 @@ type VerifSQL struct {
 	ParseQuality        int
 }
 
-var QueryFields = `
-  v.canonical_id, v.name, v.data_source_id, v.record_id,
-  v.name_string_id, v.local_id, v.outlink_id, v.accepted_record_id,
-  v.accepted_name_id, v.accepted_name, v.classification,
-  v.classification_ranks, v.classification_ids, v.parse_quality
-`
+func rowsToVerifSQL(rows pgx.Rows) ([]*verifSQL, error) {
+	var err error
+	var res []*verifSQL
+	for rows.Next() {
+		var v verifSQL
+		err = rows.Scan(
+			&v.CanonicalID, &v.Name, &v.DataSourceID, &v.RecordID,
+			&v.NameStringID, &v.LocalID, &v.OutlinkID, &v.AcceptedRecordID,
+			&v.AcceptedNameID, &v.AcceptedName, &v.Classification,
+			&v.ClassificationRanks, &v.ClassificationIds, &v.ParseQuality,
+		)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, &v)
+	}
 
-// ProcessAuthorship converts year to int and provides authors as a slice.
-func ProcessAuthorship(au *parsed.Authorship) ([]string, int) {
+	return res, nil
+}
+
+// processAuthorship converts year to int and provides authors as a slice.
+func processAuthorship(au *parsed.Authorship) ([]string, int) {
 	authors := make([]string, 0, 2)
 	var year int
 	if au == nil {

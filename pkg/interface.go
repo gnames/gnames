@@ -35,7 +35,11 @@ type GNames interface {
 		reconciler.ExtendQuery,
 	) (reconciler.ExtendOutput, error)
 
-	// Search performs a faceted search using search parameters.
+	// Search finds scientific names that match the provided partial
+	// information. For example, it can handle cases where the genus is
+	// abbreviated or only part of the specific epithet is known.
+	// It can also utilize year and year range information to narrow
+	// down the search.
 	Search(ctx context.Context, srch search.Input) search.Output
 
 	// NameByID finds a name-string according to its UUID or exact spelling.
@@ -43,9 +47,10 @@ type GNames interface {
 	// all strings that match name-string connected to the ID.
 	NameByID(verifier.NameStringInput, bool) (verifier.NameStringOutput, error)
 
-	// Datasources take IDs of data-sourses and return back list of corresponding
-	// metadata. If no IDs are given, it returns metadata for all data-sources.
-	DataSources(ids ...int) ([]*verifier.DataSource, error)
+	// Datasources take IDs of data-sourses and return back list of
+	// corresponding metadata. If no IDs are given, it returns metadata for all
+	// data-sources.
+	DataSources(ids ...int) []*verifier.DataSource
 
 	// GetConfig returns configuration of the GNames object.
 	GetConfig() config.Config

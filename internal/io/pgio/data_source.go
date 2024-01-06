@@ -1,16 +1,69 @@
-package dbshare
+package pgio
 
 import (
 	"context"
-	"database/sql"
-	"log/slog"
+	"fmt"
 	"time"
 
-	"github.com/georgysavva/scany/sqlscan"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
+	"github.com/jackc/pgx/v5"
 )
+
+func (p *pgio) dataSources(ids ...int) ([]*vlib.DataSource, error) {
+	var err error
+	var rows pgx.Rows
+	var dss []*dataSource
+	ctx := context.Background()
+
+	idsWere := "WHERE id = any($1)"
+	q := `
+SELECT id, uuid, title, title_short, version, revision_date,
+    doi, citation, authors, description, website_url, outlink_url,
+    is_outlink_ready, is_curated, is_auto_curated, record_count, updated_at
+	FROM data_sources
+	%s
+	ORDER BY id
+  `
+	insert := ""
+	if len(ids) > 0 {
+		insert = idsWere
+	}
+	q = fmt.Sprintf(q, insert)
+
+	if len(ids) == 0 {
+		rows, err = p.db.Query(ctx, q)
+	} else {
+		rows, err = p.db.Query(ctx, q, ids)
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var ds dataSource
+		err = rows.Scan(
+			&ds.ID, &ds.UUID, &ds.Title, &ds.TitleShort, &ds.Version,
+			&ds.RevisionDate, &ds.DOI, &ds.Citation, &ds.Authors,
+			&ds.Description, &ds.WebsiteURL, &ds.OutlinkURL,
+			&ds.IsOutlinkReady, &ds.IsCurated, &ds.IsAutoCurated,
+			&ds.RecordCount, &ds.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		dss = append(dss, &ds)
+	}
+
+	res := make([]*vlib.DataSource, len(dss))
+
+	for i := range dss {
+		dsItem := dss[i].convert()
+		res[i] = &dsItem
+	}
+	return res, err
+}
 
 type dataSource struct {
 	ID             int
@@ -30,19 +83,6 @@ type dataSource struct {
 	IsAutoCurated  bool
 	RecordCount    int
 	UpdatedAt      time.Time
-}
-
-func DataSourcesMap(db *sql.DB) (map[int]*vlib.DataSource, error) {
-	res := make(map[int]*vlib.DataSource)
-	dss, err := DataSources(db)
-	if err != nil {
-		slog.Error("Cannot init DataSources data", "error", err)
-		return res, err
-	}
-	for _, ds := range dss {
-		res[ds.ID] = ds
-	}
-	return res, nil
 }
 
 func (ds dataSource) convert() vlib.DataSource {
@@ -74,36 +114,4 @@ func (ds dataSource) convert() vlib.DataSource {
 		res.Curation = vlib.NotCurated
 	}
 	return res
-}
-
-var dataSourcesQ = `
-SELECT id, uuid, title, title_short, version, revision_date,
-    doi, citation, authors, description, website_url, outlink_url,
-    is_outlink_ready, is_curated, is_auto_curated, record_count, updated_at
-  FROM data_sources`
-
-func DataSources(db *sql.DB, ids ...int) ([]*vlib.DataSource, error) {
-	q := dataSourcesQ
-	if len(ids) > 0 {
-		q += " WHERE id = any($1)"
-	}
-	q += " order by id"
-	return dataSourcesQuery(db, q, ids)
-}
-
-func dataSourcesQuery(db *sql.DB, q string, ids []int) ([]*vlib.DataSource, error) {
-	var dss []*dataSource
-	var err error
-	ctx := context.Background()
-	if len(ids) > 0 {
-		err = sqlscan.Select(ctx, db, &dss, q, pq.Array(ids))
-	} else {
-		err = sqlscan.Select(ctx, db, &dss, q)
-	}
-	res := make([]*vlib.DataSource, len(dss))
-	for i, ds := range dss {
-		dsItem := ds.convert()
-		res[i] = &dsItem
-	}
-	return res, err
 }

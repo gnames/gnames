@@ -99,10 +99,7 @@ func ver(gn gnames.GNames) func(echo.Context) error {
 
 func dataSources(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
-		dataSources, err := gn.DataSources()
-		if err != nil {
-			return err
-		}
+		dataSources := gn.DataSources()
 		return c.JSON(http.StatusOK, dataSources)
 	}
 }
@@ -114,10 +111,7 @@ func oneDataSource(gn gnames.GNames) func(echo.Context) error {
 		if err != nil {
 			return err
 		}
-		dataSources, err := gn.DataSources(id)
-		if err != nil {
-			return err
-		}
+		dataSources := gn.DataSources(id)
 		if len(dataSources) == 0 {
 			return fmt.Errorf("cannot find DataSource for id '%s'", idStr)
 		}

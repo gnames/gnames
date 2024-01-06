@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/gnames/gnames/pkg/ent/score"
-	"github.com/gnames/gnames/pkg/ent/verifier"
+	"github.com/gnames/gnames/pkg/ent/verif"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,7 +30,7 @@ func TestSortRecords(t *testing.T) {
 	assert.InDelta(t, 9.41003181086182, mr.MatchResults[3].SortScore, 0.00001)
 }
 
-var matchRec = verifier.MatchRecord{
+var matchRec = verif.MatchRecord{
 	ID:              "4c8848f2-7271-588c-ba81-e4d5efcc1e92",
 	Name:            "Pisonia grandis",
 	Cardinality:     2,

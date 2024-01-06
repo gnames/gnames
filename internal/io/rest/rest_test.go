@@ -464,7 +464,9 @@ func TestMainTaxon(t *testing.T) {
 
 func TestSpeciesGroup(t *testing.T) {
 	var response vlib.Output
-	resp, err := http.Get(restURL + "verifications/Narcissus+minor?all_matches=true&species_group=true")
+	resp, err := http.Get(
+		restURL + "verifications/Narcissus+minor?all_matches=true&species_group=true",
+	)
 	assert.Nil(t, err)
 	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -473,7 +475,9 @@ func TestSpeciesGroup(t *testing.T) {
 	assert.Nil(t, err)
 	spGroup := response.Names[0]
 
-	resp, err = http.Get(restURL + "verifications/Narcissus+minor?all_matches=true&species_group=false")
+	resp, err = http.Get(
+		restURL + "verifications/Narcissus+minor?all_matches=true&species_group=false",
+	)
 	assert.Nil(t, err)
 	respBytes, err = io.ReadAll(resp.Body)
 	assert.Nil(t, err)

@@ -1,4 +1,4 @@
-package facetpg
+package pgio
 
 import (
 	"context"
@@ -6,95 +6,69 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/georgysavva/scany/sqlscan"
-	"github.com/gnames/gnames/internal/io/dbshare"
-	"github.com/gnames/gnames/pkg/ent/verifier"
+	"github.com/gnames/gnames/pkg/ent/verif"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser"
 	"github.com/gnames/gnparser/ent/parsed"
+	"github.com/gnames/gnquery/ent/search"
 	"github.com/gnames/gnuuid"
-	"github.com/lib/pq"
 )
 
-func (f *facetpg) setQuery() (string, []interface{}) {
-	spQ, args := f.spQuery()
-	if f.Author != "" {
-		spQ, args = f.auQuery(spQ, args)
+func setQuery(
+	inp search.Input,
+	spWordIDs []int,
+	spWords string,
+) (string, []interface{}) {
+	spQ, args := spQuery(inp, spWordIDs, spWords)
+	if inp.Author != "" {
+		spQ, args = auQuery(spQ, inp, args)
 	} else {
-		spQ, args = f.noAuQuery(spQ, args)
+		spQ, args = noAuQuery(spQ, inp, args)
 	}
 
 	return spQ, args
 }
 
-func (f *facetpg) queryEnd(
-	q string,
-	args []interface{},
-) (string, []interface{}) {
-	if len(f.DataSources) > 0 {
-		args = append(args, pq.Array(f.DataSources))
-		q += fmt.Sprintf("\n    AND data_source_id = any($%d::int[])", len(args))
-	}
-
-	if f.Year > 0 {
-		args = append(args, f.Year)
-		q += fmt.Sprintf("\n    AND v.year = $%d", len(args))
-	}
-
-	if f.YearRange != nil {
-		if f.YearStart > 0 {
-			args = append(args, f.YearStart)
-			q += fmt.Sprintf("\n    AND v.year >= $%d", len(args))
-		}
-
-		if f.YearEnd > 0 {
-			args = append(args, f.YearEnd)
-			q += fmt.Sprintf("\n    AND v.year <= $%d", len(args))
-		}
-	}
-	return q, args
-}
-
-func (f *facetpg) runQuery(
+func (p *pgio) runQuery(
 	ctx context.Context,
 	q string,
 	args []interface{},
-) (map[string]*verifier.MatchRecord, error) {
-	searches, err := f.searchQuery(ctx, q, args)
+) (map[string]*verif.MatchRecord, error) {
+	searches, err := p.searchQuery(ctx, q, args)
 	if err != nil {
 		return nil, err
 	}
-	return f.matchRecords(searches), nil
+	return p.matchRecords(searches), nil
 }
 
-func (f *facetpg) searchQuery(
+func (p *pgio) searchQuery(
 	ctx context.Context,
 	q string,
 	args []interface{},
-) ([]*dbshare.VerifSQL, error) {
-	var res []*dbshare.VerifSQL
-	err := sqlscan.Select(ctx, f.db, &res, q, args...)
+) ([]*verifSQL, error) {
+	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
 		return nil, err
 	}
-	return res, nil
+	defer rows.Close()
+
+	return rowsToVerifSQL(rows)
 }
 
-func (f *facetpg) matchRecords(
-	searches []*dbshare.VerifSQL,
-) map[string]*verifier.MatchRecord {
-
+func (p *pgio) matchRecords(
+	searches []*verifSQL,
+) map[string]*verif.MatchRecord {
 	pCfg := gnparser.NewConfig(gnparser.OptWithDetails(true))
 	gnp := gnparser.New(pCfg)
-	res := f.organizeByCanonicals(gnp, searches)
+	res := p.organizeByCanonicals(gnp, searches)
 	return res
 }
 
-func (f *facetpg) organizeByCanonicals(
+func (p *pgio) organizeByCanonicals(
 	gnp gnparser.GNparser,
-	searches []*dbshare.VerifSQL,
-) map[string]*verifier.MatchRecord {
-	res := make(map[string]*verifier.MatchRecord)
+	searches []*verifSQL,
+) map[string]*verif.MatchRecord {
+	res := make(map[string]*verif.MatchRecord)
 	for _, v := range searches {
 		prsd := gnp.ParseName(v.Name.String)
 
@@ -108,10 +82,10 @@ func (f *facetpg) organizeByCanonicals(
 		}
 		if m, ok := res[prsd.Canonical.Full]; ok {
 			mr := m.MatchResults
-			mr = append(mr, f.matchRes(gnp, prsd, v))
+			mr = append(mr, p.matchRes(gnp, prsd, v))
 			res[prsd.Canonical.Full].MatchResults = mr
 		} else {
-			mr := verifier.MatchRecord{
+			mr := verif.MatchRecord{
 				ID:              gnuuid.New(prsd.Canonical.Full).String(),
 				Name:            prsd.Canonical.Full,
 				Cardinality:     int(prsd.Cardinality),
@@ -119,7 +93,7 @@ func (f *facetpg) organizeByCanonicals(
 				CanonicalFull:   prsd.Canonical.Full,
 			}
 			mr.MatchResults = []*vlib.ResultData{
-				f.matchRes(gnp, prsd, v),
+				p.matchRes(gnp, prsd, v),
 			}
 			res[prsd.Canonical.Full] = &mr
 		}
@@ -128,12 +102,12 @@ func (f *facetpg) organizeByCanonicals(
 	return res
 }
 
-func (f *facetpg) matchRes(
+func (p *pgio) matchRes(
 	gnp gnparser.GNparser,
 	prsd parsed.Parsed,
-	v *dbshare.VerifSQL,
+	v *verifSQL,
 ) *vlib.ResultData {
-	authors, year := dbshare.ProcessAuthorship(prsd.Authorship)
+	authors, year := processAuthorship(prsd.Authorship)
 
 	currentRecordID := v.RecordID.String
 	currentName := v.Name.String
@@ -153,26 +127,26 @@ func (f *facetpg) matchRes(
 	currentCardinality := int(prsdCurrent.Cardinality)
 
 	dsID := v.DataSourceID
-	titleShort := f.dsm[dsID].TitleShort
+	titleShort := p.dsm[dsID].TitleShort
 	if titleShort == "" {
-		titleShort = f.dsm[dsID].Title
+		titleShort = p.dsm[dsID].Title
 	}
 
 	var outlink string
-	if f.dsm[dsID].OutlinkURL != "" && v.OutlinkID.String != "" {
+	if p.dsm[dsID].OutlinkURL != "" && v.OutlinkID.String != "" {
 		outlink = strings.Replace(
-			f.dsm[dsID].OutlinkURL,
+			p.dsm[dsID].OutlinkURL,
 			"{}", v.OutlinkID.String, 1)
 	}
 
 	rd := vlib.ResultData{
 		DataSourceID:           dsID,
 		DataSourceTitleShort:   titleShort,
-		Curation:               f.dsm[dsID].Curation,
+		Curation:               p.dsm[dsID].Curation,
 		RecordID:               v.RecordID.String,
 		LocalID:                v.LocalID.String,
 		Outlink:                outlink,
-		EntryDate:              f.dsm[dsID].UpdatedAt,
+		EntryDate:              p.dsm[dsID].UpdatedAt,
 		ParsingQuality:         prsd.ParseQuality,
 		MatchedName:            v.Name.String,
 		MatchedCardinality:     matchedCardinality,
@@ -190,4 +164,33 @@ func (f *facetpg) matchRes(
 		MatchType:              vlib.FacetedSearch,
 	}
 	return &rd
+}
+
+func queryEnd(
+	q string,
+	inp search.Input,
+	args []interface{},
+) (string, []interface{}) {
+	if len(inp.DataSources) > 0 {
+		args = append(args, inp.DataSources)
+		q += fmt.Sprintf("\n    AND data_source_id = any($%d::int[])", len(args))
+	}
+
+	if inp.Year > 0 {
+		args = append(args, inp.Year)
+		q += fmt.Sprintf("\n    AND v.year = $%d", len(args))
+	}
+
+	if inp.YearRange != nil {
+		if inp.YearStart > 0 {
+			args = append(args, inp.YearStart)
+			q += fmt.Sprintf("\n    AND v.year >= $%d", len(args))
+		}
+
+		if inp.YearEnd > 0 {
+			args = append(args, inp.YearEnd)
+			q += fmt.Sprintf("\n    AND v.year <= $%d", len(args))
+		}
+	}
+	return q, args
 }

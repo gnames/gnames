@@ -160,10 +160,9 @@ func authNormalize(auth string) string {
 	}
 
 	auth = words[l]
-	if strings.HasPrefix(auth, "d'") {
-		auth = auth[2:]
-	}
+	auth = strings.TrimPrefix(auth, "d'")
 	auth = strings.TrimRight(auth, ".")
+
 	if v, ok := authNorm[auth]; ok {
 		auth = v
 	}

@@ -45,7 +45,7 @@ var (
 
 // config purpose is to achieve automatic import of data from the
 // configuration file, if it exists.
-type config struct {
+type cfgData struct {
 	CacheDir           string
 	JobsNum            int
 	MatcherURL         string
@@ -144,7 +144,7 @@ func initConfig() {
 }
 
 func getOpts() []gncnf.Option {
-	cfg := &config{}
+	cfg := &cfgData{}
 	err := viper.Unmarshal(cfg)
 	if err != nil {
 		slog.Error("Cannot deserialize config data", "error", err)

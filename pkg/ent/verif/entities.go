@@ -1,6 +1,7 @@
-package verifier
+package verif
 
 import (
+	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 )
 
@@ -22,4 +23,17 @@ type MatchRecord struct {
 	MatchResults []*vlib.ResultData
 	// Sorted indicates if MatchResults are already sorted by their Score field.
 	Sorted bool
+}
+
+// MatchSplit contains three slices of matches: no match, virus, and canonical.
+// They correspond to 3 possible matches types.
+type MatchSplit struct {
+	// NoMatch contains failed matches.
+	NoMatch []*mlib.Match
+
+	// Virus contains matches to virus names.
+	Virus []*mlib.Match
+
+	// Canonical contains matches to canonical forms of names.
+	Canonical []*mlib.Match
 }

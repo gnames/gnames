@@ -19,6 +19,8 @@ GOCLEAN = $(GOCMD) clean
 GOGENERATE = $(GOCMD) generate
 GOGET = $(GOCMD) get
 
+.PHONY: all test tools deps build buildrel install release docker dc dockerhub
+
 all: install
 
 test: deps install
@@ -29,26 +31,27 @@ tools: deps
 	@echo Installing tools from tools.go
 	@cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
 
+generate:
+	@echo Generate code
+	$(GOGENERATE)
+
 deps:
 	@echo Download go.mod dependencies
 	$(GOCMD) mod download; \
 	$(GOGENERATE)
 
-build:
+build: generate
 	@echo Building
-	$(GOGENERATE)
 	$(GOCLEAN); \
 	$(NO_C) $(GOBUILD);
 
-buildrel:
+buildrel: generate
 	@echo Building release binary
-	$(GOGENERATE)
 	$(GOCLEAN); \
 	$(NO_C) $(GORELEASE);
 
-install:
+install: generate
 	@echo Build and install locally
-	$(GOGENERATE)
 	$(NO_C) $(GOINSTALL);
 
 release: dockerhub
@@ -71,4 +74,16 @@ dockerhub: docker
 	@echo Push Docker images to DockerHub
 	docker push gnames/$(PROJ_NAME); \
 	docker push gnames/$(PROJ_NAME):$(VERSION)
-
+help:
+	@echo "make test - run tests"
+	@echo "make tools - install tools from tools.go"
+	@echo "make generate - generate code"
+	@echo "make deps - download go.mod dependencies"
+	@echo "make build - build binary"
+	@echo "make buildrel - build release binary"
+	@echo "make install - build and install locally"
+	@echo "make release - make release"
+	@echo "make docker - build Docker images"
+	@echo "make dc - build Docker Compose"
+	@echo "make dockerhub - push Docker images to DockerHub"
+	@echo "make help - print this help"

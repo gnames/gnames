@@ -25,12 +25,13 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/gnames/gnames/internal/io/facetpg"
+	"github.com/gnames/gnames/internal/io/pgio"
 	"github.com/gnames/gnames/internal/io/rest"
-	"github.com/gnames/gnames/internal/io/verifierpg"
+	"github.com/gnames/gnames/internal/io/srchio"
+	"github.com/gnames/gnames/internal/io/verifio"
 	"github.com/gnames/gnames/internal/logr"
 	gnames "github.com/gnames/gnames/pkg"
-	gncfg "github.com/gnames/gnames/pkg/config"
+	"github.com/gnames/gnames/pkg/config"
 	"github.com/spf13/cobra"
 )
 
@@ -44,29 +45,37 @@ var restCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, _ []string) {
 		debug, _ := cmd.Flags().GetBool("debug")
 		if debug {
-			logr.LogDebug()
+			logr.LogDev()
 			slog.Info("Log level is set to DEBUG.")
 		}
-
-		port, _ := cmd.Flags().GetInt("port")
-		opts = append(opts, gncfg.OptGNPort(port))
-
-		logger := logr.LogInfo()
-		slog.SetDefault(logger.With(
+		// add default values to the logger
+		slog.SetDefault(slog.Default().With(
 			slog.String("gnApp", "gnames"),
 		))
-		cfg := gncfg.New(opts...)
-		vf, err := verifierpg.New(cfg)
+
+		port, _ := cmd.Flags().GetInt("port")
+		opts = append(opts, config.OptGNPort(port))
+
+		cfg := config.New(opts...)
+		db, err := pgio.New(cfg)
+		if err != nil {
+			slog.Error("Cannot create DB connection", "error", err)
+			os.Exit(1)
+		}
+
+		vf, err := verifio.New(cfg, db)
 		if err != nil {
 			slog.Error("Cannot create verifier service", "error", err)
 			os.Exit(1)
 		}
-		srch, err := facetpg.New(cfg)
+
+		srch, err := srchio.New(cfg, db)
 		if err != nil {
 			slog.Error("Cannot create facet search service", "error", err)
 			os.Exit(1)
 		}
-		gn := gnames.NewGNames(cfg, vf, srch)
+
+		gn := gnames.New(cfg, vf, srch)
 
 		rest.Run(gn, port)
 		os.Exit(0)
