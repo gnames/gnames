@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log/slog"
 
 	"github.com/gnames/gnames/internal/io/dbshare"
 	"github.com/gnames/gnames/pkg/config"
@@ -12,7 +13,6 @@ import (
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser/ent/parsed"
 	"github.com/gnames/gnquery/ent/search"
-	"github.com/rs/zerolog/log"
 )
 
 type facetpg struct {
@@ -23,13 +23,18 @@ type facetpg struct {
 	dsm       map[int]*vlib.DataSource
 }
 
-func New(cnf config.Config) facet.Facet {
+func New(cnf config.Config) (facet.Facet, error) {
 	dbURL := dbshare.DBURL(cnf)
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Cannot create PostgreSQL connection")
+		slog.Error("Cannot create PostgreSQL connection", "error", err)
+		return nil, err
 	}
-	return &facetpg{db: db, dsm: dbshare.DataSourcesMap(db)}
+	dsMap, err := dbshare.DataSourcesMap(db)
+	if err != nil {
+		return nil, err
+	}
+	return &facetpg{db: db, dsm: dsMap}, nil
 }
 
 func (f *facetpg) Search(

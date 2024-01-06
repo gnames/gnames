@@ -11,11 +11,13 @@ import (
 )
 
 func TestSearchPG(t *testing.T) {
+	assert := assert.New(t)
 	cfg := config.New()
-	fct := facetpg.New(cfg)
+	fct, err := facetpg.New(cfg)
+	assert.Nil(err)
 	inp := gnquery.New().Parse("g:Bubo asp:bub. yr:1700- tx:Aves")
 
 	res, err := fct.Search(context.Background(), inp)
-	assert.Nil(t, err)
-	assert.True(t, len(res) > 5)
+	assert.Nil(err)
+	assert.True(len(res) > 5)
 }

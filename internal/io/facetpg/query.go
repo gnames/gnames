@@ -3,6 +3,7 @@ package facetpg
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/georgysavva/scany/sqlscan"
@@ -13,7 +14,6 @@ import (
 	"github.com/gnames/gnparser/ent/parsed"
 	"github.com/gnames/gnuuid"
 	"github.com/lib/pq"
-	"github.com/rs/zerolog/log"
 )
 
 func (f *facetpg) setQuery() (string, []interface{}) {
@@ -99,7 +99,11 @@ func (f *facetpg) organizeByCanonicals(
 		prsd := gnp.ParseName(v.Name.String)
 
 		if !prsd.Parsed {
-			log.Warn().Err(fmt.Errorf("could not parse %s", v.Name.String)).Msg("Should never happen")
+			slog.Error(
+				"Should never happen",
+				"error",
+				fmt.Errorf("could not parse %s", v.Name.String),
+			)
 			continue // should never happen
 		}
 		if m, ok := res[prsd.Canonical.Full]; ok {

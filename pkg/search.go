@@ -2,12 +2,12 @@ package gnames
 
 import (
 	"context"
+	"log/slog"
 	"slices"
 
 	"github.com/gnames/gnames/pkg/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnquery/ent/search"
-	"github.com/rs/zerolog/log"
 )
 
 func (g gnames) Search(
@@ -15,7 +15,7 @@ func (g gnames) Search(
 	input search.Input,
 ) search.Output {
 	input.Query = input.ToQuery()
-	log.Info().Str("action", "search").Str("query", input.Query)
+	slog.Info("Search", "query", input.Query)
 
 	res := search.Output{Meta: search.Meta{Input: input}}
 	matchRecords, err := g.facet.Search(ctx, input)

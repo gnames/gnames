@@ -2,6 +2,7 @@ package gnames
 
 import (
 	"context"
+	"log/slog"
 	"slices"
 
 	"github.com/gnames/gnames/internal/io/matcher"
@@ -17,7 +18,6 @@ import (
 	"github.com/gnames/gnparser/ent/str"
 	"github.com/gnames/gnstats/ent/stats"
 	"github.com/gnames/gnuuid"
-	"github.com/rs/zerolog/log"
 )
 
 type gnames struct {
@@ -77,7 +77,7 @@ func (g gnames) Verify(
 				namesRes[i].ID = gnuuid.New(namesRes[i].Name).String()
 			}
 		} else {
-			log.Warn().Msgf("Cannot find record for '%s'.", v.Name)
+			slog.Warn("Cannot find record for name", "name", v.Name)
 		}
 	}
 	res := vlib.Output{Meta: meta(input, namesRes), Names: namesRes}
@@ -173,9 +173,11 @@ func (g gnames) getMatchRecords(
 
 	namesNum := len(input.NameStrings)
 	if namesNum > 0 {
-		log.Info().Str("action", "verification").
-			Int("namesNum", len(input.NameStrings)).
-			Str("example", input.NameStrings[0])
+		slog.Info("Verifying",
+			slog.Int("namesNum", len(input.NameStrings)),
+			slog.String("example", input.NameStrings[0]),
+			slog.Bool("withAllMatches", input.WithAllMatches),
+		)
 	}
 
 	var matchOut mlib.Output

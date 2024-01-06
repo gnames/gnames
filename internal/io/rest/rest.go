@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gnames/gnames/internal/logr"
 	gnames "github.com/gnames/gnames/pkg"
 	"github.com/gnames/gnames/pkg/ent/recon"
 	"github.com/gnames/gnfmt"
@@ -21,7 +23,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/rs/zerolog/log"
 	nsqcfg "github.com/sfgrp/lognsq/config"
 	"github.com/sfgrp/lognsq/ent/nsq"
 	"github.com/sfgrp/lognsq/io/nsqio"
@@ -35,7 +36,7 @@ var (
 
 // Run starts HTTP/1 service on given port for scientific names verification.
 func Run(gn gnames.GNames, port int) {
-	log.Info().Int("port", port).Msg("Starting HTTP API server")
+	slog.Info("Starting HTTP API server", slog.Int("port", port))
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
@@ -418,12 +419,12 @@ func verificationPOST(gn gnames.GNames) func(echo.Context) error {
 			}
 
 			if l := len(params.NameStrings); l > 0 {
-				log.Info().
-					Int("namesNum", l).
-					Str("example", params.NameStrings[0]).
-					Str("parsedBy", "REST API").
-					Str("method", "POST").
-					Msg("Verification")
+				slog.Info("Verification",
+					slog.Int("namesNum", l),
+					slog.String("example", params.NameStrings[0]),
+					slog.String("parsedBy", "REST API"),
+					slog.String("method", "POST"),
+				)
 			}
 
 			if err == nil {
@@ -480,12 +481,12 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 			return err
 		}
 		if l := len(names); l > 0 {
-			log.Info().
-				Int("namesNum", l).
-				Str("example", names[0]).
-				Str("parsedBy", "REST API").
-				Str("method", "GET").
-				Msg("Verification")
+			slog.Info("Verification",
+				slog.Int("namesNum", l),
+				slog.String("example", names[0]),
+				slog.String("parsedBy", "REST API"),
+				slog.String("method", "GET"),
+			)
 		}
 		return c.JSON(http.StatusOK, verified)
 	}
@@ -498,11 +499,11 @@ func searchGET(gn gnames.GNames) func(echo.Context) error {
 		inp := gnq.Parse(q)
 		res := gn.Search(context.Background(), inp)
 
-		log.Info().
-			Str("query", q).
-			Str("parsedBy", "REST API").
-			Str("method", "GET").
-			Msg("Search")
+		slog.Info("Search",
+			slog.String("query", q),
+			slog.String("parsedBy", "REST API"),
+			slog.String("method", "GET"),
+		)
 
 		return c.JSON(http.StatusOK, res)
 	}
@@ -527,11 +528,11 @@ func searchPOST(gn gnames.GNames) func(echo.Context) error {
 
 			if err == nil {
 				res = gn.Search(ctx, params)
-				log.Info().
-					Str("query", params.Query).
-					Str("parsedBy", "REST API").
-					Str("method", "POST").
-					Msg("Search")
+				slog.Info("Search",
+					slog.String("query", params.Query),
+					slog.String("parsedBy", "REST API"),
+					slog.String("method", "POST"),
+				)
 				err = c.JSON(http.StatusOK, res)
 			}
 
@@ -576,11 +577,11 @@ func setLogger(e *echo.Echo, g gnames.GNames) nsq.NSQ {
 		if err == nil {
 			logCfg.Output = remote
 			// set app logger too
-			log.Logger = log.Output(remote)
+			logr.LogRemote(remote)
 		}
 		e.Use(middleware.LoggerWithConfig(logCfg))
 		if err != nil {
-			log.Warn().Err(err)
+			slog.Error("Cannot set logger", "error", err)
 		}
 		return remote
 	} else if withLogs {

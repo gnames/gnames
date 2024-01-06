@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/georgysavva/scany/sqlscan"
 	"github.com/gnames/gnames/internal/io/dbshare"
@@ -12,7 +13,6 @@ import (
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnparser"
 	"github.com/lib/pq"
-	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -57,14 +57,14 @@ func (vrf verifierpg) MatchRecords(
 	// find matches for canonicals
 	verCan, err := vrf.nameQuery(ctx, splitMatches.canonical, input)
 	if err != nil {
-		log.Warn().Err(err).Msg("Cannot get matches data")
+		slog.Error("Cannot get matches data", "error", err)
 		return res, err
 	}
 
 	// find matches for viruses
 	verVir, err := vrf.virusQuery(ctx, splitMatches.virus, input)
 	if err != nil {
-		log.Warn().Err(err).Msg("Cannot get virus data")
+		slog.Error("Cannot get virus data", "error", err)
 		return res, err
 	}
 
@@ -115,8 +115,10 @@ func (vrf verifierpg) produceResultData(
 		prsd := parser.ParseName(match.Name)
 
 		if !prsd.Parsed {
-			log.Fatal().Err(errors.New("cannot parse")).Str("name", match.Name).
-				Msg("Should never happen")
+			slog.Error("Cannot parse (shold never happen)",
+				"error", errors.New("cannot parse"),
+				slog.String("name", match.Name),
+			)
 		}
 		authors, year := dbshare.ProcessAuthorship(prsd.Authorship)
 
@@ -144,10 +146,14 @@ func (vrf *verifierpg) populateVirusMatchRecord(
 	m mlib.Match,
 	mr *verifier.MatchRecord,
 	verifMap map[string][]*dbshare.VerifSQL,
-) {
+) error {
 	verifRecs, ok := verifMap[mi.ID]
 	if !ok {
-		log.Fatal().Err(fmt.Errorf("no match for %s", mi.ID))
+		err := fmt.Errorf("no match for %s", mi.ID)
+		slog.Error("No match for viruses",
+			"error", err,
+		)
+		return err
 	}
 
 	for _, vsql := range verifRecs {
@@ -156,6 +162,7 @@ func (vrf *verifierpg) populateVirusMatchRecord(
 
 		mr.MatchResults = append(mr.MatchResults, &resData)
 	}
+	return nil
 }
 
 func (vrf *verifierpg) populateMatchRecord(
@@ -196,9 +203,10 @@ func (vrf *verifierpg) populateMatchRecord(
 		mRec.MatchResults = append(mRec.MatchResults, &resData)
 	}
 	if discardedNum > 0 {
-		log.Warn().
-			Str("example", discardedExample).Int("skippedNum", discardedNum).
-			Msg("Skipped low parsing quality names")
+		slog.Warn("Skipped low parsing quality names",
+			slog.String("example", discardedExample),
+			slog.Int("skippedNum", discardedNum),
+		)
 	}
 }
 

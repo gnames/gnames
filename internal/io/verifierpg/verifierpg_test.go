@@ -14,6 +14,7 @@ import (
 const restURL = "http://:8080/api/v1/"
 
 func TestVerifyPGExact(t *testing.T) {
+	assert := assert.New(t)
 	names := []string{
 		"Not name",
 		"Bubo bubo",
@@ -29,12 +30,13 @@ func TestVerifyPGExact(t *testing.T) {
 	}
 
 	cfg := config.New(config.OptMatcherURL(restURL))
-	vpg := verifierpg.New(cfg)
+	vpg, err := verifierpg.New(cfg)
+	assert.Nil(err)
 	mtr := matcher.New(cfg.MatcherURL)
 	matches := mtr.MatchNames(names).Matches
 
 	input := vlib.Input{}
 	mrs, err := vpg.MatchRecords(context.Background(), matches, input)
-	assert.Nil(t, err)
-	assert.Equal(t, 11, len(mrs))
+	assert.Nil(err)
+	assert.Equal(11, len(mrs))
 }

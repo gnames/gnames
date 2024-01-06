@@ -24,6 +24,7 @@ package cmd
 import (
 	_ "embed"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -32,7 +33,6 @@ import (
 	"github.com/gnames/gnsys"
 	"github.com/spf13/cobra"
 
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
@@ -85,7 +85,8 @@ The app has provides REST API for GNverifier and stand-alone use.`,
 func Execute() {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatal().Err(err).Msg("")
+		slog.Error("Cannot execute", "error", err)
+		os.Exit(1)
 	}
 }
 
@@ -102,7 +103,8 @@ func initConfig() {
 	configFile := "gnames"
 	home, err := os.UserHomeDir()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Cannot find home directory")
+		slog.Error("Cannot find home directory", "error", err)
+		os.Exit(1)
 	}
 	home = filepath.Join(home, ".config")
 
@@ -136,7 +138,7 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		log.Info().Msgf("Using config file: %s.", viper.ConfigFileUsed())
+		slog.Info("Using config file", "config", viper.ConfigFileUsed())
 	}
 	getOpts()
 }
@@ -145,7 +147,8 @@ func getOpts() []gncnf.Option {
 	cfg := &config{}
 	err := viper.Unmarshal(cfg)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Cannot deserialize config data")
+		slog.Error("Cannot deserialize config data", "error", err)
+		os.Exit(1)
 	}
 
 	if cfg.Port != 0 {
@@ -205,7 +208,7 @@ func getOpts() []gncnf.Option {
 func showVersionFlag(cmd *cobra.Command) bool {
 	hasVersionFlag, err := cmd.Flags().GetBool("version")
 	if err != nil {
-		log.Fatal().Err(err).Msg("Cannot get version flag")
+		slog.Error("Cannot get version flag", "error", err)
 	}
 
 	if hasVersionFlag {
@@ -220,7 +223,7 @@ func touchConfigFile(configPath string) {
 		return
 	}
 
-	log.Info().Msgf("Creating config file '%s'", configPath)
+	slog.Info("Creating config file", "file", configPath)
 	createConfig(configPath)
 }
 
@@ -228,11 +231,13 @@ func touchConfigFile(configPath string) {
 func createConfig(path string) {
 	err := gnsys.MakeDir(filepath.Dir(path))
 	if err != nil {
-		log.Fatal().Err(err).Msgf("Cannot create dir %s", path)
+		slog.Error("Cannot create dir", "dir", path)
+		os.Exit(1)
 	}
 
 	err = os.WriteFile(path, []byte(configText), 0644)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("Cannot write to file %s", path)
+		slog.Error("Cannot write to file", "path", path)
+		os.Exit(1)
 	}
 }

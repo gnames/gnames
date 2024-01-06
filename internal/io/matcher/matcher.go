@@ -2,7 +2,8 @@ package matcher
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
+	"log/slog"
 	"net/http"
 
 	"github.com/gnames/gnfmt"
@@ -10,7 +11,6 @@ import (
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	gnmatcher "github.com/gnames/gnmatcher/pkg"
 	gnmcfg "github.com/gnames/gnmatcher/pkg/config"
-	"github.com/rs/zerolog/log"
 )
 
 type matcherREST struct {
@@ -28,15 +28,15 @@ func (mr matcherREST) GetVersion() gnvers.Version {
 	response := gnvers.Version{}
 	resp, err := http.Get(mr.url + "version")
 	if err != nil {
-		log.Warn().Err(err).Msg("Cannot get gnmatcher version")
+		slog.Error("Cannot get gnmatcher version", "error", err)
 	}
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Warn().Err(err).Msg("Cannot get gnmatcher version")
+		slog.Error("Cannot get gnmatcher version", "error", err)
 	}
 	err = mr.enc.Decode(respBytes, &response)
 	if err != nil {
-		log.Warn().Err(err).Msg("Cannot get gnmatcher version")
+		slog.Error("Cannot get gnmatcher version", "error", err)
 	}
 	return response
 }
@@ -54,20 +54,20 @@ func (mr matcherREST) MatchNames(
 		DataSources:             cfg.DataSources,
 	})
 	if err != nil {
-		log.Warn().Err(err).Msg("Cannot encode name-strings")
+		slog.Error("Cannot encode name-strings", "error", err)
 	}
 	r := bytes.NewReader(req)
 	resp, err := http.Post(mr.url+"matches", "application/json", r)
 	if err != nil {
-		log.Warn().Err(err).Msg("Cannot get matches response")
+		slog.Error("Cannot get matches response", "error", err)
 	}
-	respBytes, err := ioutil.ReadAll(resp.Body)
+	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Warn().Err(err).Msg("Cannot read matches from response")
+		slog.Error("Cannot read matches from response", "error", err)
 	}
 	err = mr.enc.Decode(respBytes, &response)
 	if err != nil {
-		log.Warn().Err(err).Msg("Cannot decode matches")
+		slog.Error("Cannot decode matches", "error", err)
 	}
 	return response
 }

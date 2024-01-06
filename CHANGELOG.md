@@ -4,6 +4,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add: update modules, change zerolog to slog.
+
 ## [v1.2.3] - 2023-11-03 Fri
 
 - Fix: wrong match_type.

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/gnames/gnfmt"
-	"github.com/gnames/gnlib/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
@@ -44,7 +43,7 @@ func TestNameStrings(t *testing.T) {
 	assert.Equal(id, response.NameStringMeta.ID)
 	assert.NotNil(response.Name)
 	assert.Equal(id, response.Name.ID)
-	assert.Equal(verifier.Exact, response.MatchType)
+	assert.Equal(vlib.Exact, response.MatchType)
 	assert.Equal(name, response.Name.Name)
 	assert.NotNil(response.Name.BestResult)
 	assert.Equal(1, response.Name.BestResult.DataSourceID)
@@ -65,7 +64,7 @@ func TestNameStringsVirusID(t *testing.T) {
 	assert.NotNil(response.Name)
 	assert.Equal(id, response.Name.ID)
 	assert.Equal("Tobacco mosaic virus", response.Name.Name)
-	assert.Equal(verifier.Virus, response.MatchType)
+	assert.Equal(vlib.Virus, response.MatchType)
 	assert.NotNil(response.Name.BestResult)
 	assert.Equal(1, response.Name.BestResult.DataSourceID)
 }

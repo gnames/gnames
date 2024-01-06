@@ -3,12 +3,12 @@ package verifierpg
 
 import (
 	"database/sql"
+	"log/slog"
 
 	"github.com/gnames/gnames/internal/io/dbshare"
 	"github.com/gnames/gnames/pkg/config"
 	"github.com/gnames/gnames/pkg/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
-	"github.com/rs/zerolog/log"
 
 	// postgres driver
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -20,14 +20,15 @@ type verifierpg struct {
 }
 
 // New creates a new instance of sqlx.DB using configuration data.
-func New(cfg config.Config) verifier.Verifier {
+func New(cfg config.Config) (verifier.Verifier, error) {
 	db, err := sql.Open("postgres", dbshare.DBURL(cfg))
 	if err != nil {
-		log.Fatal().Err(err).Msg("Cannot create PostgreSQL connection")
+		slog.Error("Cannot create PostgreSQL connection", "error", err)
+		return verifierpg{}, err
 	}
 	vf := verifierpg{db: db}
-	vf.dataSourcesMap = dbshare.DataSourcesMap(db)
-	return vf
+	vf.dataSourcesMap, err = dbshare.DataSourcesMap(db)
+	return vf, err
 }
 
 func (vf verifierpg) DataSources(ids ...int) ([]*vlib.DataSource, error) {

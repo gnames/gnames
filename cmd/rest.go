@@ -22,15 +22,15 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"log/slog"
 	"os"
 
 	"github.com/gnames/gnames/internal/io/facetpg"
 	"github.com/gnames/gnames/internal/io/rest"
 	"github.com/gnames/gnames/internal/io/verifierpg"
+	"github.com/gnames/gnames/internal/logr"
 	gnames "github.com/gnames/gnames/pkg"
 	gncfg "github.com/gnames/gnames/pkg/config"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -44,19 +44,28 @@ var restCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, _ []string) {
 		debug, _ := cmd.Flags().GetBool("debug")
 		if debug {
-			zerolog.SetGlobalLevel(zerolog.DebugLevel)
-			log.Info().Msgf("Log level is set to '%s'", zerolog.DebugLevel.String())
+			logr.LogDebug()
+			slog.Info("Log level is set to DEBUG.")
 		}
 
 		port, _ := cmd.Flags().GetInt("port")
 		opts = append(opts, gncfg.OptGNPort(port))
 
-		log.Logger = log.With().
-			Str("gnApp", "gnames").
-			Logger()
+		logger := logr.LogInfo()
+		slog.SetDefault(logger.With(
+			slog.String("gnApp", "gnames"),
+		))
 		cfg := gncfg.New(opts...)
-		vf := verifierpg.New(cfg)
-		srch := facetpg.New(cfg)
+		vf, err := verifierpg.New(cfg)
+		if err != nil {
+			slog.Error("Cannot create verifier service", "error", err)
+			os.Exit(1)
+		}
+		srch, err := facetpg.New(cfg)
+		if err != nil {
+			slog.Error("Cannot create facet search service", "error", err)
+			os.Exit(1)
+		}
 		gn := gnames.NewGNames(cfg, vf, srch)
 
 		rest.Run(gn, port)
