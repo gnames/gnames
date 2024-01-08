@@ -3,7 +3,6 @@ package config_test
 import (
 	"testing"
 
-	"github.com/gnames/gnames/internal/logr"
 	"github.com/gnames/gnames/pkg/config"
 	"github.com/gnames/gnsys"
 	"github.com/stretchr/testify/assert"
@@ -51,8 +50,6 @@ func TestNewOpts(t *testing.T) {
 }
 
 func TestMaxED(t *testing.T) {
-	logr.LogDisable()
-	defer logr.LogInfo()
 	cnf := config.New(config.OptMaxEditDist(5))
 	assert.Equal(t, 1, cnf.MaxEditDist)
 	cnf = config.New(config.OptMaxEditDist(0))

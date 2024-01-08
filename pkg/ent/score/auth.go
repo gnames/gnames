@@ -4,6 +4,7 @@ import (
 	"math"
 	"slices"
 	"strings"
+	"sync"
 
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
@@ -11,8 +12,6 @@ import (
 
 // authMatch covers all possible states of authors matching.
 type authMatch int
-
-var clt = collate.New(language.English, collate.Loose)
 
 const (
 	// noOverlap: authors do not overlap.
@@ -30,12 +29,6 @@ const (
 	identical
 )
 
-var authNorm = map[string]string{
-	"Linné":   "Linn",
-	"Linne":   "Linn",
-	"Sokolov": "Sokoloff",
-}
-
 // yearMatch covers possible states of matching years.
 type yearMatch int
 
@@ -50,11 +43,16 @@ const (
 	perfectMatch
 )
 
-func max(i1, i2 uint32) uint32 {
-	if i1 >= i2 {
-		return i1
-	}
-	return i2
+var collatorPool = &sync.Pool{
+	New: func() any {
+		return collate.New(language.English, collate.Loose)
+	},
+}
+
+var authNorm = map[string]string{
+	"Linné":   "Linn",
+	"Linne":   "Linn",
+	"Sokolov": "Sokoloff",
 }
 
 // findAuthMatch determines how much two slices of author strings relate
@@ -134,6 +132,9 @@ func compareAuth(au1, au2 string) (bool, bool) {
 	rsShort := []rune(short)
 	rs := []rune(long)[0:len(rsShort)]
 	short2 := string(rs)
+
+	clt := collatorPool.Get().(*collate.Collator)
+	defer collatorPool.Put(clt)
 
 	return clt.CompareString(short, short2) == 0, au1 < au2
 }

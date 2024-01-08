@@ -4,6 +4,11 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.2.4] - 2024-01-08 Mon
+
+- Fix: running condition in auth file. It was crashing gnames from time
+  to time.
+
 - Add: update modules, change zerolog to slog.
 
 ## [v1.2.3] - 2023-11-03 Fri
