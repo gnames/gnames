@@ -282,6 +282,7 @@ func (p *pgio) addVirusMatch(
 	vsql *verifSQL,
 ) vlib.ResultData {
 	ds, outlink, title := p.dsData(vsql)
+	hasTaxonData := p.hasTaxonData(vsql)
 	resData := vlib.ResultData{
 		RecordID:             vsql.RecordID.String,
 		LocalID:              vsql.LocalID.String,
@@ -292,10 +293,12 @@ func (p *pgio) addVirusMatch(
 		EntryDate:            ds.UpdatedAt,
 		MatchedNameID:        vsql.NameStringID.String,
 		MatchedName:          vsql.Name.String,
+		TaxonomicStatus:      getTaxonomicStatus(vsql, hasTaxonData),
 		ClassificationPath:   vsql.Classification.String,
 		ClassificationRanks:  vsql.ClassificationRanks.String,
 		ClassificationIDs:    vsql.ClassificationIds.String,
 	}
+	resData.IsSynonym = resData.TaxonomicStatus == vlib.SynonymTaxStatus
 	return resData
 }
 
@@ -307,7 +310,9 @@ func (p *pgio) addMatch(
 	var currName, currID, currRecordID string
 	var currentCan, currentCanFull, outlink string
 	var prsdCurrent parsed.Parsed
-	if vsql.AcceptedRecordID.Valid {
+	hasTaxonData := p.hasTaxonData(vsql)
+	status := getTaxonomicStatus(vsql, hasTaxonData)
+	if hasTaxonData {
 		currRecordID = vsql.AcceptedRecordID.String
 		currID = vsql.AcceptedNameID.String
 		currName = vsql.AcceptedName.String
@@ -353,7 +358,7 @@ func (p *pgio) addMatch(
 		CurrentCardinality:     currCard,
 		CurrentCanonicalSimple: currentCan,
 		CurrentCanonicalFull:   currentCanFull,
-		IsSynonym:              vsql.RecordID != vsql.AcceptedRecordID,
+		TaxonomicStatus:        status,
 		ClassificationPath:     vsql.Classification.String,
 		ClassificationRanks:    vsql.ClassificationRanks.String,
 		ClassificationIDs:      vsql.ClassificationIds.String,
@@ -361,5 +366,24 @@ func (p *pgio) addMatch(
 		StemEditDistance:       edDistStem,
 		ParsingQuality:         vsql.ParseQuality,
 	}
+	resData.IsSynonym = resData.TaxonomicStatus == vlib.SynonymTaxStatus
 	return resData
+}
+
+func (p pgio) hasTaxonData(vsql *verifSQL) bool {
+	var res bool
+	if _, ok := p.dsm[vsql.DataSourceID]; ok {
+		res = p.dsm[vsql.DataSourceID].HasTaxonData
+	}
+	return res
+}
+
+func getTaxonomicStatus(vsql *verifSQL, hasTaxonData bool) vlib.TaxonomicStatus {
+	if vsql.RecordID != vsql.AcceptedRecordID {
+		return vlib.SynonymTaxStatus
+	}
+	if hasTaxonData {
+		return vlib.AcceptedTaxStatus
+	}
+	return vlib.UnknownTaxStatus
 }

@@ -4,6 +4,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add [#128]: TaxonomicStatus field in output.
+
 ## [v1.2.5] - 01/09/2024 Tue
 
 - Fix: Move database interactions to pgx library and connection Pool.

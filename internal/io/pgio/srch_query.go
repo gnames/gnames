@@ -108,13 +108,15 @@ func (p *pgio) matchRes(
 	v *verifSQL,
 ) *vlib.ResultData {
 	authors, year := processAuthorship(prsd.Authorship)
+	hasTaxonData := p.hasTaxonData(v)
+	status := getTaxonomicStatus(v, hasTaxonData)
 
 	currentRecordID := v.RecordID.String
 	currentName := v.Name.String
 	prsdCurrent := prsd
 	currentCan := ""
 	currentCanFull := ""
-	if v.AcceptedRecordID.Valid {
+	if v.AcceptedRecordID.Valid && status != vlib.UnknownTaxStatus {
 		currentRecordID = v.AcceptedRecordID.String
 		currentName = v.AcceptedName.String
 		prsdCurrent = gnp.ParseName(currentName)
@@ -157,12 +159,13 @@ func (p *pgio) matchRes(
 		CurrentCardinality:     currentCardinality,
 		CurrentCanonicalSimple: currentCan,
 		CurrentCanonicalFull:   currentCanFull,
-		IsSynonym:              v.RecordID != v.AcceptedRecordID,
+		TaxonomicStatus:        status,
 		ClassificationPath:     v.Classification.String,
 		ClassificationRanks:    v.ClassificationRanks.String,
 		ClassificationIDs:      v.ClassificationIds.String,
 		MatchType:              vlib.FacetedSearch,
 	}
+	rd.IsSynonym = rd.TaxonomicStatus == vlib.SynonymTaxStatus
 	return &rd
 }
 

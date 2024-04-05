@@ -14,3 +14,4 @@ bench*.txt
 binding/*.so
 binding/*.h
 __debug_bin
+coverage.txt

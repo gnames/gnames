@@ -20,7 +20,8 @@ func (p *pgio) dataSources(ids ...int) ([]*vlib.DataSource, error) {
 	q := `
 SELECT id, uuid, title, title_short, version, revision_date,
     doi, citation, authors, description, website_url, outlink_url,
-    is_outlink_ready, is_curated, is_auto_curated, record_count, updated_at
+    is_outlink_ready, is_curated, has_taxon_data, is_auto_curated,
+	  record_count, updated_at
 	FROM data_sources
 	%s
 	ORDER BY id
@@ -47,8 +48,8 @@ SELECT id, uuid, title, title_short, version, revision_date,
 			&ds.ID, &ds.UUID, &ds.Title, &ds.TitleShort, &ds.Version,
 			&ds.RevisionDate, &ds.DOI, &ds.Citation, &ds.Authors,
 			&ds.Description, &ds.WebsiteURL, &ds.OutlinkURL,
-			&ds.IsOutlinkReady, &ds.IsCurated, &ds.IsAutoCurated,
-			&ds.RecordCount, &ds.UpdatedAt,
+			&ds.IsOutlinkReady, &ds.IsCurated, &ds.HasTaxonData,
+			&ds.IsAutoCurated, &ds.RecordCount, &ds.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -80,6 +81,7 @@ type dataSource struct {
 	OutlinkURL     string
 	IsOutlinkReady bool
 	IsCurated      bool
+	HasTaxonData   bool
 	IsAutoCurated  bool
 	RecordCount    int
 	UpdatedAt      time.Time
@@ -98,6 +100,7 @@ func (ds dataSource) convert() vlib.DataSource {
 		Authors:        ds.Authors,
 		WebsiteURL:     ds.WebsiteURL,
 		OutlinkURL:     ds.OutlinkURL,
+		HasTaxonData:   ds.HasTaxonData,
 		IsOutlinkReady: ds.IsOutlinkReady,
 		Description:    ds.Description,
 		RecordCount:    ds.RecordCount,
@@ -106,6 +109,7 @@ func (ds dataSource) convert() vlib.DataSource {
 	if ds.UUID != uuid.Nil.String() {
 		res.UUID = ds.UUID
 	}
+
 	if ds.IsCurated {
 		res.Curation = vlib.Curated
 	} else if ds.IsAutoCurated {

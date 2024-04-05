@@ -482,6 +482,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 				slog.String("method", "GET"),
 			)
 		}
+		fmt.Printf("VER: %#v\n", verified.Names[0].BestResult)
 		return c.JSON(http.StatusOK, verified)
 	}
 }
