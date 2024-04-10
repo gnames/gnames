@@ -46,22 +46,18 @@ var (
 // config purpose is to achieve automatic import of data from the
 // configuration file, if it exists.
 type cfgData struct {
-	CacheDir           string
-	JobsNum            int
-	MatcherURL         string
-	WebPageURL         string
-	GnamesHostURL      string
-	MaxEditDist        int
-	PgDB               string
-	PgHost             string
-	PgPass             string
-	PgPort             int
-	PgUser             string
-	Port               int
-	NsqdTCPAddress     string
-	NsqdContainsFilter string
-	NsqdRegexFilter    string
-	WithWebLogs        bool
+	CacheDir      string
+	JobsNum       int
+	MatcherURL    string
+	WebPageURL    string
+	GnamesHostURL string
+	MaxEditDist   int
+	PgDB          string
+	PgHost        string
+	PgPass        string
+	PgPort        int
+	PgUser        string
+	Port          int
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -120,16 +116,12 @@ func initConfig() {
 	_ = viper.BindEnv("WebPageURL", "GN_WEB_PAGE_URL")
 	_ = viper.BindEnv("GnamesHostURL", "GN_GNAMES_HOST_URL")
 	_ = viper.BindEnv("MaxEditDist", "GN_MAX_EDIT_DIST")
-	_ = viper.BindEnv("NsqdContainsFilter", "GN_NSQD_CONTAINS_FILTER")
-	_ = viper.BindEnv("NsqdRegexFilter", "GN_NSQD_REGEX_FILTER")
-	_ = viper.BindEnv("NsqdTCPAddress", "GN_NSQD_TCP_ADDRESS")
 	_ = viper.BindEnv("PgDB", "GN_PG_DB")
 	_ = viper.BindEnv("PgHost", "GN_PG_HOST")
 	_ = viper.BindEnv("PgPass", "GN_PG_PASS")
 	_ = viper.BindEnv("PgPort", "GN_PG_PORT")
 	_ = viper.BindEnv("PgUser", "GN_PG_USER")
 	_ = viper.BindEnv("Port", "GN_PORT")
-	_ = viper.BindEnv("WithWebLogs", "GN_WITH_WEB_LOGS")
 
 	viper.AutomaticEnv() // read in environment variables that match
 
@@ -187,18 +179,6 @@ func getOpts() []gncnf.Option {
 	}
 	if cfg.GnamesHostURL != "" {
 		opts = append(opts, gncnf.OptGnamesHostURL(cfg.GnamesHostURL))
-	}
-	if cfg.NsqdTCPAddress != "" {
-		opts = append(opts, gncnf.OptNsqdTCPAddress(cfg.NsqdTCPAddress))
-	}
-	if cfg.NsqdContainsFilter != "" {
-		opts = append(opts, gncnf.OptNsqdContainsFilter(cfg.NsqdContainsFilter))
-	}
-	if cfg.NsqdRegexFilter != "" {
-		opts = append(opts, gncnf.OptNsqdRegexFilter(cfg.NsqdRegexFilter))
-	}
-	if cfg.WithWebLogs {
-		opts = append(opts, gncnf.OptWithWebLogs(true))
 	}
 	return opts
 }

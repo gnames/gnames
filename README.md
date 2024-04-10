@@ -146,8 +146,6 @@ environment variables:
 | GN_PG_PORT           | PgPort         |
 | GN_PG_USER           | PgUser         |
 | GN_PORT              | Port           |
-| GN_WEB_LOGS_NSQD_TCP | WebLogsNsqdTCP |
-| GN_WITH_WEB_LOGS     | WithWebLogs    |
 
 The meaning of configuration settings are provided in the [default gnames.yaml].
 
@@ -178,15 +176,6 @@ use something like:
 ```bash
 gnverifier -p 8777
 ```
-
-## Web-Logs
-
-By default, Logs are not shown. To enable the service logs change
-`WithWebLogs` to `true` in the configuration file.
-
-To aggregate logs with an [NSQ] messaging service, provide an address for
-TCP service of `nsqd`, for example `0.0.0.0:4150` by changing
-`WebLogsNsqdTCP` in configuration file, or `GN_WEB_LOGS_NSQD_TCP`.
 
 ## Known limitations of the verification
 

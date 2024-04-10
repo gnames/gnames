@@ -179,6 +179,36 @@ func TestFuzzy(t *testing.T) {
 	assert.Equal(t, 1, fuz1.BestResult.EditDistance)
 }
 
+func TestRelaxedFuzzy(t *testing.T) {
+	assert := assert.New(t)
+	tests := []struct {
+		msg, name, match string
+		ed               int
+	}{
+		{"bubo", "Bbo bbo", "Bubo bubo", 2},
+	}
+
+	for _, v := range tests {
+		var response vlib.Output
+		request := vlib.Input{
+			NameStrings:           []string{v.name},
+			WithRelaxedFuzzyMatch: true,
+		}
+		req, err := gnfmt.GNjson{}.Encode(request)
+		assert.Nil(err)
+		r := bytes.NewReader(req)
+		resp, err := http.Post(restURL+"verifications", "application/json", r)
+		assert.Nil(err)
+		respBytes, err := io.ReadAll(resp.Body)
+		assert.Nil(err)
+		err = gnfmt.GNjson{}.Decode(respBytes, &response)
+		assert.Nil(err)
+		name := response.Names[0]
+		assert.Equal(v.match, name.BestResult.MatchedCanonicalSimple)
+		assert.Equal(v.ed, name.BestResult.EditDistance)
+	}
+}
+
 // Issue  https://github.com/gnames/gnames/issues/108
 // Checks if uninomials go through fuzzy matching
 func TestUniFuzzy(t *testing.T) {
