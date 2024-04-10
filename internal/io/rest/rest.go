@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gnames/gnames/internal/logr"
 	gnames "github.com/gnames/gnames/pkg"
 	"github.com/gnames/gnames/pkg/ent/recon"
 	"github.com/gnames/gnfmt"
@@ -23,9 +22,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	nsqcfg "github.com/sfgrp/lognsq/config"
-	"github.com/sfgrp/lognsq/ent/nsq"
-	"github.com/sfgrp/lognsq/io/nsqio"
 )
 
 var (
@@ -40,11 +36,6 @@ func Run(gn gnames.GNames, port int) {
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
-
-	loggerNSQ := setLogger(e, gn)
-	if loggerNSQ != nil {
-		defer loggerNSQ.Stop()
-	}
 
 	e.GET("/", info)
 	e.GET("/api", info)
@@ -448,6 +439,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		capitalize := c.QueryParam("capitalize") == "true"
 		spGrp := c.QueryParam("species_group") == "true"
 		stats := c.QueryParam("stats") == "true"
+		fuzzyRelaxed := c.QueryParam("fuzzy_relaxed") == "true"
 		fuzzyUni := c.QueryParam("fuzzy_uninomial") == "true"
 		mainTxnThresholdStr := c.QueryParam("main_taxon_threshold")
 		matches := c.QueryParam("all_matches") == "true"
@@ -467,6 +459,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 			WithAllMatches:          matches,
 			WithStats:               stats,
 			WithSpeciesGroup:        spGrp,
+			WithRelaxedFuzzyMatch:   fuzzyRelaxed,
 			WithUninomialFuzzyMatch: fuzzyUni,
 			MainTaxonThreshold:      float32(mainTxnThreshold),
 		}
@@ -482,7 +475,6 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 				slog.String("method", "GET"),
 			)
 		}
-		fmt.Printf("VER: %#v\n", verified.Names[0].BestResult)
 		return c.JSON(http.StatusOK, verified)
 	}
 }
@@ -550,38 +542,4 @@ func getContext(c echo.Context) (ctx context.Context, cancel func()) {
 	ctx = c.Request().Context()
 	ctx, cancel = context.WithTimeout(ctx, 5*time.Minute)
 	return ctx, cancel
-}
-
-func setLogger(e *echo.Echo, g gnames.GNames) nsq.NSQ {
-	cfg := g.GetConfig()
-	nsqAddr := cfg.NsqdTCPAddress
-	withLogs := cfg.WithWebLogs
-	contains := cfg.NsqdContainsFilter
-	regex := cfg.NsqdRegexFilter
-
-	if nsqAddr != "" {
-		cfg := nsqcfg.Config{
-			StderrLogs: withLogs,
-			Topic:      "gnames",
-			Address:    nsqAddr,
-			Contains:   contains,
-			Regex:      regex,
-		}
-		remote, err := nsqio.New(cfg)
-		logCfg := middleware.DefaultLoggerConfig
-		if err == nil {
-			logCfg.Output = remote
-			// set app logger too
-			logr.LogRemote(remote)
-		}
-		e.Use(middleware.LoggerWithConfig(logCfg))
-		if err != nil {
-			slog.Error("Cannot set logger", "error", err)
-		}
-		return remote
-	} else if withLogs {
-		e.Use(middleware.Logger())
-		return nil
-	}
-	return nil
 }

@@ -50,6 +50,7 @@ func (mr matcherREST) MatchNames(
 	req, err := mr.enc.Encode(mlib.Input{
 		Names:                   names,
 		WithSpeciesGroup:        cfg.WithSpeciesGroup,
+		WithRelaxedFuzzyMatch:   cfg.WithRelaxedFuzzyMatch,
 		WithUninomialFuzzyMatch: cfg.WithUninomialFuzzyMatch,
 		DataSources:             cfg.DataSources,
 	})

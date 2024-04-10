@@ -116,6 +116,7 @@ func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 		WithStats:               input.WithStats,
 		WithCapitalization:      input.WithCapitalization,
 		WithSpeciesGroup:        input.WithSpeciesGroup,
+		WithRelaxedFuzzyMatch:   input.WithRelaxedFuzzyMatch,
 		WithUninomialFuzzyMatch: input.WithUninomialFuzzyMatch,
 		MainTaxonThreshold:      input.MainTaxonThreshold,
 		DataSources:             input.DataSources,
@@ -147,6 +148,9 @@ func (g gnames) getMatchRecords(
 	var opts []gncfg.Option
 	if input.WithSpeciesGroup {
 		opts = append(opts, gncfg.OptWithSpeciesGroup(true))
+	}
+	if input.WithRelaxedFuzzyMatch {
+		opts = append(opts, gncfg.OptWithRelaxedFuzzyMatch(true))
 	}
 	if input.WithUninomialFuzzyMatch {
 		opts = append(opts, gncfg.OptWithUninomialFuzzyMatch(true))

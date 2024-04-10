@@ -4,6 +4,9 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.3.0] - 2024-04-11 Thu
+
+- Add [#129]: Relaxed fuzzy match.
 - Add [#128]: TaxonomicStatus field in output.
 
 ## [v1.2.5] - 01/09/2024 Tue
@@ -432,6 +435,19 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.3.0]: https://github.com/gnames/gnames/compare/v1.2.5...v1.3.0
+[v1.2.5]: https://github.com/gnames/gnames/compare/v1.2.4...v1.2.5
+[v1.2.4]: https://github.com/gnames/gnames/compare/v1.2.3...v1.2.4
+[v1.2.3]: https://github.com/gnames/gnames/compare/v1.2.2...v1.2.3
+[v1.2.2]: https://github.com/gnames/gnames/compare/v1.2.1...v1.2.2
+[v1.2.1]: https://github.com/gnames/gnames/compare/v1.2.0...v1.2.1
+[v1.2.0]: https://github.com/gnames/gnames/compare/v1.1.10...v1.2.0
+[v1.1.10]: https://github.com/gnames/gnames/compare/v1.1.9...v1.1.10
+[v1.1.9]: https://github.com/gnames/gnames/compare/v1.1.8...v1.1.9
+[v1.1.8]: https://github.com/gnames/gnames/compare/v1.1.7...v1.1.8
+[v1.1.7]: https://github.com/gnames/gnames/compare/v1.1.6...v1.1.7
+[v1.1.6]: https://github.com/gnames/gnames/compare/v1.1.5...v1.1.6
+[v1.1.5]: https://github.com/gnames/gnames/compare/v1.1.4...v1.1.5
 [v1.1.4]: https://github.com/gnames/gnames/compare/v1.1.3...v1.1.4
 [v1.1.3]: https://github.com/gnames/gnames/compare/v1.1.2...v1.1.3
 [v1.1.2]: https://github.com/gnames/gnames/compare/v1.1.1...v1.1.2
@@ -497,6 +513,26 @@ This document follows [changelog guidelines]
 
  <!-- Issues -->
 
+[#140]: https://github.com/gnames/gnames/issues/140
+[#139]: https://github.com/gnames/gnames/issues/139
+[#138]: https://github.com/gnames/gnames/issues/138
+[#137]: https://github.com/gnames/gnames/issues/137
+[#136]: https://github.com/gnames/gnames/issues/136
+[#135]: https://github.com/gnames/gnames/issues/135
+[#134]: https://github.com/gnames/gnames/issues/134
+[#133]: https://github.com/gnames/gnames/issues/133
+[#132]: https://github.com/gnames/gnames/issues/132
+[#131]: https://github.com/gnames/gnames/issues/131
+[#130]: https://github.com/gnames/gnames/issues/130
+[#129]: https://github.com/gnames/gnames/issues/129
+[#128]: https://github.com/gnames/gnames/issues/128
+[#127]: https://github.com/gnames/gnames/issues/127
+[#126]: https://github.com/gnames/gnames/issues/126
+[#125]: https://github.com/gnames/gnames/issues/125
+[#124]: https://github.com/gnames/gnames/issues/124
+[#123]: https://github.com/gnames/gnames/issues/123
+[#122]: https://github.com/gnames/gnames/issues/122
+[#121]: https://github.com/gnames/gnames/issues/121
 [#120]: https://github.com/gnames/gnames/issues/120
 [#119]: https://github.com/gnames/gnames/issues/119
 [#118]: https://github.com/gnames/gnames/issues/118

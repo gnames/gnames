@@ -1,0 +1,186 @@
+* [31m56de293[m -[33m (HEAD -> 129-relaxed)[m wip [32m(5 minutes ago) [1;34m<Dmitry Mozzherin>[m
+* [31m0cd2350[m -[33m[m wip [32m(13 minutes ago) [1;34m<Dmitry Mozzherin>[m
+* [31m9db23d9[m -[33m (origin/129-relaxed)[m add relaxed fuzzy option (close #129) [32m(32 hours ago) [1;34m<Dmitry Mozzherin>[m
+* [31me54712f[m -[33m (origin/master, origin/HEAD, master)[m add TaxonomicStatus field to output (close #128) [32m(2 days ago) [1;34m<Dmitry Mozzherin>[m
+* [31mba24e48[m -[33m[m small file changes [32m(3 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m7ca36d4[m -[33m (tag: v1.2.5)[m migrate to pgx driver [32m(3 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m662fe37[m -[33m (tag: v1.2.4)[m fix running condition in auth [32m(3 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mc265641[m -[33m[m change log from zerolog to slog [32m(3 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m7438355[m -[33m (tag: v1.2.3)[m fix wrong match type [32m(5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31md77896c[m -[33m[m changelog [32m(5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m160ca27[m -[33m (tag: v1.2.2)[m update extend output for all matches [32m(5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8fe896e[m -[33m[m update modules [32m(6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mbbda255[m -[33m (tag: v1.2.1)[m add reconciliation extension to show all matches (close #118) [32m(6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m0e2a488[m -[33m[m switch sorting to 'slices' package [32m(7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m98e2f2d[m -[33m[m add comments to lexical group creation [32m(7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m115268d[m -[33m (tag: v1.1.10)[m v1.1.10 gnparser update [32m(7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me05bb97[m -[33m[m fix typo [32m(7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mf788fdb[m -[33m (tag: v1.1.9)[m more author normalization (fix #107) [32m(7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mb9ad706[m -[33m (tag: v1.1.8)[m add v1.1.8 [32m(7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mdf86305[m -[33m[m add CanonicalForm as extension to OperRefine (close #117) [32m(7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8f4e0a1[m -[33m (tag: v1.2.0)[m make entities public [32m(7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me498b35[m -[33m (tag: v1.1.7)[m provide extended data for reconciliation (close #105) [32m(7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mb6ccaf5[m -[33m[m improve reconciliation features (close #113) [32m(8 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m3424986[m -[33m (tag: v1.1.6)[m update modules [32m(8 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m2540c87[m -[33m (tag: v1.1.5)[m improve reconciliation features (close #113) [32m(10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m9ad15f6[m -[33m (tag: v1.1.4)[m add missing reconciliations (fix #112) [32m(10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8582acc[m -[33m[m add meta about species group and uninomial fuzzy match [32m(10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31md678aaa[m -[33m (tag: v1.1.3)[m author score ignores `fil.`, `I`, `II`, `III` (close #111) [32m(10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8dc65cf[m -[33m[m fix authorship in score creation (close #109, close #110) [32m(10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m79346ca[m -[33m[m update gnmatcher module [32m(10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mb0c11e9[m -[33m (tag: v1.1.2)[m add optional uninomial fuzzy-matching (close #108) [32m(10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m1d0ca26[m -[33m (tag: v1.1.1)[m add auto-match to reconciliation (close #107) [32m(10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mc0cbec5[m -[33m[m reconcile has auto-match (close #107) [32m(11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mae8916f[m -[33m[m filter reconciliation by properties (close #104) [32m(11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m1b80d73[m -[33m (tag: v1.1.0)[m add reconciler endpoint (close #101) [32m(11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31meacdf67[m -[33m[m changelog [32m(11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m98e15b5[m -[33m[m add lexical group factory (close #103) [32m(11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6ede3f1[m -[33m[m add reconciliation service manifest (close #102) [32m(12 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mb6bec4e[m -[33m[m add API endpoint for name-string (close #100) [32m(12 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m48282be[m -[33m[m remove homedir dependency [32m(1 year, 1 month ago) [1;34m<Dmitry Mozzherin>[m
+* [31m340ef7d[m -[33m[m gitignore [32m(1 year, 1 month ago) [1;34m<Dmitry Mozzherin>[m
+* [31m86d0a06[m -[33m[m makefile [32m(1 year, 1 month ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8d928a3[m -[33m (tag: v1.0.3)[m refactor code to better structure (close #99) [32m(1 year, 1 month ago) [1;34m<Dmitry Mozzherin>[m
+* [31m80f2317[m -[33m (tag: v1.0.2)[m update all modules [32m(1 year, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mdfac834[m -[33m[m remove junk files [32m(1 year, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m91001b6[m -[33m[m changelog [32m(1 year, 8 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31ma6fe7fb[m -[33m (tag: v1.0.1)[m fix api doc link [32m(1 year, 8 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m707ae45[m -[33m (tag: v1.0.0)[m prepare v1.0.0 [32m(1 year, 8 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m4565154[m -[33m (tag: v1.0.0-RC2)[m fix wrong sorting for fuzzy matches with ranks (close #96) [32m(1 year, 11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m84084cc[m -[33m (tag: v1.0.0-RC1)[m update to gnmatcher v1.0.0-RC1 [32m(1 year, 11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mf2ba9ba[m -[33m (tag: v0.13.4)[m matching is aware of data-sources (fix #95) [32m(1 year, 11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m5686ff4[m -[33m (tag: v0.13.3)[m add cardinality score [32m(1 year, 11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m12a509f[m -[33m (tag: v0.13.2)[m update gnmatcher v0.9.6 (species-group option) [32m(1 year, 11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8d2ca08[m -[33m (tag: v0.13.1)[m sort down synonyms (fix #94) [32m(1 year, 11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m90dd51a[m -[33m[m add DataSourcesIDs to output (close #92) [32m(1 year, 11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m70bedb5[m -[33m (tag: v0.13.0)[m update to gnlib v0.13.0 [32m(2 years ago) [1;34m<Dmitry Mozzherin>[m
+* [31m9e228d0[m -[33m[m fix tests [32m(2 years ago) [1;34m<Dmitry Mozzherin>[m
+* [31m457789c[m -[33m (tag: v0.12.0)[m update gnlib to v0.12.0, use its stats module [32m(2 years ago) [1;34m<Dmitry Mozzherin>[m
+* [31mcaa8887[m -[33m (tag: v0.8.1)[m update Go to 1.18, update modules [32m(2 years, 1 month ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8bc8a63[m -[33m[m readme fixes [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6949340[m -[33m (tag: v0.8.0)[m update gnmatcher (fix #90) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m90830e1[m -[33m[m provide score as one number (close #89) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mbb6a29d[m -[33m[m do not show BestResult when WithAllMatches is true (close #88) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me77eaf1[m -[33m[m remove debug line [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m205d92e[m -[33m[m changelog [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8484e66[m -[33m[m NoMatch MatchType when no BestResult (fix #87) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mfb0e3fe[m -[33m[m fix MatchType for `Jsoetes longissimum` verif (fix #84) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mf4744c0[m -[33m[m sync verification and search ds, matchall (close #86) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mf3cb69a[m -[33m[m search with `tx:` works correctly (close #85) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mf8e9000[m -[33m[m remove database collation requirement from readme [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m9daa94a[m -[33m (tag: v0.7.1)[m use /api/v0 for gnmatcher [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m5f3b47a[m -[33m (tag: v0.7.0)[m add exact stem match (close #82) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m1df4709[m -[33m (tag: v0.6.5)[m fix env vars for filters [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6753cec[m -[33m (tag: v0.6.4)[m add optional filters to NSQ logs (close #81) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mc10232f[m -[33m[m changelog [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31meeb114e[m -[33m (tag: v0.6.3)[m update logger (close #80) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31ma8d5c27[m -[33m[m correct value for OverloadDetected (fix #79) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8169fa4[m -[33m (tag: v0.6.2)[m limit NSQ logs to `search` and `verifications` [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mbeaa6cd[m -[33m[m bettern var name [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6cb3a51[m -[33m[m changelog [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m5f280f3[m -[33m (tag: v0.6.1)[m fix README, typos in OverloadDetected [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m46449ee[m -[33m (tag: v0.6.0)[m add optional log aggregation to NSQ (close #78) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m557d678[m -[33m[m add verification of viruses (close #77) [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m13b6410[m -[33m (tag: v0.5.12)[m handle one letter authors for faceted search [32m(2 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m9deea02[m -[33m[m Update auth.go [32m(2 years, 3 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m5ef659a[m -[33m[m modify match record [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mebc86a5[m -[33m[m remove junk files [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m0330566[m -[33m (tag: v0.5.11)[m better `n:` field for query [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m0539f3f[m -[33m (tag: v0.5.10)[m update modules [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m2e5bf26[m -[33m (tag: v0.5.9)[m small changes in scoring algorithm [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mc7de912[m -[33m (tag: v0.5.8)[m add score details (close #75) [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m2dee383[m -[33m (tag: v0.5.7)[m dereferenced Name structs in output [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me0ae4c9[m -[33m (tag: v0.5.6)[m fixes in context/kingdoms stats [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m24888f3[m -[33m[m add context threshold to GET [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m62234ce[m -[33m (tag: v0.5.5)[m pref_sources to data_sources [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mfead3af[m -[33m[m fix curation [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m9ead4f4[m -[33m (tag: v0.5.4)[m typo [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6c47a6e[m -[33m (tag: v0.5.3)[m update input/output [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6100c62[m -[33m (tag: v0.5.2)[m multiple data sources for search (close #73) [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m577f921[m -[33m[m fix go.sum [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m1ff3a30[m -[33m (tag: v0.5.1)[m improve output, bug fixes [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m35fbd05[m -[33m (tag: v0.5.0)[m faceted search (close #71) [32m(2 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31md2b5ace[m -[33m (tag: v0.4.0)[m changelog [32m(2 years, 5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m7ff0d43[m -[33m[m add context calculation (close #51) [32m(2 years, 5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m325dabd[m -[33m[m gnparser v1.5.6 [32m(2 years, 5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m2e4e247[m -[33m[m facet query example [32m(2 years, 5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m51633cb[m -[33m (tag: v0.3.3)[m fix get params [32m(2 years, 5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mdadad24[m -[33m (tag: v0.3.2)[m all sources/all matches are score-sorted (close #70) [32m(2 years, 5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m4cedf47[m -[33m[m changelog [32m(2 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m4aadd03[m -[33m (tag: v0.3.1)[m remove jwt-go dependency [32m(2 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31md6d0d9e[m -[33m (tag: v0.3.0)[m optional all sources, matches (close #69) [32m(2 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6c25e5b[m -[33m (tag: v0.2.2)[m version [32m(2 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6c5243e[m -[33m[m show a data source correctly (fix #68) [32m(2 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me4d8d62[m -[33m (tag: v0.2.1)[m sort data_sources by ID [32m(2 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6c46ef5[m -[33m[m update alpine for docker [32m(2 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31ma35511b[m -[33m[m update alpine in dockerfile [32m(3 years ago) [1;34m<Dmitry Mozzherin>[m
+* [31m60c77ad[m -[33m (tag: v0.2.0)[m capitaliztion option, classificationIDs (#61, #67) [32m(3 years ago) [1;34m<Dmitry Mozzherin>[m
+* [31m291ec4f[m -[33m[m tests for Candidatus [32m(3 years, 1 month ago) [1;34m<Dmitry Mozzherin>[m
+* [31m0392f36[m -[33m (tag: v0.1.8)[m update gnparser to v1.1.0 [32m(3 years, 1 month ago) [1;34m<Dmitry Mozzherin>[m
+* [31mdf45b98[m -[33m[m use context to stop stale requests/queries (close #65) [32m(3 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31meb285f9[m -[33m[m update dependencies [32m(3 years, 2 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mca2858b[m -[33m (tag: v0.1.7)[m Update gnparser to v1.0.4 (close #62) [32m(3 years, 3 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8ed02bc[m -[33m (tag: v0.1.6)[m readme [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m8ad55db[m -[33m[m changelog [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m9fe8c4f[m -[33m[m Close #54 improve documentation [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m2434593[m -[33m[m Close #56 speedup slow queries [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m26b57bc[m -[33m[m Close #59 refactor score to use interface [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m17409f5[m -[33m (tag: v0.1.5)[m changelog [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me43629d[m -[33m[m add server read/write timeout at 5 minutes [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m332e5d8[m -[33m (tag: v0.1.4)[m changelog [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mfb826a5[m -[33m[m Close #53 get method for verifications [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me104afe[m -[33m[m Close #52 use parsing quality for scoring [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m18d6a87[m -[33m (tag: v0.1.3)[m fix fields names [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m3843b41[m -[33m[m Close #46 add outlinks to verification output [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me2612c1[m -[33m[m license fix [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mb14d964[m -[33m[m add license [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m7981c96[m -[33m[m Close #47 add IsOutlinkReady field to DataSources [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m12ea888[m -[33m[m readme [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mbbc3b06[m -[33m[m Close #45 tidy up data_source output [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m0a58765[m -[33m (tag: v0.1.2)[m add dockerhub [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mc588f41[m -[33m (tag: v0.1.1)[m update gnlib [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m1d757f3[m -[33m (tag: v0.1.0)[m Close #42 improve architecture, prepare OpenAPI [32m(3 years, 4 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m08aab30[m -[33m[m Close #41 make compatible with gnmatcher v0.3.6 [32m(3 years, 5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m5a3667b[m -[33m[m add tests for gnmatcher #20 [32m(3 years, 5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m2cf01bd[m -[33m[m Close #40 refactor entities, move them to gnlib [32m(3 years, 5 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m5f3e2ba[m -[33m[m update gnmatcher [32m(3 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mbdda74d[m -[33m (tag: v0.0.4)[m move lib to gnlib [32m(3 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me6d86c0[m -[33m[m fix typo [32m(3 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m020eee6[m -[33m[m unescape "&" for json output [32m(3 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mf7a355f[m -[33m[m add outputter interface [32m(3 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m89b0e88[m -[33m[m add format as shared lib [32m(3 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6b1558e[m -[33m[m allow ~ as home for MakeDir [32m(3 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31ma1bed8a[m -[33m[m add CleanDir to sys [32m(3 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m5a90790[m -[33m[m Fix #38 partial match for 'Acacia vestita may' [32m(3 years, 6 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m11b520c[m -[33m[m Fix #36 edit distance score [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m64fbce8[m -[33m[m Close #35 bump up score for match with authors [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m0c4db11[m -[33m[m Fix #33 deal with unparseable accepted names [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m5ec4b04[m -[33m[m Close #34 add UUID lib for globalnames [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m1b4fca2[m -[33m[m Fix #32 set false positive matches as NoMatch [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m5e41d22[m -[33m[m misc fixes [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m1682e16[m -[33m[m add csv tool [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m7523a52[m -[33m (tag: v0.0.3)[m Close #24 reasonable output for preferred matches [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m079c3b9[m -[33m[m Close #28 reasonable best matches from real data [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m9d9a12e[m -[33m[m Close #19 use edit distance for scoring [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m5b036a4[m -[33m[m Close #20 matching accepted names scores higher than synonyms [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m4240073[m -[33m[m Close #15 use curation level for scoring [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m41dcf4c[m -[33m[m Close #16 use authorship for scoring. [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m9f554b2[m -[33m[m Close #17 use infraspecies rank for scoring [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m9432f06[m -[33m[m Close #18 add ranking system [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m1bce5ea[m -[33m[m Close #23 add gnmatcher interface [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m3d0b2db[m -[33m (tag: v0.0.2)[m update gnmatcher [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31ma617539[m -[33m[m Close #21 clean up acrhitecture [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m6431af1[m -[33m (tag: v0.0.1)[m Close #14 return complete verification output [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mb67df5e[m -[33m[m changelog [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m243b8b8[m -[33m[m Close #5 incorporate gnmatcher [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me7d7f2d[m -[33m[m Close #13 get metadata for DataSources [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mcbf5f81[m -[33m[m Close #4 send names via HTTP API [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m864c4e5[m -[33m[m Close #8 common interface for Gob and JSON encoding [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m4e4ef71[m -[33m[m Close #3 testing framework [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mad1392a[m -[33m[m Close #6 convert protobuf to Go [32m(3 years, 7 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m41bcf08[m -[33m[m protobuf [32m(3 years, 10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mabc2986[m -[33m[m protobuf [32m(3 years, 10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31me28865e[m -[33m[m work on protobuf [32m(3 years, 10 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m68d9b50[m -[33m[m Close #1: define API for minimally viable product [32m(3 years, 11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31m93a342f[m -[33m[m readme [32m(3 years, 11 months ago) [1;34m<Dmitry Mozzherin>[m
+* [31mf6b3a5f[m -[33m (tag: v0.0.0)[m initial commit [32m(3 years, 11 months ago) [1;34m<Dmitry Mozzherin>[m

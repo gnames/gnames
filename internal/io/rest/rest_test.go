@@ -179,6 +179,46 @@ func TestFuzzy(t *testing.T) {
 	assert.Equal(t, 1, fuz1.BestResult.EditDistance)
 }
 
+func TestRelaxedFuzzy(t *testing.T) {
+	assert := assert.New(t)
+	tests := []struct {
+		msg, name, match string
+		uniFuzzy         bool
+		ed               int
+		typ              vlib.MatchTypeValue
+	}{
+		{"bubo", "Bbo bbo onetwo", "Bubo bubo", false, 2, vlib.PartialFuzzyRelaxed},
+		{"bubo", "Bubo bubo onetwo", "Bubo bubo", false, 0, vlib.PartialExact},
+		{"pom saltator", "Pomatom saltator", "Pomatomus saltator", false, 2, vlib.FuzzyRelaxed},
+		{"pomatomus", "Pomatom L.", "Pomatomus", true, 2, vlib.FuzzyRelaxed},
+		{"pomatomus part", "Pomatom saltator aadsdss", "Pomatomus saltator", true, 2, vlib.PartialFuzzyRelaxed},
+	}
+
+	for _, v := range tests {
+		var response vlib.Output
+		request := vlib.Input{
+			NameStrings:           []string{v.name},
+			WithRelaxedFuzzyMatch: true,
+		}
+		if v.uniFuzzy {
+			request.WithUninomialFuzzyMatch = true
+		}
+		req, err := gnfmt.GNjson{}.Encode(request)
+		assert.Nil(err)
+		r := bytes.NewReader(req)
+		resp, err := http.Post(restURL+"verifications", "application/json", r)
+		assert.Nil(err)
+		respBytes, err := io.ReadAll(resp.Body)
+		assert.Nil(err)
+		err = gnfmt.GNjson{}.Decode(respBytes, &response)
+		assert.Nil(err)
+		name := response.Names[0]
+		assert.Equal(v.match, name.BestResult.MatchedCanonicalSimple, v.msg)
+		assert.Equal(v.ed, name.BestResult.EditDistance, v.msg)
+		assert.Equal(v.typ, name.BestResult.MatchType, v.msg)
+	}
+}
+
 // Issue  https://github.com/gnames/gnames/issues/108
 // Checks if uninomials go through fuzzy matching
 func TestUniFuzzy(t *testing.T) {
