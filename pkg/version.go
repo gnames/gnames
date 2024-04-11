@@ -2,7 +2,7 @@ package gnames
 
 var (
 	// Version of the gnames
-	Version = "v1.2.6"
+	Version = "v1.3.0"
 	// Build timestamp
 	Build string
 )
