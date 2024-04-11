@@ -2,14 +2,10 @@ module github.com/gnames/gnames
 
 go 1.22.2
 
-replace github.com/gnames/gnlib => ../gnlib
-
-replace github.com/gnames/gnmatcher => ../gnmatcher
-
 require (
 	github.com/gnames/gnfmt v0.4.3
-	github.com/gnames/gnlib v0.42.0
-	github.com/gnames/gnmatcher v1.1.9
+	github.com/gnames/gnlib v0.43.0
+	github.com/gnames/gnmatcher v1.1.10
 	github.com/gnames/gnparser v1.9.1
 	github.com/gnames/gnquery v0.3.4
 	github.com/gnames/gnstats v0.2.1
@@ -71,7 +67,7 @@ require (
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.19.0 // indirect
