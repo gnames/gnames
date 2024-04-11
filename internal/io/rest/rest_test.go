@@ -190,7 +190,7 @@ func TestRelaxedFuzzy(t *testing.T) {
 		{"bubo", "Bbo bbo onetwo", "Bubo bubo", false, 2, vlib.PartialFuzzyRelaxed},
 		{"bubo", "Bubo bubo onetwo", "Bubo bubo", false, 0, vlib.PartialExact},
 		{"pom saltator", "Pomatom saltator", "Pomatomus saltator", false, 2, vlib.FuzzyRelaxed},
-		{"gen", "Pomatom", "Pometon", true, 2, vlib.FuzzyRelaxed},
+		{"pomatomus", "Pomatom L.", "Pomatomus", true, 2, vlib.FuzzyRelaxed},
 		{"gen part", "Pomatom aadsdss", "Pometon", true, 2, vlib.PartialFuzzyRelaxed},
 	}
 
