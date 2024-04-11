@@ -25,7 +25,7 @@ all: install
 
 test: deps install
 	@echo Run tests
-	$(GOCMD) test -shuffle=on -count=1 -race -coverprofile=coverage.txt ./...
+	$(GOCMD) test -shuffle=on -count=1 -race -coverprofile=coverage.txt -covermode=atomic ./...
 
 tools: deps
 	@echo Installing tools from tools.go
