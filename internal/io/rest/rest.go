@@ -167,7 +167,7 @@ func reconcilePOST(gn gnames.GNames) func(echo.Context) error {
 			if len(ext) > 0 {
 				var params reconciler.ExtendQuery
 				var extRes reconciler.ExtendOutput
-				err := enc.Decode([]byte(ext), &params)
+				err = enc.Decode([]byte(ext), &params)
 				if err == nil {
 					extRes, err = gn.ExtendReconcile(params)
 				}

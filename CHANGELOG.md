@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.3.1] - 2024-04-12 Fri
+
+- Add: update gnmatcher to v1.1.12
+
 ## [v1.3.0] - 2024-04-11 Thu
 
 - Add [#129]: Relaxed fuzzy match.
@@ -435,6 +439,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.3.1]: https://github.com/gnames/gnames/compare/v1.3.0...v1.3.1
 [v1.3.0]: https://github.com/gnames/gnames/compare/v1.2.5...v1.3.0
 [v1.2.5]: https://github.com/gnames/gnames/compare/v1.2.4...v1.2.5
 [v1.2.4]: https://github.com/gnames/gnames/compare/v1.2.3...v1.2.4
