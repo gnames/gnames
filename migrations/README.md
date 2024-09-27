@@ -11,11 +11,17 @@ atlas schema inspect \
   -u 'postgres://user:pass@0.0.0.0/gnames?sslmode=disable' > gnames.hcl
 ```
 
+Delete materialized view (it prevents migration to happen)
+
+```sql
+drop materialized view verification;
+```
+
 Syncronize old state to new one:
 
 ```bash
 atlas schema apply  \
-  -u 'postgres://dimus:dimus@0.0.0.0/gnames2?sslmode=disable' \
+  -u 'postgres://user:pass@0.0.0.0/gnames?sslmode=disable' \
   --to file://gnames.hcl
 ```
 
