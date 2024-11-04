@@ -16,6 +16,7 @@ import (
 func TestVerifier(t *testing.T) {
 	var g gnames.GNames
 	cfg := config.New()
+	config.LoadEnv(&cfg)
 	ctx := context.Background()
 	vf := mockVerifier{}
 	fct := mockFacet{}

@@ -1,0 +1,5 @@
+export "GN_PG_HOST"="0.0.0.0"
+export "GN_PG_USER"="postgres"
+export "GN_PG_PASS"="postgres"
+
+# See other env variables in ./pkg/config/env.go file

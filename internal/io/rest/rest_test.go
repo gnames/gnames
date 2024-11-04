@@ -38,6 +38,7 @@ func TestVersion(t *testing.T) {
 }
 
 func TestVerifyExact(t *testing.T) {
+	assert := assert.New(t)
 	var response vlib.Output
 	names := []string{
 		"Not name",
@@ -51,62 +52,63 @@ func TestVerifyExact(t *testing.T) {
 		"Pisonia grandis",
 		"Acacia vestita may",
 		"Candidatus Aenigmarchaeum subterraneum",
+		"Phegopteris",
 	}
 	request := vlib.Input{NameStrings: names}
 	req, err := gnfmt.GNjson{}.Encode(request)
-	assert.Nil(t, err)
+	assert.Nil(err)
 	r := bytes.NewReader(req)
 	resp, err := http.Post(restURL+"verifications", "application/json", r)
-	assert.Nil(t, err)
+	assert.Nil(err)
 	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
+	assert.Nil(err)
 	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
-	assert.Equal(t, len(names), len(response.Names))
+	assert.Nil(err)
+	assert.Equal(len(names), len(response.Names))
 
 	bad := response.Names[0]
-	assert.Equal(t, "82dbfb99-fe6c-5882-99f2-17c7d3955599", bad.ID)
-	assert.Equal(t, "Not name", bad.Name)
-	assert.Equal(t, vlib.NoMatch, bad.MatchType)
-	assert.Nil(t, bad.BestResult)
-	assert.Equal(t, 0, bad.DataSourcesNum)
-	assert.Equal(t, 0, len(bad.DataSourcesIDs))
-	assert.Equal(t, vlib.NotCurated, bad.Curation)
-	assert.Equal(t, "", bad.Error)
+	assert.Equal("82dbfb99-fe6c-5882-99f2-17c7d3955599", bad.ID)
+	assert.Equal("Not name", bad.Name)
+	assert.Equal(vlib.NoMatch, bad.MatchType)
+	assert.Nil(bad.BestResult)
+	assert.Equal(0, bad.DataSourcesNum)
+	assert.Equal(0, len(bad.DataSourcesIDs))
+	assert.Equal(vlib.NotCurated, bad.Curation)
+	assert.Equal("", bad.Error)
 
 	binom := response.Names[1]
-	assert.Equal(t, "4431a0f3-e901-519a-886f-9b97e0c99d8e", binom.ID)
-	assert.Equal(t, "Bubo bubo", binom.Name)
-	assert.NotNil(t, binom.BestResult)
-	assert.Equal(t, 1, binom.BestResult.DataSourceID)
-	assert.Equal(t, 33, len(binom.DataSourcesIDs))
-	assert.Equal(t, 33, binom.DataSourcesNum)
-	assert.Equal(t, vlib.Exact, binom.BestResult.MatchType)
-	assert.Equal(t, vlib.Curated, binom.Curation)
-	assert.Equal(t, "", binom.Error)
+	assert.Equal("4431a0f3-e901-519a-886f-9b97e0c99d8e", binom.ID)
+	assert.Equal("Bubo bubo", binom.Name)
+	assert.NotNil(binom.BestResult)
+	assert.Equal(1, binom.BestResult.DataSourceID)
+	assert.Equal(33, len(binom.DataSourcesIDs))
+	assert.Equal(33, binom.DataSourcesNum)
+	assert.Equal(vlib.Exact, binom.BestResult.MatchType)
+	assert.Equal(vlib.Curated, binom.Curation)
+	assert.Equal("", binom.Error)
 
 	acceptFilter := response.Names[8]
-	assert.Equal(t, "4c8848f2-7271-588c-ba81-e4d5efcc1e92", acceptFilter.ID)
-	assert.Equal(t, "Pisonia grandis", acceptFilter.Name)
-	assert.Equal(t, 1, acceptFilter.BestResult.DataSourceID)
-	assert.Equal(t, vlib.Exact, acceptFilter.BestResult.MatchType)
-	assert.Equal(t, "Ceodes grandis", acceptFilter.BestResult.CurrentCanonicalSimple)
+	assert.Equal("4c8848f2-7271-588c-ba81-e4d5efcc1e92", acceptFilter.ID)
+	assert.Equal("Pisonia grandis", acceptFilter.Name)
+	assert.Equal(1, acceptFilter.BestResult.DataSourceID)
+	assert.Equal(vlib.Exact, acceptFilter.BestResult.MatchType)
+	assert.Equal("Ceodes grandis", acceptFilter.BestResult.CurrentCanonicalSimple)
 
 	partial := response.Names[9]
-	assert.Equal(t, "0f84ed48-3a57-59ac-ac1a-2e9221439fdc", partial.ID)
-	assert.Equal(t, "Acacia vestita may", partial.Name)
-	assert.Equal(t, 1, partial.BestResult.DataSourceID)
-	assert.Equal(t, vlib.PartialExact.String(), partial.MatchType.String())
-	assert.Equal(t, "Acacia vestita", partial.BestResult.CurrentCanonicalSimple)
+	assert.Equal("0f84ed48-3a57-59ac-ac1a-2e9221439fdc", partial.ID)
+	assert.Equal("Acacia vestita may", partial.Name)
+	assert.Equal(1, partial.BestResult.DataSourceID)
+	assert.Equal(vlib.PartialExact.String(), partial.MatchType.String())
+	assert.Equal("Acacia vestita", partial.BestResult.CurrentCanonicalSimple)
 
 	cand := response.Names[10]
-	assert.Equal(t, "1b406033-fc5e-5f90-b3cf-fd1e9a42e282", cand.ID)
-	assert.Equal(t, "Candidatus Aenigmarchaeum subterraneum", cand.Name)
-	assert.NotNil(t, cand.BestResult)
-	assert.Equal(t, 179, cand.BestResult.DataSourceID)
-	assert.Equal(t, vlib.Exact, cand.BestResult.MatchType)
-	assert.Equal(t, vlib.AutoCurated, cand.Curation)
-	assert.Equal(t, "", cand.Error)
+	assert.Equal("1b406033-fc5e-5f90-b3cf-fd1e9a42e282", cand.ID)
+	assert.Equal("Candidatus Aenigmarchaeum subterraneum", cand.Name)
+	assert.NotNil(cand.BestResult)
+	assert.Equal(179, cand.BestResult.DataSourceID)
+	assert.Equal(vlib.Exact, cand.BestResult.MatchType)
+	assert.Equal(vlib.AutoCurated, cand.Curation)
+	assert.Equal("", cand.Error)
 }
 
 func TestAuthors(t *testing.T) {
@@ -191,7 +193,14 @@ func TestRelaxedFuzzy(t *testing.T) {
 		{"bubo", "Bubo bubo onetwo", "Bubo bubo", false, 0, vlib.PartialExact},
 		{"pom saltator", "Pomatomu saltator", "Pomatomus saltator", false, 1, vlib.FuzzyRelaxed},
 		{"pomatomus", "Pomatomu L.", "Pomatomus", true, 1, vlib.FuzzyRelaxed},
-		{"pomatomus part", "Pomatomu saltator aadsdss", "Pomatomus saltator", false, 1, vlib.PartialFuzzyRelaxed},
+		{
+			"pomatomus part",
+			"Pomatomu saltator aadsdss",
+			"Pomatomus saltator",
+			false,
+			1,
+			vlib.PartialFuzzyRelaxed,
+		},
 	}
 
 	for _, v := range tests {

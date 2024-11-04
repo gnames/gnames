@@ -57,6 +57,13 @@ var bugs = []struct {
 		matchCurrent:   "Trichoderma",
 		desc:           "Synonyms should be sorted down #94 gnmatcher",
 	},
+	{
+		name:           "Phegopteris",
+		matchType:      vlib.Exact,
+		matchCanonical: "Phegopteris",
+		matchCurrent:   "Phegopteris",
+		desc:           "Name should not break search #123 gnverifier",
+	},
 }
 
 func TestMoreBugs(t *testing.T) {
