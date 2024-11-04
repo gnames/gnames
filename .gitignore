@@ -1,5 +1,6 @@
 gnames
 debug.test
+.envrc
 t
 t.json
 .env
