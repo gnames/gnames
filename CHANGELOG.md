@@ -4,9 +4,14 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.3.2] - 2024-11-04 Mon
+
+- Add: update tests and modules.
+
 ## [v1.3.1] - 2024-04-12 Fri
 
-- Add: update gnmatcher to v1.1.12
+- Add: update modules.
+- Add: update gnmatcher to v1.1.12.
 
 ## [v1.3.0] - 2024-04-11 Thu
 
@@ -70,7 +75,7 @@ The GNames project follows [Semantic Versioning guidelines].
 ## [v1.1.3] - 2023-06-21 Wed
 
 - Add [#110]: score for authorship ignores 'fil.', 'I', 'II', 'III' at the
-              end of an author name.
+  end of an author name.
 - Add [#110]: make authorship a higher priority than curation for score.
 - Add [#109]: do not use initials for matching authorship.
 
@@ -439,6 +444,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.3.2]: https://github.com/gnames/gnames/compare/v1.3.1...v1.3.2
 [v1.3.1]: https://github.com/gnames/gnames/compare/v1.3.0...v1.3.1
 [v1.3.0]: https://github.com/gnames/gnames/compare/v1.2.5...v1.3.0
 [v1.2.5]: https://github.com/gnames/gnames/compare/v1.2.4...v1.2.5
