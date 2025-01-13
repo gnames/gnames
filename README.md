@@ -26,8 +26,8 @@ simpler output.
 * [Configuration](#configuration)
 * [Usage as API](#usage-as-api)
 * [Usage with GNverifier](#usage-with-gnverifier)
-* [Web-Logs](#web-logs)
 * [Known limitations of the verification](#known-limitations-of-the-verification)
+* [Testing Configuration](#testing-configuration)
 * [Development](#development)
 * [Authors](#authors)
 * [License](#license)
@@ -134,18 +134,18 @@ Configuration settings can either be given in the config file
 located at `$HOME/.config/gnames.yaml`, or by setting the following
 environment variables:
 
-| Env. Var.            | Configuration  |
-| -------------------- | -------------- |
-| GN_CACHE_DIR         | CacheDir       |
-| GN_JOBS_NUM          | JobsNum        |
-| GN_MATCHER_URL       | MatcherURL     |
-| GN_MAX_EDIT_DIST     | MaxEditDist    |
-| GN_PG_DB             | PgDB           |
-| GN_PG_HOST           | PgHost         |
-| GN_PG_PASS           | PgPass         |
-| GN_PG_PORT           | PgPort         |
-| GN_PG_USER           | PgUser         |
-| GN_PORT              | Port           |
+| Env. Var.        | Configuration |
+| ---------------- | ------------- |
+| GN_CACHE_DIR     | CacheDir      |
+| GN_JOBS_NUM      | JobsNum       |
+| GN_MATCHER_URL   | MatcherURL    |
+| GN_MAX_EDIT_DIST | MaxEditDist   |
+| GN_PG_DB         | PgDB          |
+| GN_PG_HOST       | PgHost        |
+| GN_PG_PASS       | PgPass        |
+| GN_PG_PORT       | PgPort        |
+| GN_PG_USER       | PgUser        |
+| GN_PORT          | Port          |
 
 The meaning of configuration settings are provided in the [default gnames.yaml].
 
@@ -194,6 +194,15 @@ gnverifier -p 8777
   stem specific epithets, so in reality we fuzzy-match 'Abro stol triplas'
   to 'Abrostola triplas'. That means now we have edit distance 2 which is
   usually beyond our threshold.
+
+## Testing Configuration
+
+Direnv provides a flexible way to configure your environment.
+
+- Install `direnv`.
+- Copy .envrc.example to .envrc.
+- Modify .envrc to reflect your environment.
+- Run `direnv allow` to export environment variables from .envrc
 
 ## Development
 

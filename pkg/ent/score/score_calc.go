@@ -272,7 +272,9 @@ func (s score) auth(auth1, auth2 []string, year1, year2 int) score {
 			i = 0b001 //1
 		}
 	} else if authors == noAuthVsAuth {
-		i = 0b010 //2
+		// decreased it to 1 from 2, to prevent synonym match first like in case
+		// `Diptera` match with `Diptera Borkh.` (synonym of `Saxifraga L.`)
+		i = 0b001 //1
 	} else if authors == incomparable {
 		i = 0b001 //1
 	}

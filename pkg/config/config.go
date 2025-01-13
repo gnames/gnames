@@ -2,6 +2,7 @@ package config
 
 import (
 	"log/slog"
+	"os"
 	"path/filepath"
 
 	"github.com/gnames/gnsys"
@@ -169,9 +170,9 @@ func OptGnamesHostURL(s string) Option {
 // New is a Config constructor that takes options to
 // update default values.
 func New(opts ...Option) Config {
-	workDir, _ := gnsys.ConvertTilda("~/.cache/gnames")
+	cacheDir, _ := os.UserCacheDir()
 	cnf := Config{
-		CacheDir:      workDir,
+		CacheDir:      filepath.Join(cacheDir, "gnames"),
 		JobsNum:       8,
 		MatcherURL:    "https://matcher.globalnames.org/api/v1/",
 		WebPageURL:    "https://verifier.globalnames.org",

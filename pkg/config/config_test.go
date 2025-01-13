@@ -1,6 +1,8 @@
 package config_test
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/gnames/gnames/pkg/config"
@@ -10,10 +12,10 @@ import (
 
 func TestNew(t *testing.T) {
 	cnf := config.New()
-	workDir, _ := gnsys.ConvertTilda("~/.cache/gnames")
+	cacheDir, _ := os.UserCacheDir()
 	deflt := config.Config{
 		Port:          8888,
-		CacheDir:      workDir,
+		CacheDir:      filepath.Join(cacheDir, "gnames"),
 		JobsNum:       8,
 		MaxEditDist:   1,
 		PgHost:        "0.0.0.0",

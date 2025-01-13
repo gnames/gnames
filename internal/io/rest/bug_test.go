@@ -13,8 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const urlTest = "http://0.0.0.0:8888/api/v1/"
-
 var bugs = []struct {
 	name           string
 	matchType      vlib.MatchTypeValue
@@ -58,6 +56,13 @@ var bugs = []struct {
 		desc:           "Synonyms should be sorted down #94 gnmatcher",
 	},
 	{
+		name:           "Diptera",
+		matchType:      vlib.Exact,
+		matchCanonical: "Diptera",
+		matchCurrent:   "Diptera",
+		desc:           "Synonyms should be sorted down #94 gnmatcher",
+	},
+	{
 		name:           "Phegopteris",
 		matchType:      vlib.Exact,
 		matchCanonical: "Phegopteris",
@@ -67,10 +72,11 @@ var bugs = []struct {
 }
 
 func TestMoreBugs(t *testing.T) {
-	req, err := gnfmt.GNjson{}.Encode(params())
+	input := params()
+	req, err := gnfmt.GNjson{}.Encode(input)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(urlTest+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -82,6 +88,7 @@ func TestMoreBugs(t *testing.T) {
 	for i, v := range bugs {
 		msg := fmt.Sprintf("%s -> %s", v.name, v.matchCanonical)
 		assert.Equal(t, v.matchCanonical, verif.Names[i].BestResult.MatchedCanonicalSimple, msg)
+		assert.Equal(t, v.matchCurrent, verif.Names[i].BestResult.CurrentCanonicalSimple, msg)
 		assert.Equal(t, v.matchType, verif.Names[i].MatchType, msg)
 	}
 }
@@ -102,7 +109,7 @@ func TestSortBugs(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(inp)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(urlTest+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -127,7 +134,7 @@ func TestMissedMatchType(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(inp)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(urlTest+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)
@@ -164,7 +171,7 @@ func TestWrongMatchType(t *testing.T) {
 	req, err := gnfmt.GNjson{}.Encode(inp)
 	assert.Nil(t, err)
 	r := bytes.NewReader(req)
-	resp, err := http.Post(urlTest+"verifications", "application/json", r)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
 	assert.Nil(t, err)
 	respBytes, err := io.ReadAll(resp.Body)
 	assert.Nil(t, err)

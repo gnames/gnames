@@ -80,7 +80,7 @@ func TestVirus(t *testing.T) {
 	for i, v := range tests {
 		ns := response.Names
 		assert.Equal(t, v.name, ns[i].Name)
-    assert.Equal(t, v.matchType, ns[i].MatchType)
+		assert.Equal(t, v.matchType, ns[i].MatchType)
 	}
 	assert.True(t, true)
 }

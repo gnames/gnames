@@ -35,15 +35,29 @@ func TestReconcileExact(t *testing.T) {
 	}{
 		{"1", "Not name", 0, "", 0.0, false},
 		{"2", "Bubo bubo", 4, "0eeccd70-eaf2-5c51-ad8b-46cfb3db1645", 1, true},
-		{"3", "Pomatomus", 3, "82110143-0b8d-50f6-b34d-e2ae118f4e2e", 1, true},
+		{"3", "Pomatomus", 3, "40773805-c0e8-542c-a5a6-033db360f27d", 1, true},
 		{"4", "Pardosa moesta", 7, "e2fdf10b-6a36-5cc7-b6ca-be4d3b34b21f", 1, true},
-		{"5", "Plantago major var major", 7, "bdfc5d4c-478b-5b3f-8f03-375e4daadc04", 1, true},
-		{"6", "Cytospora ribis mitovirus 2", 1, "bd8cc487-9a28-5910-8d98-38d2b43d1dcb", 0.252, false},
+		{"5", "Plantago major var major", 7, "2a70b579-8298-5eb9-abc6-17a0b7697628", 1, true},
+		{
+			"6",
+			"Cytospora ribis mitovirus 2",
+			1,
+			"bd8cc487-9a28-5910-8d98-38d2b43d1dcb",
+			0.279,
+			false,
+		},
 		{"7", "A-shaped rods", 0, "", 0.0, false},
 		{"8", "Alb. alba", 0, "", 0.0, false},
 		{"9", "Pisonia grandis", 4, "97e46f64-2673-54aa-8687-7b7bad7c9b64", 1, true},
 		{"10", "Acacia vestita may", 2, "290d25e5-ce87-5cfe-b092-1bd12cf55bc1", 0.4, false},
-		{"11", "Candidatus Aenigmarchaeum subterraneum", 1, "1b406033-fc5e-5f90-b3cf-fd1e9a42e282", 0.9, false},
+		{
+			"11",
+			"Candidatus Aenigmarchaeum subterraneum",
+			1,
+			"1b406033-fc5e-5f90-b3cf-fd1e9a42e282",
+			1,
+			true,
+		},
 	}
 	q := make(map[string]reconciler.Query)
 	for _, v := range tests {

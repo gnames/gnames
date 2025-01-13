@@ -6,13 +6,20 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gnames/gnames/pkg/config"
 	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnlib/ent/gnvers"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
 
-const restURL = "http://0.0.0.0:8888/api/v1/"
+var restURL = getConfig().GnamesHostURL + "/api/v1/"
+
+func getConfig() config.Config {
+	cfg := config.New()
+	config.LoadEnv(&cfg)
+	return cfg
+}
 
 func TestPing(t *testing.T) {
 	resp, err := http.Get(restURL + "ping")

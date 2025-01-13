@@ -4,11 +4,18 @@ import (
 	"testing"
 
 	"github.com/gnames/gnames/internal/io/matcher"
+	"github.com/gnames/gnames/pkg/config"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
 
-const url = "http://0.0.0.0:8080/api/v1/"
+func getConfig() config.Config {
+	cfg := config.New()
+	config.LoadEnv(&cfg)
+	return cfg
+}
+
+var url = getConfig().MatcherURL
 
 func TestVer(t *testing.T) {
 	m := matcher.New(url)

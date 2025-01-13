@@ -54,7 +54,7 @@ func (g gnames) Reconcile(
 				}
 			}
 
-			if lg.Data[0].ScoreDetails.AuthorMatchScore > 0.2 {
+			if lg.Data[0].ScoreDetails.AuthorMatchScore > 0.1 {
 				auth = 1
 			}
 			if lg.Data[0].ScoreDetails.CuratedDataScore > 0 {
