@@ -1,4 +1,4 @@
-FROM alpine:3.17
+FROM alpine:latest
 
 LABEL maintainer="Dmitry Mozzherin"
 

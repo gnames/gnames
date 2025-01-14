@@ -116,11 +116,11 @@ func initConfig() {
 	_ = viper.BindEnv("WebPageURL", "GN_WEB_PAGE_URL")
 	_ = viper.BindEnv("GnamesHostURL", "GN_GNAMES_HOST_URL")
 	_ = viper.BindEnv("MaxEditDist", "GN_MAX_EDIT_DIST")
-	_ = viper.BindEnv("PgDB", "GN_PG_DB")
 	_ = viper.BindEnv("PgHost", "GN_PG_HOST")
-	_ = viper.BindEnv("PgPass", "GN_PG_PASS")
 	_ = viper.BindEnv("PgPort", "GN_PG_PORT")
 	_ = viper.BindEnv("PgUser", "GN_PG_USER")
+	_ = viper.BindEnv("PgPass", "GN_PG_PASS")
+	_ = viper.BindEnv("PgDB", "GN_PG_DB")
 	_ = viper.BindEnv("Port", "GN_PORT")
 
 	viper.AutomaticEnv() // read in environment variables that match

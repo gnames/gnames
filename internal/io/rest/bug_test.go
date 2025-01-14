@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gnames/gnfmt"
+	"github.com/gnames/gnlib/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
@@ -185,7 +186,7 @@ func TestWrongMatchType(t *testing.T) {
 	assert.Equal(t, vlib.NoMatch.String(), verif.Names[0].MatchType.String())
 }
 
-// issue #130: VASCAN should have classsificationIDs
+// issue #130: VASCAN should have classificationIDs
 func TestVascanClassificationIDs(t *testing.T) {
 	inp := vlib.Input{
 		NameStrings:    []string{"Acer saccharum"},
@@ -206,6 +207,37 @@ func TestVascanClassificationIDs(t *testing.T) {
 
 	res := verif.Names[0].BestResult
 	assert.Contains(t, res.ClassificationIDs, "|")
+}
+
+// issue #131: Diptera results order in CoL.
+// We want the first result to be the Diptera order, and the
+// second to be a synonym.
+func TestDipteraCoL(t *testing.T) {
+	assert := assert.New(t)
+	inp := vlib.Input{
+		NameStrings:    []string{"Diptera"},
+		DataSources:    []int{1},
+		WithAllMatches: true,
+	}
+	req, err := gnfmt.GNjson{}.Encode(inp)
+	assert.Nil(err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
+	assert.Nil(err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(err)
+
+	var verif vlib.Output
+	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
+	assert.Nil(err)
+
+	res := verif.Names[0].Results
+	// should be at least 2 results
+	assert.Greater(len(res), 1)
+
+	res1, res2 := res[0], res[1]
+	assert.Equal(verifier.AcceptedTaxStatus, res1.TaxonomicStatus, "res1")
+	assert.Equal(verifier.SynonymTaxStatus, res2.TaxonomicStatus, "res2")
 }
 
 func params() vlib.Input {

@@ -1,0 +1,41 @@
+# Direcory to keep all working files and subdirectories.
+export GN_CACHE_DIR=$HOME/.cache/gnames
+
+# Postgresql host for gnames database.
+export GN_PG_HOST=localhost
+
+# Postgresql host for gnames database.
+export GN_PG_PORT=5432
+
+# Postgresql user.
+export GN_PG_USER=postgres
+
+# Postgresql password.
+export GN_PG_PASS=postgres
+
+# Postgresql database.
+export GN_PG_DB=gnames
+
+# Number of jobs for parallel tasks.
+export GN_JOBS_NUM=4
+
+# Maximal Edit Distance before fuzzy matching aborts.
+# It can be either 1 or 2, 2 is significantly slower.
+export GN_MAX_EDIT_DIST=1
+
+# URL to connect to gnmatcher HTTP service.
+export GN_MATCHER_URL=http://:8080/api/v1/
+
+# GnamesHostURL provides base URL of the Gnames service. This URL for
+# official service would be the same as WebPageURL. All path information
+# (/api/v?) is stripped off.
+export GN_GNAMES_HOST_URL=http://:8888
+
+# Provides URL which is used to access GNverifier Web GUI.
+# This URL is used by reconciliation service to create URLs for
+# name-string link and widget.
+export GN_WEB_PAGE_URL=http://:8777
+
+# Port to run HTTP/1 service.
+export GN_PORT=8888
+
