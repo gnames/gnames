@@ -4,6 +4,16 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.3.4] - 2025-01-14 Tue
+
+- Add: small tests for issues found by @BenMerSci.
+- Add: update modules.
+- Fix [#94]: reopened ticket to make Diptera order come before synonym.
+
+## [v1.3.3] - 2024-11-15 Fri
+
+- Add: update modules
+
 ## [v1.3.2] - 2024-11-04 Mon
 
 - Add: update tests and modules.

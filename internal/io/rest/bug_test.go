@@ -70,6 +70,20 @@ var bugs = []struct {
 		matchCurrent:   "Phegopteris",
 		desc:           "Name should not break search #123 gnverifier",
 	},
+	{
+		name:           "Oecetis complex",
+		matchType:      vlib.Exact,
+		matchCanonical: "Oecetis complex",
+		matchCurrent:   "Oecetis complex",
+		desc:           "Ambiguous name #132 gnames",
+	},
+	{
+		name:           "Canis lupus",
+		matchType:      vlib.Exact,
+		matchCanonical: "Canis lupus",
+		matchCurrent:   "Canis lupus",
+		desc:           "Not a synonym #122 gnverifier",
+	},
 }
 
 func TestMoreBugs(t *testing.T) {
