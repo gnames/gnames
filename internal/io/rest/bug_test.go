@@ -185,6 +185,29 @@ func TestWrongMatchType(t *testing.T) {
 	assert.Equal(t, vlib.NoMatch.String(), verif.Names[0].MatchType.String())
 }
 
+// issue #130: VASCAN should have classsificationIDs
+func TestVascanClassificationIDs(t *testing.T) {
+	inp := vlib.Input{
+		NameStrings:    []string{"Acer saccharum"},
+		DataSources:    []int{147},
+		WithAllMatches: false,
+	}
+	req, err := gnfmt.GNjson{}.Encode(inp)
+	assert.Nil(t, err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
+	assert.Nil(t, err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+
+	var verif vlib.Output
+	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
+	assert.Nil(t, err)
+
+	res := verif.Names[0].BestResult
+	assert.Contains(t, res.ClassificationIDs, "|")
+}
+
 func params() vlib.Input {
 	ns := make([]string, len(bugs))
 	for i, v := range bugs {
