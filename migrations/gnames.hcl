@@ -115,13 +115,13 @@ table "data_sources" {
     null = true
     type = integer
   }
-  column "updated_at" {
-    null = true
-    type = timestamp
-  }
   column "vern_record_count" {
     null = true
     type = integer
+  }
+  column "updated_at" {
+    null = true
+    type = timestamp
   }
   primary_key {
     columns = [column.id]
@@ -146,6 +146,10 @@ table "name_string_indices" {
     type = character_varying(255)
   }
   column "global_id" {
+    null = true
+    type = character_varying(255)
+  }
+  column "name_id" {
     null = true
     type = character_varying(255)
   }
