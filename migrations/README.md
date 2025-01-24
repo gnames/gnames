@@ -2,13 +2,18 @@
 
 Install [atlas](https://atlasgo.io)
 
-Create empty gnames database and run current state of Gorm models.
+Make `tmp` database and set it in configuration file.
+Create run migration on `tmp` using current state of Gorm models.
+
+```bash
+gnidump create
+```
 
 Get HCL file with current database schema
 
 ```bash
 atlas schema inspect \
-  -u 'postgres://user:pass@0.0.0.0/gnames?sslmode=disable' > gnames.hcl
+  -u 'postgres://user:pass@0.0.0.0/tmp?sslmode=disable' > gnames.hcl
 ```
 
 Delete materialized view (it prevents migration to happen)
