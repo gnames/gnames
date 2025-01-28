@@ -165,6 +165,10 @@ table "name_string_indices" {
     null = true
     type = character_varying(255)
   }
+  column "taxonomic_status" {
+    null = true
+    type = character_varying(255)
+  }
   column "accepted_record_id" {
     null = true
     type = character_varying(255)
