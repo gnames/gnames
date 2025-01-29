@@ -4,6 +4,12 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.3.5] - 2025-01-29 Wed
+
+- Add: update modules.
+- Add: taxonomic_status column to name_string_indices.
+- Add: name_id to migration for name_string_indices.
+
 ## [v1.3.4] - 2025-01-14 Tue
 
 - Add: small tests for issues found by @BenMerSci.
@@ -454,6 +460,9 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.3.5]: https://github.com/gnames/gnames/compare/v1.3.4...v1.3.5
+[v1.3.4]: https://github.com/gnames/gnames/compare/v1.3.3...v1.3.4
+[v1.3.3]: https://github.com/gnames/gnames/compare/v1.3.2...v1.3.3
 [v1.3.2]: https://github.com/gnames/gnames/compare/v1.3.1...v1.3.2
 [v1.3.1]: https://github.com/gnames/gnames/compare/v1.3.0...v1.3.1
 [v1.3.0]: https://github.com/gnames/gnames/compare/v1.2.5...v1.3.0
