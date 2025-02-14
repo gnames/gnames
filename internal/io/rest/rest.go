@@ -34,7 +34,7 @@ var (
 func Run(gn gnames.GNames, port int) {
 	slog.Info("Starting HTTP API server", slog.Int("port", port))
 	e := echo.New()
-	e.Use(middleware.Gzip())
+	// e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
 
 	e.GET("/", info)
@@ -60,7 +60,8 @@ func Run(gn gnames.GNames, port int) {
 	e.GET(apiPath+"search/:query", searchGET(gn))
 	e.GET(apiPath+"reconcile", reconcileGET(gn))
 	e.POST(apiPath+"reconcile", reconcilePOST(gn))
-	e.GET(apiPath+"reconcile/properties", propertiesGET(gn))
+	e.GET(apiPath+"reconcile/properties", reconPropGET(gn))
+	e.GET(apiPath+"suggest/properties", suggestPropGet())
 
 	addr := fmt.Sprintf(":%d", port)
 	s := &http.Server{
@@ -139,6 +140,40 @@ func reconcileGET(gn gnames.GNames) func(echo.Context) error {
 
 		return c.JSON(http.StatusOK, res)
 	}
+}
+
+func suggestPropGet() func(echo.Context) error {
+	return func(c echo.Context) error {
+		var res reconciler.SuggestOutput
+		prefix := c.QueryParam("prefix")
+		if prefix == "" {
+			return c.JSON(http.StatusOK, res)
+		}
+		res = suggestProperties(prefix)
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func suggestProperties(prefix string) reconciler.SuggestOutput {
+	props := []reconciler.SuggestResult{
+		{
+			ID:          "higher_taxon",
+			Name:        "higher_taxon",
+			Description: "Filter by classifications that contain the taxon",
+		},
+		{
+			ID:          "data_source_ids",
+			Name:        "data_source_ids",
+			Description: "Limit results to given Data Source IDs",
+		},
+	}
+	res := make([]reconciler.SuggestResult, 0, 2)
+	for i := range props {
+		if strings.HasPrefix(props[i].Name, prefix) {
+			res = append(res, props[i])
+		}
+	}
+	return reconciler.SuggestOutput{Results: res}
 }
 
 func extend(gn gnames.GNames, q string) (reconciler.ExtendOutput, error) {
@@ -229,7 +264,7 @@ func reconcile(
 	return res, nil
 }
 
-func propertiesGET(gn gnames.GNames) func(echo.Context) error {
+func reconPropGET(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
 		t, err := url.QueryUnescape(c.QueryParam("type"))
 		if err != nil {
@@ -278,6 +313,13 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 		URL: gnvURL + "/name_strings/{{id}}?all_matches=true",
 	}
 
+	suggest := reconciler.Suggest{
+		Property: &reconciler.SuggestEntry{
+			ServiceURL:  gnamesURL,
+			ServicePath: "/api/v1/suggest/properties",
+		},
+	}
+
 	ext := reconciler.Extend{
 		ProposeProperties: reconciler.ProposeProperties{
 			ServiceURL:  gnamesURL,
@@ -292,6 +334,7 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 		SchemaSpace:     "http://apidoc.globalnames.org/gnames#",
 		DefaultTypes:    types,
 		Preview:         preview,
+		Suggest:         suggest,
 		View:            view,
 		BatchSize:       50,
 		Extend:          ext,
