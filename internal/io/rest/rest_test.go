@@ -503,6 +503,19 @@ func TestGetVerifications(t *testing.T) {
 	assert.NotContains(t, homo.Results[0].MatchedName, "Denisova")
 }
 
+func TestRootClassification(t *testing.T) {
+	var response vlib.Output
+	resp, err := http.Get(restURL + "verifications/Animalia?data_sources=3")
+	assert.Nil(t, err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+
+	err = gnfmt.GNjson{}.Decode(respBytes, &response)
+	assert.Nil(t, err)
+	res := response.Names[0].BestResult
+	assert.Equal(t, "Animalia", res.ClassificationPath)
+}
+
 func TestMainTaxon(t *testing.T) {
 	var response vlib.Output
 	resp, err := http.Get(restURL + "verifications/Homo+sapiens|Pan+troglodytes?stats=true")
