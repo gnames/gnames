@@ -4,6 +4,12 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.3.6] - 2025-02-25 Tue
+
+- Add: root taxon has classification.
+- Add: hierarchy parses `Bistorta (Linnaeus)` as Bistorta, and not as
+  Linnaeus.
+
 ## [v1.3.5] - 2025-01-29 Wed
 
 - Add: update modules.
