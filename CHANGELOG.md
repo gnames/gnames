@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.3.7] - 2025-02-25 Tue
+
+- Add: update modules
+
 ## [v1.3.6] - 2025-02-25 Tue
 
 - Add: root taxon has classification.
