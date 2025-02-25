@@ -254,6 +254,31 @@ func TestDipteraCoL(t *testing.T) {
 	assert.Equal(verifier.SynonymTaxStatus, res2.TaxonomicStatus, "res2")
 }
 
+// issue gnverifier #131: genus in hierarchy bread crumbs returns
+// author (Linnaeus) instead of genus (Bistorta) for Bistorta vivipara.
+func TestGenusVascan(t *testing.T) {
+	assert := assert.New(t)
+	inp := vlib.Input{
+		NameStrings: []string{"Bistorta vivipara"},
+		DataSources: []int{147},
+	}
+	req, err := gnfmt.GNjson{}.Encode(inp)
+	assert.Nil(err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
+	assert.Nil(err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(err)
+
+	var verif vlib.Output
+	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
+	assert.Nil(err)
+
+	res := verif.Names[0].BestResult
+	assert.NotContains(res.ClassificationPath, "Linnaeus")
+	assert.Contains(res.ClassificationPath, "|Bistorta|")
+}
+
 func params() vlib.Input {
 	ns := make([]string, len(bugs))
 	for i, v := range bugs {
