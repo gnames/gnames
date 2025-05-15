@@ -269,7 +269,7 @@ table "vernacular_string_indices" {
   }
   column "language" {
     null = true
-    type = character_varying(100)
+    type = character_varying(255)
   }
   column "lang_code" {
     null = true
@@ -277,7 +277,7 @@ table "vernacular_string_indices" {
   }
   column "locality" {
     null = true
-    type = character_varying(100)
+    type = character_varying(255)
   }
   column "country_code" {
     null = true
