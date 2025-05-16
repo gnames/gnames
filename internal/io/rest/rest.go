@@ -441,6 +441,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		stats := c.QueryParam("stats") == "true"
 		fuzzyRelaxed := c.QueryParam("fuzzy_relaxed") == "true"
 		fuzzyUni := c.QueryParam("fuzzy_uninomial") == "true"
+		vern := c.QueryParam("vernaculars") == "true"
 		mainTxnThresholdStr := c.QueryParam("main_taxon_threshold")
 		matches := c.QueryParam("all_matches") == "true"
 
@@ -461,6 +462,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 			WithSpeciesGroup:        spGrp,
 			WithRelaxedFuzzyMatch:   fuzzyRelaxed,
 			WithUninomialFuzzyMatch: fuzzyUni,
+			WithVernaculars:         vern,
 			MainTaxonThreshold:      float32(mainTxnThreshold),
 		}
 		verified, err := gn.Verify(context.Background(), params)

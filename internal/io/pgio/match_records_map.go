@@ -28,11 +28,25 @@ var queryFields = `
   v.classification_ranks, v.classification_ids, v.parse_quality
 `
 
+var vernFields = `
+	vn.name, vi.language, vi.lang_code, vi.locality, vi.country_code
+`
+
 var namesQ = fmt.Sprintf(`
 SELECT %s
 FROM verification v
 WHERE canonical_id = ANY($1::uuid[])
 `, queryFields)
+
+var namesVernQ = fmt.Sprintf(`
+SELECT %s,%s
+FROM verification v
+	JOIN vernacular_string_indices vi
+		ON v.record_id = vi.record_id and v.data_source_id = vi.data_source_id
+	JOIN vernacular_strings vn
+	  ON vn.id = vi.name_string_id
+	WHERE canonical_id = ANY($1::uuid[])
+`, vernFields, queryFields)
 
 var virusQ = fmt.Sprintf(`
 SELECT %s

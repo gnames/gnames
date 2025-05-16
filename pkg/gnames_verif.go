@@ -141,6 +141,7 @@ func (g gnames) getMatchRecords(
 			slog.Int("namesNum", len(input.NameStrings)),
 			slog.String("example", input.NameStrings[0]),
 			slog.Bool("withAllMatches", input.WithAllMatches),
+			slog.Bool("withVernaculars", input.WithVernaculars),
 		)
 	}
 
