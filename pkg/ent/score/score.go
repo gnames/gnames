@@ -50,7 +50,7 @@ func (s score) SortResults(mr *verif.MatchRecord) {
 			fuzzy(rd.EditDistance).
 			curation(rd.DataSourceID, rd.Curation).
 			auth(mr.Authors, rd.MatchedAuthors, mr.Year, rd.MatchedYear).
-			accepted(rd.RecordID, rd.CurrentRecordID).
+			accepted(rd.RecordID, rd.CurrentRecordID, rd.ClassificationPath).
 			parsingQuality(rd.ParsingQuality)
 		rd.SortScore = s.sortScore()
 		rd.ScoreDetails = s.details()

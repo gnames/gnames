@@ -381,6 +381,9 @@ func (p pgio) hasTaxonData(vsql *verifSQL) bool {
 }
 
 func getTaxonomicStatus(vsql *verifSQL, hasTaxonData bool) vlib.TaxonomicStatus {
+	if strings.TrimSpace(vsql.Classification.String) == "" {
+		return vlib.UnknownTaxStatus
+	}
 	if vsql.RecordID != vsql.AcceptedRecordID {
 		return vlib.SynonymTaxStatus
 	}

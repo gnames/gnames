@@ -290,9 +290,9 @@ func (s score) authVal() float32 {
 }
 
 // accepted name
-func (s score) accepted(recordID, acceptedID string) score {
+func (s score) accepted(recordID, acceptedID, classificationPath string) score {
 	var i uint32 = 0
-	if acceptedID == "" || recordID == acceptedID {
+	if strings.TrimSpace(classificationPath) != "" && recordID == acceptedID {
 		i = 1
 	}
 	s.value = s.value | i<<acceptedShift
@@ -309,9 +309,9 @@ func (s score) parsingQuality(quality int) score {
 	switch quality {
 	case 3:
 		i = 0b01
-	case 2:
-		i = 0b10
-	case 1:
+	case 1, 2:
+		// 	i = 0b10
+		// case 1:
 		i = 0b11
 	}
 	s.value = s.value | i<<parsingQualityShift

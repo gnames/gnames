@@ -279,6 +279,38 @@ func TestGenusVascan(t *testing.T) {
 	assert.Contains(res.ClassificationPath, "|Bistorta|")
 }
 
+// issue #143: Searching WFO for `Beta corolliflora` returns bare name
+// as Best Result and marks it as Accepted.
+func TestBetaCorollifloraWFO(t *testing.T) {
+	assert := assert.New(t)
+	inp := vlib.Input{
+		NameStrings:    []string{"Beta corolliflora"},
+		DataSources:    []int{196},
+		WithAllMatches: true,
+	}
+	req, err := gnfmt.GNjson{}.Encode(inp)
+	assert.Nil(err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
+	assert.Nil(err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(err)
+
+	var verif vlib.Output
+	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
+	assert.Nil(err)
+
+	res := verif.Names[0].Results
+	// should be at least 2 results
+	assert.Greater(len(res), 1)
+
+	res1, res2 := res[0], res[1]
+	assert.Equal(verifier.AcceptedTaxStatus, res1.TaxonomicStatus, "res1")
+	assert.Equal("Beta corolliflora Zosimovic ex Buttler", res1.MatchedName, "res1 name")
+	assert.Equal(verifier.UnknownTaxStatus, res2.TaxonomicStatus, "res2")
+	assert.Equal("Beta corolliflora Zosimov.", res2.MatchedName, "res2 name")
+}
+
 func params() vlib.Input {
 	ns := make([]string, len(bugs))
 	for i, v := range bugs {
