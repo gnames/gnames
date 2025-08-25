@@ -4,6 +4,25 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.4.1] - 2025-08-25 Mon
+
+- Fix: outdated version in pkg/version.go
+
+## [v1.4.0] - 2025-08-25 Mon
+
+- Fix: gnverifier issue #143: search for `Beta corolliflora` returns
+  bare name as the best result instead of accepted name in World Flora Online.
+
+## [v1.3.9]
+
+- Add: update modules
+- Add: update tests
+
+## [v1.3.8]
+
+- Add: update modules
+- Add: update tests
+
 ## [v1.3.7] - 2025-02-25 Tue
 
 - Add: update modules
@@ -470,6 +489,12 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.4.1]: https://github.com/gnames/gnames/compare/v1.4.0...v1.4.1
+[v1.4.0]: https://github.com/gnames/gnames/compare/v1.3.9...v1.4.0
+[v1.3.9]: https://github.com/gnames/gnames/compare/v1.3.8...v1.3.9
+[v1.3.8]: https://github.com/gnames/gnames/compare/v1.3.7...v1.3.8
+[v1.3.7]: https://github.com/gnames/gnames/compare/v1.3.6...v1.3.7
+[v1.3.6]: https://github.com/gnames/gnames/compare/v1.3.5...v1.3.6
 [v1.3.5]: https://github.com/gnames/gnames/compare/v1.3.4...v1.3.5
 [v1.3.4]: https://github.com/gnames/gnames/compare/v1.3.3...v1.3.4
 [v1.3.3]: https://github.com/gnames/gnames/compare/v1.3.2...v1.3.3
