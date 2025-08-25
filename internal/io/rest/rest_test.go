@@ -99,7 +99,7 @@ func TestVerifyExact(t *testing.T) {
 	assert.Equal("Pisonia grandis", acceptFilter.Name)
 	assert.Equal(1, acceptFilter.BestResult.DataSourceID)
 	assert.Equal(vlib.Exact, acceptFilter.BestResult.MatchType)
-	assert.Equal("Ceodes grandis", acceptFilter.BestResult.CurrentCanonicalSimple)
+	assert.Equal("Ceodes umbellifera", acceptFilter.BestResult.CurrentCanonicalSimple)
 
 	partial := response.Names[9]
 	assert.Equal("0f84ed48-3a57-59ac-ac1a-2e9221439fdc", partial.ID)
@@ -332,7 +332,7 @@ func TestPrefDS(t *testing.T) {
 	assert.True(t, len(binom.Results) > 0)
 	assert.Equal(t, 1, acceptFilter.Results[0].DataSourceID)
 	assert.Equal(t, vlib.Exact, acceptFilter.Results[0].MatchType)
-	assert.Equal(t, "Ceodes grandis", acceptFilter.Results[0].CurrentCanonicalSimple)
+	assert.Equal(t, "Ceodes umbellifera", acceptFilter.Results[0].CurrentCanonicalSimple)
 	assert.Equal(t, 7, len(binom.Results))
 }
 

@@ -15,7 +15,7 @@ func TestSortRecords(t *testing.T) {
 	s.SortResults(mr)
 	assert.Equal(t, 1, mr.MatchResults[0].DataSourceID)
 	assert.Equal(t, "3529384", mr.MatchResults[0].RecordID)
-	assert.InDelta(t, 9.412152479890551, mr.MatchResults[0].SortScore, 0.00001)
+	assert.InDelta(t, 9.411799753388399, mr.MatchResults[0].SortScore, 0.00001)
 
 	assert.Equal(t, 1, mr.MatchResults[1].DataSourceID)
 	assert.Equal(t, "3562751", mr.MatchResults[1].RecordID)
@@ -23,11 +23,11 @@ func TestSortRecords(t *testing.T) {
 
 	assert.Equal(t, 11, mr.MatchResults[2].DataSourceID)
 	assert.Equal(t, "8638411", mr.MatchResults[2].RecordID)
-	assert.InDelta(t, 9.410739851747246, mr.MatchResults[2].SortScore, 0.00001)
+	assert.InDelta(t, 9.410385975596558, mr.MatchResults[2].SortScore, 0.00001)
 
 	assert.Equal(t, 169, mr.MatchResults[3].DataSourceID)
 	assert.Equal(t, "95877520", mr.MatchResults[3].RecordID)
-	assert.InDelta(t, 9.41003181086182, mr.MatchResults[3].SortScore, 0.00001)
+	assert.InDelta(t, 9.409677357071974, mr.MatchResults[3].SortScore, 0.00001)
 }
 
 var matchRec = verif.MatchRecord{

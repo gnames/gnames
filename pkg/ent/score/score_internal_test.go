@@ -23,7 +23,7 @@ func TestChain(t *testing.T) {
 			[]string{"Hopkins", "L.", "Thomson"},
 			[]string{"Thomson", "Linn."}, 1758, 1757,
 		).
-		accepted("12", "12").
+		accepted("12", "12", "accepted").
 		parsingQuality(3)
 	assert.Equal(t, "11001101_10101000_00000000_00000000", s.String())
 }
@@ -354,15 +354,16 @@ func TestAuth(t *testing.T) {
 }
 
 func TestAccepted(t *testing.T) {
-	testData := []struct{ desc, recordID, acceptedID, score string }{
-		{"synonym", "123", "234", "00000000_00000000_00000000_00000000"},
-		{"accepted1", "123", "123", "00000000_00100000_00000000_00000000"},
-		{"accepted2", "123", "", "00000000_00100000_00000000_00000000"},
+	testData := []struct{ desc, recordID, acceptedID, path, score string }{
+		{"synonym", "123", "234", "path|path2", "00000000_00000000_00000000_00000000"},
+		{"synonym2", "123", "123", "", "00000000_00000000_00000000_00000000"},
+		{"synonym3", "123", "", "path|path2", "00000000_00000000_00000000_00000000"},
+		{"accepted1", "123", "123", "path|path2", "00000000_00100000_00000000_00000000"},
 	}
 	for _, v := range testData {
 		s := score{}
 		assert.Equal(t,
-			v.score, s.accepted(v.recordID, v.acceptedID).String(), v.desc)
+			v.score, s.accepted(v.recordID, v.acceptedID, v.path).String(), v.desc)
 	}
 }
 
@@ -374,7 +375,7 @@ func TestParserQuality(t *testing.T) {
 	}{
 		{"no parse", 0, "00000000_00000000_00000000_00000000"},
 		{"clean", 1, "00000000_00011000_00000000_00000000"},
-		{"some problems", 2, "00000000_00010000_00000000_00000000"},
+		{"some problems", 2, "00000000_00011000_00000000_00000000"},
 		{"big problems", 3, "00000000_00001000_00000000_00000000"},
 	}
 	for _, v := range testData {
