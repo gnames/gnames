@@ -5,7 +5,7 @@ go 1.24.6
 require (
 	github.com/gnames/gnfmt v0.6.1
 	github.com/gnames/gnlib v0.49.0
-	github.com/gnames/gnmatcher v1.1.20
+	github.com/gnames/gnmatcher v1.1.21
 	github.com/gnames/gnparser v1.11.8
 	github.com/gnames/gnquery v0.3.4
 	github.com/gnames/gnstats v0.2.1
