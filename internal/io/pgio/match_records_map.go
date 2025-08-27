@@ -61,11 +61,15 @@ func (p *pgio) nameQuery(
 
 	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pgio.nameQuery: %w", err)
 	}
 	defer rows.Close()
+	res, err = rowsToVerifSQL(rows)
+	if err != nil {
+		return nil, fmt.Errorf("pgio.nameQuery: %w", err)
+	}
 
-	return rowsToVerifSQL(rows)
+	return res, nil
 }
 
 func getUUIDs(matches []*mlib.Match) []string {
@@ -92,6 +96,8 @@ func (p *pgio) virusQuery(
 	virMatches []*mlib.Match,
 	input vlib.Input,
 ) ([]*verifSQL, error) {
+	var res []*verifSQL
+
 	if len(virMatches) == 0 {
 		return nil, nil
 	}
@@ -106,11 +112,16 @@ func (p *pgio) virusQuery(
 
 	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pgio.virusQuery: %w", err)
 	}
 	defer rows.Close()
 
-	return rowsToVerifSQL(rows)
+	res, err = rowsToVerifSQL(rows)
+	if err != nil {
+		return nil, fmt.Errorf("pgio.virusQuery: %w", err)
+	}
+
+	return res, nil
 }
 
 func (p *pgio) produceResultData(
@@ -188,11 +199,7 @@ func (p *pgio) populateVirusMatchRecord(
 ) error {
 	verifRecs, ok := verifMap[mi.ID]
 	if !ok {
-		err := fmt.Errorf("no match for %s", mi.ID)
-		slog.Error("No match for viruses",
-			"error", err,
-		)
-		return err
+		return fmt.Errorf("no match for %s", mi.ID)
 	}
 
 	for _, vsql := range verifRecs {

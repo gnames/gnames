@@ -1,6 +1,7 @@
 package gnames
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gnames/gnames/pkg/ent/recon"
@@ -31,7 +32,7 @@ func (g gnames) ExtendReconcile(q reconciler.ExtendQuery) (reconciler.ExtendOutp
 			WithAllMatches: true,
 		}, true)
 		if err != nil {
-			return res, err
+			return res, fmt.Errorf("gnames.ExtendReconcile: %w", err)
 		}
 		// should not happen during reconciliation
 		if len(ns.Results) == 0 {

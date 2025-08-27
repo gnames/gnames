@@ -267,6 +267,10 @@ table "vernacular_string_indices" {
     null = true
     type = uuid
   }
+  column "language_orig" {
+    null = true
+    type = character_varying(255)
+  }
   column "language" {
     null = true
     type = character_varying(255)
@@ -283,11 +287,8 @@ table "vernacular_string_indices" {
     null = true
     type = character_varying(50)
   }
-  index "lang_code" {
-    columns = [column.lang_code]
-  }
   index "vernacular_string_idx_idx" {
-    columns = [column.data_source_id, column.record_id, column.vernacular_string_id]
+    columns = [column.data_source_id, column.record_id, column.lang_code]
   }
 }
 table "vernacular_strings" {

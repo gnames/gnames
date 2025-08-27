@@ -2,6 +2,7 @@ package gnames
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"slices"
 
@@ -24,10 +25,17 @@ func (g gnames) Verify(
 	input vlib.Input,
 ) (vlib.Output, error) {
 	var errString string
+
+	// trim names input to 50 when vernaculars are given
+	if len(input.Vernaculars) > 0 && len(input.NameStrings) > 50 {
+		input.NameStrings = input.NameStrings[:50]
+	}
+
 	namesRes := make([]vlib.Name, len(input.NameStrings))
 
 	matchRecords, matchOut, err := g.getMatchRecords(ctx, input)
 	if err != nil {
+		// TODO fix this
 		errString = err.Error()
 	}
 
@@ -41,6 +49,13 @@ func (g gnames) Verify(
 			}
 		} else {
 			slog.Warn("Cannot find record for name", "name", v.Name)
+		}
+	}
+	if len(input.Vernaculars) > 0 {
+		namesRes, err = g.vern.AddVernacularNames(input.Vernaculars, namesRes)
+		if err != nil {
+			// TODO fix this
+			errString = err.Error()
 		}
 	}
 	res := vlib.Output{Meta: meta(input, namesRes), Names: namesRes}
@@ -170,7 +185,11 @@ func (g gnames) getMatchRecords(
 	}
 
 	mRec, err := g.vf.MatchRecords(ctx, matchOut.Matches, input)
-	return mRec, matchOut, err
+	if err != nil {
+		return mRec, matchOut, fmt.Errorf("gnames.getMatchRecords: cannot match records: %w", err)
+	}
+
+	return mRec, matchOut, nil
 }
 
 func overloadTxt(mr *verif.MatchRecord) string {

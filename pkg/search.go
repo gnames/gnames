@@ -25,6 +25,7 @@ func (g gnames) Search(
 	res := search.Output{Meta: search.Meta{Input: input}}
 	matchRecords, err := g.sr.AdvancedSearch(ctx, input)
 	if err != nil {
+		// TODO fix this
 		res.Error = err.Error()
 	}
 	res.NamesNumber = len(matchRecords)

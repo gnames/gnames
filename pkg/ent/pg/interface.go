@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/gnames/gnames/pkg/ent/verif"
+	"github.com/gnames/gnames/pkg/ent/vern"
+	"github.com/gnames/gnlib/ent/verifier"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnquery/ent/search"
 )
@@ -39,4 +41,10 @@ type PG interface {
 		input search.Input,
 		spWordIDs []int,
 		spWord string) (map[string]*verif.MatchRecord, error)
+	// GetVernaculars returns a map of vernacular names for taxons. It requires MakeVernTemp
+	// function to be called first because it uses that temporary table in the query.
+
+	// For faster lookup the results are returned as a map. In case if some error occurs,
+	// it returns an error.
+	GetVernaculars(ctx context.Context, recs []vern.Record, langs []string) (map[vern.Record][]verifier.Vernacular, error)
 }

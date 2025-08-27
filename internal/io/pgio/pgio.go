@@ -2,7 +2,7 @@ package pgio
 
 import (
 	"context"
-	"log/slog"
+	"fmt"
 
 	"github.com/gnames/gnames/pkg/config"
 	"github.com/gnames/gnames/pkg/ent/pg"
@@ -22,18 +22,18 @@ type pgio struct {
 func New(cfg config.Config) (pg.PG, error) {
 	res, err := conn(cfg)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new PG instance failed: %w", err)
 	}
 
 	dsm, err := res.dataSourcesMap()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not get data sources map: %w", err)
 	}
 	res.dsm = dsm
 
 	poolSize := 5
 	gnpPool := make(chan gnparser.GNparser, poolSize)
-	for i := 0; i < poolSize; i++ {
+	for range poolSize {
 		cfgGNP := gnparser.NewConfig(gnparser.OptWithDetails(true))
 		gnpPool <- gnparser.New(cfgGNP)
 	}
@@ -50,8 +50,7 @@ func (p *pgio) dataSourcesMap() (map[int]*vlib.DataSource, error) {
 	res := make(map[int]*vlib.DataSource)
 	dss, err := p.dataSources()
 	if err != nil {
-		slog.Error("Cannot init DataSources data", "error", err)
-		return res, err
+		return res, fmt.Errorf("pgio.dataSourceMap: %w", err)
 	}
 	for _, ds := range dss {
 		res[ds.ID] = ds
@@ -73,15 +72,13 @@ func (p *pgio) MatchRecordsMap(
 	// find matches for canonicals
 	verCan, err := p.nameQuery(ctx, splitMatches.Canonical, input)
 	if err != nil {
-		slog.Error("Cannot get matches data", "error", err)
-		return res, err
+		return res, fmt.Errorf("matching results to canonical failed: %w", err)
 	}
 
 	// find matches for viruses
 	verVir, err := p.virusQuery(ctx, splitMatches.Virus, input)
 	if err != nil {
-		slog.Error("Cannot get virus data", "error", err)
-		return res, err
+		return res, fmt.Errorf("getting virus data failed: %w", err)
 	}
 
 	// convert matches to intermediate results
@@ -100,7 +97,7 @@ func (p *pgio) NameByID(inp vlib.NameStringInput) (*verif.MatchRecord, error) {
 	q, args := idQuery(inp)
 	vSQL, err := p.idQueryRun(ctx, q, args)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("getting name by ID failed: %w", err)
 	}
 
 	return p.idData(vSQL), nil
@@ -113,7 +110,11 @@ func (p *pgio) NameStringByID(id string) (string, error) {
 	row :=
 		p.db.QueryRow(ctx, "SELECT name FROM name_strings WHERE id = $1", id)
 	err := row.Scan(&res)
-	return res, err
+	if err != nil {
+		return res, fmt.Errorf("pgio.NameStringByID: %w", err)
+	}
+
+	return res, nil
 }
 
 func (p *pgio) SearchRecordsMap(
@@ -125,7 +126,7 @@ func (p *pgio) SearchRecordsMap(
 	q, args := setQuery(input, spWordIDs, spWord)
 	res, err := p.runQuery(ctx, q, args)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pgio.SearchRecordsMap: %w", err)
 	}
 	return res, nil
 }

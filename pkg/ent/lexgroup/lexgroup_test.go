@@ -23,7 +23,6 @@ func TestLexGroupBestResult(t *testing.T) {
 	assert := assert.New(t)
 	txt, err := os.ReadFile("../../testdata/lexgroup0.json")
 	assert.Nil(err)
-	_ = txt
 	var n verifier.Name
 	err = enc.Decode(txt, &n)
 	assert.Nil(err)

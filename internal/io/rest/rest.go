@@ -100,11 +100,11 @@ func oneDataSource(gn gnames.GNames) func(echo.Context) error {
 		idStr := c.Param("id")
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
-			return err
+			return fmt.Errorf("rest.oneDataSource: atoi: %w", err)
 		}
 		dataSources := gn.DataSources(id)
 		if len(dataSources) == 0 {
-			return fmt.Errorf("cannot find DataSource for id '%s'", idStr)
+			return errors.New("rest.oneDataSource: no data sources")
 		}
 		return c.JSON(http.StatusOK, dataSources[0])
 	}
@@ -116,7 +116,7 @@ func reconcileGET(gn gnames.GNames) func(echo.Context) error {
 		if c.QueryParam("extend") != "" {
 			res, err := extend(gn, c.QueryParam("extend"))
 			if err != nil {
-				return err
+				return fmt.Errorf("rest.reconcileGET: %w", err)
 			}
 			return c.JSON(http.StatusOK, res)
 		}
@@ -126,15 +126,15 @@ func reconcileGET(gn gnames.GNames) func(echo.Context) error {
 		var params map[string]reconciler.Query
 		q, err := url.QueryUnescape(c.QueryParam("queries"))
 		if err != nil {
-			return err
+			return fmt.Errorf("rest.reconcileGET: %w", err)
 		}
 		err = enc.Decode([]byte(q), &params)
 		if err != nil {
-			return err
+			return fmt.Errorf("rest.reconcileGET: %w", err)
 		}
 		res, err := reconcile(gn, params)
 		if err != nil {
-			return err
+			return fmt.Errorf("rest.reconcileGET: %w", err)
 		}
 
 		return c.JSON(http.StatusOK, res)
@@ -147,7 +147,7 @@ func extend(gn gnames.GNames, q string) (reconciler.ExtendOutput, error) {
 	var params reconciler.ExtendQuery
 	err := enc.Decode([]byte(q), &params)
 	if err != nil {
-		return res, err
+		return res, fmt.Errorf("rest.extend: %w", err)
 	}
 	return gn.ExtendReconcile(params)
 }
@@ -200,7 +200,7 @@ func reconcilePOST(gn gnames.GNames) func(echo.Context) error {
 		case err := <-chErr:
 			return err
 		case <-time.After(6 * time.Minute):
-			return errors.New("request took too long")
+			return errors.New("rest.reconcilePost: request took too long")
 		}
 	}
 }
@@ -223,7 +223,7 @@ func reconcile(
 	}
 	verified, err = gn.Verify(context.Background(), inp)
 	if err != nil {
-		return res, err
+		return res, fmt.Errorf("rest.reconcile: %w", err)
 	}
 	res = gn.Reconcile(verified, params, ids)
 	return res, nil
@@ -233,7 +233,7 @@ func propertiesGET(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
 		t, err := url.QueryUnescape(c.QueryParam("type"))
 		if err != nil {
-			return err
+			return fmt.Errorf("rest.propertiesGET: %w", err)
 		}
 		t = strings.TrimSpace(t)
 		if t != reconcileID {
@@ -354,7 +354,7 @@ func nameGET(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
 		idStr := c.Param("id")
 		if idStr == "" {
-			err := errors.New("empty id input")
+			err := errors.New("nameGET: empty id input")
 			return err
 		}
 
@@ -364,7 +364,7 @@ func nameGET(gn gnames.GNames) func(echo.Context) error {
 		var ds []int
 		dsStr, _ := url.QueryUnescape(c.QueryParam("data_sources"))
 		matches := c.QueryParam("all_matches") == "true"
-		for _, v := range strings.Split(dsStr, ",") {
+		for v := range strings.SplitSeq(dsStr, ",") {
 			if id, err := strconv.Atoi(v); err == nil {
 				ds = append(ds, id)
 			}
@@ -377,7 +377,7 @@ func nameGET(gn gnames.GNames) func(echo.Context) error {
 
 		name, err := gn.NameByID(params, false)
 		if err != nil {
-			return err
+			return fmt.Errorf("rest.nameGET: %w", err)
 		}
 
 		return c.JSON(http.StatusOK, name)
@@ -435,6 +435,8 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
 		nameStr, _ := url.QueryUnescape(c.Param("names"))
 		names := strings.Split(nameStr, "|")
+		vernStr, _ := url.QueryUnescape(c.QueryParam("vernaculars"))
+		vernLangs := strings.Split(vernStr, "|")
 		dsStr, _ := url.QueryUnescape(c.QueryParam("data_sources"))
 		capitalize := c.QueryParam("capitalize") == "true"
 		spGrp := c.QueryParam("species_group") == "true"
@@ -446,7 +448,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 
 		mainTxnThreshold, _ := strconv.ParseFloat(mainTxnThresholdStr, 64)
 		var ds []int
-		for _, v := range strings.Split(dsStr, "|") {
+		for v := range strings.SplitSeq(dsStr, "|") {
 			if id, err := strconv.Atoi(v); err == nil {
 				ds = append(ds, id)
 			}
@@ -454,6 +456,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 
 		params := vlib.Input{
 			NameStrings:             names,
+			Vernaculars:             vernLangs,
 			DataSources:             ds,
 			WithCapitalization:      capitalize,
 			WithAllMatches:          matches,
@@ -465,7 +468,7 @@ func verificationGET(gn gnames.GNames) func(echo.Context) error {
 		}
 		verified, err := gn.Verify(context.Background(), params)
 		if err != nil {
-			return err
+			return fmt.Errorf("rest.verificationGET: %w", err)
 		}
 		if l := len(names); l > 0 {
 			slog.Info("Verification",
@@ -523,6 +526,7 @@ func searchPOST(gn gnames.GNames) func(echo.Context) error {
 				err = c.JSON(http.StatusOK, res)
 			}
 
+			// should not get here if all is OK
 			chErr <- err
 		}()
 
@@ -533,7 +537,7 @@ func searchPOST(gn gnames.GNames) func(echo.Context) error {
 		case err := <-chErr:
 			return err
 		case <-time.After(6 * time.Minute):
-			return errors.New("request took too long")
+			return errors.New("rest.searchPOST: request took too long")
 		}
 	}
 }

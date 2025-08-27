@@ -2,6 +2,7 @@ package pgio
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
 
 	"github.com/gnames/gnparser/ent/parsed"
@@ -41,7 +42,7 @@ func rowsToVerifSQL(rows pgx.Rows) ([]*verifSQL, error) {
 			&v.ClassificationRanks, &v.ClassificationIds, &v.ParseQuality,
 		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("pgio.rowsToVerifSQL: %w", err)
 		}
 		res = append(res, &v)
 	}

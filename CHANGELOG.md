@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.4.3] - 2025-09-09 Tue
+
+- Add [#139]: add vernacular names to verification results.
+
 ## [v1.4.2] - 2025-08-27 Wed
 
 - Fix: gnverifier issue #141 -- VASCAN lost all its synonyms because
@@ -495,6 +499,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.4.3]: https://github.com/gnames/gnames/compare/v1.4.2...v1.4.3
 [v1.4.2]: https://github.com/gnames/gnames/compare/v1.4.1...v1.4.2
 [v1.4.1]: https://github.com/gnames/gnames/compare/v1.4.0...v1.4.1
 [v1.4.0]: https://github.com/gnames/gnames/compare/v1.3.9...v1.4.0

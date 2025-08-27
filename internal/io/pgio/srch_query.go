@@ -36,7 +36,7 @@ func (p *pgio) runQuery(
 ) (map[string]*verif.MatchRecord, error) {
 	searches, err := p.searchQuery(ctx, q, args)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pgio.runQuery: %w", err)
 	}
 	return p.matchRecords(searches), nil
 }
@@ -48,7 +48,7 @@ func (p *pgio) searchQuery(
 ) ([]*verifSQL, error) {
 	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pgio.searchQuery: %w", err)
 	}
 	defer rows.Close()
 

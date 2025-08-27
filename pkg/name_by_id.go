@@ -2,6 +2,7 @@ package gnames
 
 import (
 	"context"
+	"fmt"
 
 	vlib "github.com/gnames/gnlib/ent/verifier"
 )
@@ -22,7 +23,7 @@ func (g gnames) matchID(params vlib.NameStringInput) (vlib.NameStringOutput, err
 	var res vlib.NameStringOutput
 	mr, err := g.vf.NameByID(params)
 	if err != nil {
-		return res, err
+		return res, fmt.Errorf("gnames.matchID: %w", err)
 	}
 	meta := vlib.NameStringMeta{
 		ID:             params.ID,
@@ -44,7 +45,7 @@ func (g gnames) matchIDByName(params vlib.NameStringInput) (vlib.NameStringOutpu
 	var res vlib.NameStringOutput
 	name, err := g.vf.NameStringByID(params.ID)
 	if err != nil {
-		return res, err
+		return res, fmt.Errorf("gnames.matchIDByName: %w", err)
 	}
 	input := vlib.Input{
 		NameStrings:      []string{name},
@@ -54,11 +55,8 @@ func (g gnames) matchIDByName(params vlib.NameStringInput) (vlib.NameStringOutpu
 	}
 	var out vlib.Output
 	out, err = g.Verify(context.Background(), input)
-	if err != nil {
-		return res, err
-	}
-	if len(out.Names) == 0 {
-		return res, err
+	if err != nil && len(out.Names) == 0 {
+		return res, fmt.Errorf("gnames.matchIDByName: %w", err)
 	}
 	res = vlib.NameStringOutput{
 		NameStringMeta: vlib.NameStringMeta{

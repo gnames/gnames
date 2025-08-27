@@ -29,6 +29,7 @@ import (
 	"github.com/gnames/gnames/internal/io/rest"
 	"github.com/gnames/gnames/internal/io/srchio"
 	"github.com/gnames/gnames/internal/io/verifio"
+	"github.com/gnames/gnames/internal/io/vernio"
 	"github.com/gnames/gnames/internal/logr"
 	gnames "github.com/gnames/gnames/pkg"
 	"github.com/gnames/gnames/pkg/config"
@@ -69,13 +70,15 @@ var restCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		vern := vernio.New(cfg, db)
+
 		srch, err := srchio.New(cfg, db)
 		if err != nil {
 			slog.Error("Cannot create facet search service", "error", err)
 			os.Exit(1)
 		}
 
-		gn := gnames.New(cfg, vf, srch)
+		gn := gnames.New(cfg, vf, vern, srch)
 
 		rest.Run(gn, port)
 		os.Exit(0)

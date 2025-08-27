@@ -3,7 +3,6 @@ package pgio
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"sync"
 
 	"github.com/gnames/gnames/pkg/config"
@@ -19,8 +18,7 @@ func conn(cfg config.Config) (*pgio, error) {
 
 	pgxCfg, err := pgxpool.ParseConfig(opts(cfg))
 	if err != nil {
-		slog.Error("Cannot parse pgx config", "error", err)
-		return nil, err
+		return nil, fmt.Errorf("pgio.conn: %w", err)
 	}
 	pgxCfg.MaxConns = 15
 
@@ -31,8 +29,7 @@ func conn(cfg config.Config) (*pgio, error) {
 		)
 	})
 	if err != nil {
-		slog.Error("Cannot connect to database", "error", err)
-		return nil, err
+		return nil, fmt.Errorf("pgio.conn: %w", err)
 	}
 	res := &pgio{db: db}
 	return res, nil

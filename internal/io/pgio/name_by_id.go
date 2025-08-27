@@ -32,13 +32,13 @@ func (p *pgio) idQueryRun(
 	var res []*verifSQL
 	rows, err := p.db.Query(ctx, q, args...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pgio.idQueryRun: %w", err)
 	}
 	defer rows.Close()
 
 	res, err = rowsToVerifSQL(rows)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pgio.idQueryRun: %w", err)
 	}
 	return res, nil
 }

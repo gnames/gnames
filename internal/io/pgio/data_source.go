@@ -38,7 +38,7 @@ SELECT id, uuid, title, title_short, version, revision_date,
 		rows, err = p.db.Query(ctx, q, ids)
 	}
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pgio.dataSources: query: %w", err)
 	}
 	defer rows.Close()
 
@@ -52,7 +52,7 @@ SELECT id, uuid, title, title_short, version, revision_date,
 			&ds.IsAutoCurated, &ds.RecordCount, &ds.UpdatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("pgio.dataSources: scan: %w", err)
 		}
 		dss = append(dss, &ds)
 	}
@@ -63,7 +63,7 @@ SELECT id, uuid, title, title_short, version, revision_date,
 		dsItem := dss[i].convert()
 		res[i] = &dsItem
 	}
-	return res, err
+	return res, nil
 }
 
 type dataSource struct {

@@ -19,8 +19,9 @@ func TestVerifier(t *testing.T) {
 	config.LoadEnv(&cfg)
 	ctx := context.Background()
 	vf := mockVerifier{}
+	vern := mockVernacular{}
 	fct := mockFacet{}
-	g = gnames.New(cfg, vf, fct)
+	g = gnames.New(cfg, vf, vern, fct)
 	testData := []struct {
 		name string
 	}{
@@ -57,6 +58,14 @@ func (m mockVerifier) NameByID(
 
 func (m mockVerifier) NameStringByID(s string) (string, error) {
 	return "", nil
+}
+
+type mockVernacular struct{}
+
+func (mv mockVernacular) AddVernacularNames(
+	langs []string, names []vlib.Name,
+) ([]vlib.Name, error) {
+	return names, nil
 }
 
 type mockFacet struct{}

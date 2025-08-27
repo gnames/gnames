@@ -2,12 +2,16 @@ package rest_test
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/gnames/gnames/pkg/config"
 	"github.com/gnames/gnfmt"
+	"github.com/gnames/gnlib"
 	"github.com/gnames/gnlib/ent/gnvers"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
@@ -583,4 +587,88 @@ func TestOneDataSource(t *testing.T) {
 	assert.Equal(t, "Encyclopedia of Life", ds.Title)
 	assert.True(t, ds.IsOutlinkReady)
 	assert.Equal(t, "https://eol.org", ds.WebsiteURL)
+}
+
+func TestVernacular(t *testing.T) {
+	assert := assert.New(t)
+	tests := []struct {
+		msg, names string
+		sources    string
+		vernLangs  string
+		vern       []string
+	}{
+		{"snowy egret", "Egretta thula", "180", "eng|rus",
+			[]string{"Snowy Egret", "Белая американская цапля"}},
+		{"snowy egret", "Egretta thula", "1", "all",
+			[]string{"Snowy Egret", "Aigrette neigeuse"}},
+	}
+
+	for _, v := range tests {
+		var response vlib.Output
+
+		n := url.QueryEscape(v.names)
+		ds := url.QueryEscape(v.sources)
+		langs := url.QueryEscape(v.vernLangs)
+		q := fmt.Sprintf(
+			"verifications/%s?vernaculars=%s&data_sources=%s",
+			n, langs, ds)
+
+		resp, err := http.Get(restURL + q)
+		assert.Nil(err)
+
+		respBytes, err := io.ReadAll(resp.Body)
+		assert.Nil(err)
+
+		err = gnfmt.GNjson{}.Decode(respBytes, &response)
+		assert.Nil(err)
+		vern := response.Names[0].BestResult.Vernaculars
+		vernNames := gnlib.Map(vern, func(v vlib.Vernacular) string {
+			return v.Name
+		})
+		names := strings.Join(vernNames, "|")
+		for _, v := range v.vern {
+			assert.Contains(names, v)
+		}
+
+	}
+}
+
+func TestVernacularPOST(t *testing.T) {
+	assert := assert.New(t)
+	tests := []struct {
+		msg, name string
+		src       int
+		langs     []string
+		res       []string
+	}{
+		{"snowy egret", "Egretta thula", 180, []string{"eng", "rus"},
+			[]string{"Snowy Egret", "Белая американская цапля"}},
+	}
+	for _, v := range tests {
+		var response vlib.Output
+		request := vlib.Input{
+			NameStrings: []string{v.name},
+			DataSources: []int{v.src},
+			Vernaculars: v.langs,
+		}
+		req, err := gnfmt.GNjson{}.Encode(request)
+		assert.Nil(err)
+		r := bytes.NewReader(req)
+		resp, err := http.Post(restURL+"verifications", "application/json", r)
+		assert.Nil(err)
+		respBytes, err := io.ReadAll(resp.Body)
+		assert.Nil(err)
+		err = gnfmt.GNjson{}.Decode(respBytes, &response)
+		assert.Nil(err)
+		name := response.Names[0]
+		assert.Equal(v.src, name.BestResult.DataSourceID)
+		vern := response.Names[0].BestResult.Vernaculars
+		vernNames := gnlib.Map(vern, func(v vlib.Vernacular) string {
+			return v.Name
+		})
+		names := strings.Join(vernNames, "|")
+		for _, v := range v.res {
+			assert.Contains(names, v)
+		}
+	}
 }
