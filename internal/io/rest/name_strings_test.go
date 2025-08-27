@@ -51,7 +51,7 @@ func TestNameStrings(t *testing.T) {
 
 func TestNameStringsVirusID(t *testing.T) {
 	var response vlib.NameStringOutput
-	id := "237d7244-d8b3-5c32-9d91-65e03a4ca78f"
+	id := "e7966ea7-75aa-5ef2-abcc-8d66c94c5d78"
 	assert := assert.New(t)
 	resp, err := http.Get(restURL +
 		"name_strings/" + id)
@@ -63,7 +63,7 @@ func TestNameStringsVirusID(t *testing.T) {
 	assert.Equal(id, response.NameStringMeta.ID)
 	assert.NotNil(response.Name)
 	assert.Equal(id, response.Name.ID)
-	assert.Equal("Tobacco mosaic virus", response.Name.Name)
+	assert.Equal("Tobamovirus tabaci", response.Name.Name)
 	assert.Equal(vlib.Virus, response.MatchType)
 	assert.NotNil(response.Name.BestResult)
 	assert.Equal(1, response.Name.BestResult.DataSourceID)

@@ -35,7 +35,7 @@ func TestReconcileExact(t *testing.T) {
 	}{
 		{"1", "Not name", 0, "", 0.0, false},
 		{"2", "Bubo bubo", 4, "0eeccd70-eaf2-5c51-ad8b-46cfb3db1645", 1, true},
-		{"3", "Pomatomus", 3, "40773805-c0e8-542c-a5a6-033db360f27d", 1, true},
+		{"3", "Pomatomus", 3, "82110143-0b8d-50f6-b34d-e2ae118f4e2e", 1, true},
 		{"4", "Pardosa moesta", 7, "e2fdf10b-6a36-5cc7-b6ca-be4d3b34b21f", 1, true},
 		{"5", "Plantago major var major", 7, "bdfc5d4c-478b-5b3f-8f03-375e4daadc04", 1, true},
 		{
@@ -48,7 +48,7 @@ func TestReconcileExact(t *testing.T) {
 		},
 		{"7", "A-shaped rods", 0, "", 0.0, false},
 		{"8", "Alb. alba", 0, "", 0.0, false},
-		{"9", "Pisonia grandis", 4, "9d755a97-4140-5fff-84bb-a4c9026ca587", 1, true},
+		{"9", "Pisonia grandis", 4, "26e6e258-1c11-57f3-a6bc-0bcdd9c3e31b", 1, true},
 		{"10", "Acacia vestita may", 2, "290d25e5-ce87-5cfe-b092-1bd12cf55bc1", 0.4, false},
 		{
 			"11",

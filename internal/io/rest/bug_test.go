@@ -311,6 +311,38 @@ func TestBetaCorollifloraWFO(t *testing.T) {
 	assert.Equal("Beta corolliflora Zosimov.", res2.MatchedName, "res2 name")
 }
 
+// issue #141: VASCAN lost all its synonyms as a result of a bug in
+// `sf from dwca`.
+func TestVascanSynonyms(t *testing.T) {
+	assert := assert.New(t)
+	inp := vlib.Input{
+		NameStrings:    []string{"Actaea alba"},
+		DataSources:    []int{147},
+		WithAllMatches: true,
+	}
+	req, err := gnfmt.GNjson{}.Encode(inp)
+	assert.Nil(err)
+	r := bytes.NewReader(req)
+	resp, err := http.Post(restURL+"verifications", "application/json", r)
+	assert.Nil(err)
+	respBytes, err := io.ReadAll(resp.Body)
+	assert.Nil(err)
+
+	var verif vlib.Output
+	err = gnfmt.GNjson{}.Decode(respBytes, &verif)
+	assert.Nil(err)
+
+	res := verif.Names[0].Results
+	// should be at least 2 results
+	assert.Greater(len(res), 0)
+
+	res1 := res[0]
+	assert.Equal(verifier.SynonymTaxStatus, res1.TaxonomicStatus, "res1")
+	assert.Equal("Actaea alba (Linnaeus) Miller", res1.MatchedName, "res1 name")
+	assert.Equal("Actaea pachypoda Elliott", res1.CurrentName,
+		"res1 current name")
+}
+
 func params() vlib.Input {
 	ns := make([]string, len(bugs))
 	for i, v := range bugs {

@@ -4,6 +4,12 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.4.2] - 2025-08-27 Wed
+
+- Fix: gnverifier issue #141 -- VASCAN lost all its synonyms because
+  `sf from dwca` could not import them to sfga when both acceptedNameUsageID
+  and taxonomicStatus were present in the Core file.
+
 ## [v1.4.1] - 2025-08-25 Mon
 
 - Fix: outdated version in pkg/version.go
@@ -489,6 +495,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.4.2]: https://github.com/gnames/gnames/compare/v1.4.1...v1.4.2
 [v1.4.1]: https://github.com/gnames/gnames/compare/v1.4.0...v1.4.1
 [v1.4.0]: https://github.com/gnames/gnames/compare/v1.3.9...v1.4.0
 [v1.3.9]: https://github.com/gnames/gnames/compare/v1.3.8...v1.3.9
