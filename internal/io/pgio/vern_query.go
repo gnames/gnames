@@ -41,19 +41,24 @@ func (p *pgio) GetVernaculars(
 
 func (p *pgio) makeVernTemp(ctx context.Context, tx pgx.Tx, recs []vern.Record) error {
 	// NOTE: the temp table gets removed when the transaction is commited
-	q := "CREATE TEMP TABLE temp_vern_records (data_source_id int, record_id varchar(256)) ON COMMIT DROP"
+	q := `
+	CREATE TEMP TABLE temp_vern_records
+	  (data_source_id int, record_id varchar(256), current_record_id varchar(256))
+		ON COMMIT DROP
+	`
 	_, err := tx.Exec(ctx, q)
+
 	if err != nil {
 		return fmt.Errorf("pgio.makeVernTemp: %w", err)
 	}
 	data := make([][]any, len(recs))
 	for i, v := range recs {
-		data[i] = []any{v.DataSourceID, v.RecordID}
+		data[i] = []any{v.DataSourceID, v.RecordID, v.CurrentRecordID}
 	}
 
 	rows := pgx.CopyFromRows(data)
 
-	cols := []string{"data_source_id", "record_id"}
+	cols := []string{"data_source_id", "record_id", "current_record_id"}
 	_, err = tx.CopyFrom(
 		ctx,
 		pgx.Identifier{"temp_vern_records"},
@@ -77,9 +82,9 @@ func (p *pgio) getVernaculars(
 		return res, nil
 	}
 	q := `
-SELECT vs.name, vsi.data_source_id, vsi.record_id, vsi.language, vsi.lang_code, vsi.country_code
+SELECT vs.name, vr.data_source_id, vr.record_id, vr.current_record_id, vsi.language, vsi.lang_code, vsi.country_code
 	FROM vernacular_string_indices vsi
-	  JOIN temp_vern_records vr ON vr.data_source_id = vsi.data_source_id AND vr.record_id = vsi.record_id
+	  JOIN temp_vern_records vr ON vr.data_source_id = vsi.data_source_id AND vr.current_record_id = vsi.record_id
 	  JOIN vernacular_strings vs ON vs.id = vsi.vernacular_string_id
 	WHERE $1 = 'all' OR vsi.lang_code = ANY($2::text[])
   ORDER BY vsi.lang_code asc, LENGTH(vs.name) - LENGTH(REPLACE(vs.name, ' ', '')) desc, vs.name asc
@@ -95,7 +100,12 @@ SELECT vs.name, vsi.data_source_id, vsi.record_id, vsi.language, vsi.lang_code, 
 		var k vern.Record
 
 		err = rows.Scan(
-			&vrn.Name, &k.DataSourceID, &k.RecordID, &vrn.Language, &vrn.LanguageCode,
+			&vrn.Name,
+			&k.DataSourceID,
+			&k.RecordID,
+			&k.CurrentRecordID,
+			&vrn.Language,
+			&vrn.LanguageCode,
 			&vrn.Country,
 		)
 		if err != nil {

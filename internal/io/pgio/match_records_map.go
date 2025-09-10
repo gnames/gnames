@@ -340,8 +340,6 @@ func (p *pgio) addMatch(
 	matchCard = matchedCardinality
 	currCard = currentCardinality
 
-	// fmt.Printf("PARSED: %#v\n\n", prsd)
-	// os.Exit(0)
 	var matchedCanonical, matchedCanonicalFull string
 	matchedCanonical = prsd.Canonical.Simple
 	matchedCanonicalFull = prsd.Canonical.Full

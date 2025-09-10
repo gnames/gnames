@@ -589,7 +589,7 @@ func TestOneDataSource(t *testing.T) {
 	assert.Equal(t, "https://eol.org", ds.WebsiteURL)
 }
 
-func TestVernacular(t *testing.T) {
+func TestVernacularGET(t *testing.T) {
 	assert := assert.New(t)
 	tests := []struct {
 		msg, names string
@@ -601,6 +601,8 @@ func TestVernacular(t *testing.T) {
 			[]string{"Snowy Egret", "Белая американская цапля"}},
 		{"snowy egret", "Egretta thula", "1", "all",
 			[]string{"Snowy Egret", "Aigrette neigeuse"}},
+		{"puma synonym", "Felis concolor", "1", "eng",
+			[]string{"Puma", "Mountain Lion"}},
 	}
 
 	for _, v := range tests {
@@ -643,6 +645,8 @@ func TestVernacularPOST(t *testing.T) {
 	}{
 		{"snowy egret", "Egretta thula", 180, []string{"eng", "rus"},
 			[]string{"Snowy Egret", "Белая американская цапля"}},
+		{"puma synonym", "Felis concolor", 1, []string{"eng"},
+			[]string{"Puma", "Mountain Lion"}},
 	}
 	for _, v := range tests {
 		var response vlib.Output

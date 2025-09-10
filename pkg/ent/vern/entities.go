@@ -7,4 +7,7 @@ type Record struct {
 	DataSourceID int
 	// RecordID contains ID of the required taxon record.
 	RecordID string
+
+	// CurrentRecordID contains ID of the current taxon record.
+	CurrentRecordID string
 }

@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.4.5] - 2025-09-10 Wed
+
+- Add: vernaculars are returned from synonyms too.
+
 ## [v1.4.4] - 2025-09-10 Wed
 
 - Add: vernacular languages to Metadata.
@@ -504,6 +508,8 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.4.5]: https://github.com/gnames/gnames/compare/v1.4.4...v1.4.5
+[v1.4.4]: https://github.com/gnames/gnames/compare/v1.4.3...v1.4.4
 [v1.4.3]: https://github.com/gnames/gnames/compare/v1.4.2...v1.4.3
 [v1.4.2]: https://github.com/gnames/gnames/compare/v1.4.1...v1.4.2
 [v1.4.1]: https://github.com/gnames/gnames/compare/v1.4.0...v1.4.1
