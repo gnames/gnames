@@ -126,6 +126,7 @@ func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 	}
 	res := vlib.Meta{
 		NamesNumber:             len(input.NameStrings),
+		Vernaculars:             input.Vernaculars,
 		WithAllSources:          allSources,
 		WithAllMatches:          input.WithAllMatches,
 		WithStats:               input.WithStats,

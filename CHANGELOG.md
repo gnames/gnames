@@ -4,6 +4,11 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.4.4] - 2025-09-10 Wed
+
+- Add: vernacular languages to Metadata.
+- Add: sorting of vernacular results by number of spaces in a name.
+
 ## [v1.4.3] - 2025-09-09 Tue
 
 - Add [#139]: add vernacular names to verification results.

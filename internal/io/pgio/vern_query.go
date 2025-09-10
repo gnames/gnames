@@ -9,7 +9,11 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (p *pgio) GetVernaculars(ctx context.Context, records []vern.Record, langs []string) (map[vern.Record][]verifier.Vernacular, error) {
+func (p *pgio) GetVernaculars(
+	ctx context.Context,
+	records []vern.Record,
+	langs []string,
+) (map[vern.Record][]verifier.Vernacular, error) {
 
 	tx, err := p.db.Begin(ctx)
 	if err != nil {
@@ -78,6 +82,7 @@ SELECT vs.name, vsi.data_source_id, vsi.record_id, vsi.language, vsi.lang_code, 
 	  JOIN temp_vern_records vr ON vr.data_source_id = vsi.data_source_id AND vr.record_id = vsi.record_id
 	  JOIN vernacular_strings vs ON vs.id = vsi.vernacular_string_id
 	WHERE $1 = 'all' OR vsi.lang_code = ANY($2::text[])
+  ORDER BY vsi.lang_code asc, LENGTH(vs.name) - LENGTH(REPLACE(vs.name, ' ', '')) desc, vs.name asc
 	`
 	allLangs := langs[0]
 	rows, err := tx.Query(ctx, q, allLangs, langs)
