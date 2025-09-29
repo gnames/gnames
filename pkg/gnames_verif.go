@@ -79,6 +79,15 @@ func outputName(mr *verif.MatchRecord, allMatches bool) vlib.Name {
 		item.OverloadDetected = ""
 		return item
 	}
+	var bestResults []*vlib.ResultData
+	bestScore := results[0].SortScore
+	for i, _ := range results {
+		if results[i].SortScore == bestScore {
+			bestResults = append(bestResults, results[i])
+		} else {
+			break
+		}
+	}
 
 	bestResult := results[0]
 	item.Curation = bestResult.Curation
@@ -90,6 +99,9 @@ func outputName(mr *verif.MatchRecord, allMatches bool) vlib.Name {
 	}
 
 	item.BestResult = bestResult
+	if len(bestResults) > 1 {
+		item.BestResults = bestResults
+	}
 	item.DataSourcesIDs = getDataSourcesIDs(results)
 	item.DataSourcesNum = len(item.DataSourcesIDs)
 	return item

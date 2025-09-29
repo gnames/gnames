@@ -4,6 +4,16 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.5.0] - 2025-09-30 Tue
+
+- Add [#135]: `bestResults` list for tied scores. When multiple verification
+  results share the same top score, the API now populates a `bestResults`
+  list with all tied results. The `bestResult` field is preserved for
+  backward compatibility and contains the first result from the new
+  `bestResults` list.
+- Add: refactor REST API tests with helper functions and table-driven tests.
+- Add: update dependencies.
+
 ## [v1.4.5] - 2025-09-10 Wed
 
 - Add: vernaculars are returned from synonyms too.

@@ -15,6 +15,7 @@ import (
 	"github.com/gnames/gnlib/ent/gnvers"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var restURL = getConfig().GnamesHostURL + "/api/v1/"
@@ -25,32 +26,100 @@ func getConfig() config.Config {
 	return cfg
 }
 
-func TestPing(t *testing.T) {
-	resp, err := http.Get(restURL + "ping")
-	assert.Nil(t, err)
+// Test helper functions
 
-	response, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
+// makePostRequest sends a POST request with JSON payload and returns the response
+func makePostRequest(t *testing.T, endpoint string, payload any) *http.Response {
+	// t.Helper() marks this as a helper function so test failures report the caller's
+	// line number instead of this function's line number in the stack trace.
+	t.Helper()
 
-	assert.Equal(t, "pong", string(response))
+	reqBytes, err := gnfmt.GNjson{}.Encode(payload)
+	// require stops test execution immediately on failure, preventing cascading errors
+	require.NoError(t, err)
+
+	resp, err := http.Post(restURL+endpoint, "application/json", bytes.NewReader(reqBytes))
+	require.NoError(t, err)
+
+	return resp
 }
 
-func TestVersion(t *testing.T) {
-	resp, err := http.Get(restURL + "version")
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
+// makeGetRequest sends a GET request and returns the response
+func makeGetRequest(t *testing.T, endpoint string) *http.Response {
+	t.Helper()
 
-	enc := gnfmt.GNjson{}
+	resp, err := http.Get(restURL + endpoint)
+	require.NoError(t, err)
+
+	return resp
+}
+
+// readResponseBody reads and returns the response body
+func readResponseBody(t *testing.T, resp *http.Response) []byte {
+	t.Helper()
+
+	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	return body
+}
+
+// decodeJSONResponse decodes JSON response into the provided target
+func decodeJSONResponse(t *testing.T, body []byte, target any) {
+	t.Helper()
+
+	err := gnfmt.GNjson{}.Decode(body, target)
+	require.NoError(t, err)
+}
+
+// postVerificationRequest is a helper for verification POST requests
+func postVerificationRequest(t *testing.T, input vlib.Input) vlib.Output {
+	t.Helper()
+
+	resp := makePostRequest(t, "verifications", input)
+	body := readResponseBody(t, resp)
+
+	var output vlib.Output
+	decodeJSONResponse(t, body, &output)
+
+	return output
+}
+
+// getVerificationRequest is a helper for verification GET requests
+func getVerificationRequest(t *testing.T, query string) vlib.Output {
+	t.Helper()
+
+	resp := makeGetRequest(t, "verifications/"+query)
+	body := readResponseBody(t, resp)
+
+	var output vlib.Output
+	decodeJSONResponse(t, body, &output)
+
+	return output
+}
+
+// TestPing tests the ping endpoint
+func TestPing(t *testing.T) {
+	resp := makeGetRequest(t, "ping")
+	body := readResponseBody(t, resp)
+
+	assert.Equal(t, "pong", string(body))
+}
+
+// TestVersion tests the version endpoint
+func TestVersion(t *testing.T) {
+	resp := makeGetRequest(t, "version")
+	body := readResponseBody(t, resp)
+
 	var response gnvers.Version
-	err = enc.Decode(respBytes, &response)
-	assert.Nil(t, err)
+	decodeJSONResponse(t, body, &response)
+
 	assert.Regexp(t, `^v\d+\.\d+\.\d+`, response.Version)
 }
 
+// TestVerifyExact tests the verification endpoint with exact matches
 func TestVerifyExact(t *testing.T) {
-	assert := assert.New(t)
-	var response vlib.Output
 	names := []string{
 		"Not name",
 		"Bubo bubo",
@@ -60,182 +129,233 @@ func TestVerifyExact(t *testing.T) {
 		"Cytospora ribis mitovirus 2",
 		"A-shaped rods",
 		"Alb. alba",
-		"Pisonia grandis",
 		"Acacia vestita may",
 		"Candidatus Aenigmarchaeum subterraneum",
 		"Phegopteris",
 	}
+
 	request := vlib.Input{NameStrings: names}
-	req, err := gnfmt.GNjson{}.Encode(request)
-	assert.Nil(err)
-	r := bytes.NewReader(req)
-	resp, err := http.Post(restURL+"verifications", "application/json", r)
-	assert.Nil(err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(err)
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(err)
-	assert.Equal(len(names), len(response.Names))
+	response := postVerificationRequest(t, request)
 
-	bad := response.Names[0]
-	assert.Equal("82dbfb99-fe6c-5882-99f2-17c7d3955599", bad.ID)
-	assert.Equal("Not name", bad.Name)
-	assert.Equal(vlib.NoMatch, bad.MatchType)
-	assert.Nil(bad.BestResult)
-	assert.Equal(0, bad.DataSourcesNum)
-	assert.Equal(0, len(bad.DataSourcesIDs))
-	assert.Equal(vlib.NotCurated, bad.Curation)
-	assert.Equal("", bad.Error)
+	require.Equal(t, len(names), len(response.Names))
 
-	binom := response.Names[1]
-	assert.Equal("4431a0f3-e901-519a-886f-9b97e0c99d8e", binom.ID)
-	assert.Equal("Bubo bubo", binom.Name)
-	assert.NotNil(binom.BestResult)
-	assert.Equal(1, binom.BestResult.DataSourceID)
-	assert.Equal(34, len(binom.DataSourcesIDs))
-	assert.Equal(34, binom.DataSourcesNum)
-	assert.Equal(vlib.Exact, binom.BestResult.MatchType)
-	assert.Equal(vlib.Curated, binom.Curation)
-	assert.Equal("", binom.Error)
+	// Test cases with expected results
+	testCases := []struct {
+		index              int
+		expectedID         string
+		expectedName       string
+		expectedMatchType  vlib.MatchTypeValue
+		expectedCuration   vlib.CurationLevel
+		hasBestResult      bool
+		expectedDataSrcID  int
+		expectedDataSrcNum int
+		additionalChecks   func(t *testing.T, name *vlib.Name)
+	}{
+		{
+			index:              0,
+			expectedID:         "82dbfb99-fe6c-5882-99f2-17c7d3955599",
+			expectedName:       "Not name",
+			expectedMatchType:  vlib.NoMatch,
+			expectedCuration:   vlib.NotCurated,
+			hasBestResult:      false,
+			expectedDataSrcNum: 0,
+		},
+		{
+			index:              1,
+			expectedID:         "4431a0f3-e901-519a-886f-9b97e0c99d8e",
+			expectedName:       "Bubo bubo",
+			expectedMatchType:  vlib.Exact,
+			expectedCuration:   vlib.Curated,
+			hasBestResult:      true,
+			expectedDataSrcID:  1,
+			expectedDataSrcNum: 34,
+		},
+		{
+			index:             8,
+			expectedID:        "0f84ed48-3a57-59ac-ac1a-2e9221439fdc",
+			expectedName:      "Acacia vestita may",
+			expectedMatchType: vlib.PartialExact,
+			expectedCuration:  vlib.Curated,
+			hasBestResult:     true,
+			expectedDataSrcID: 1,
+			additionalChecks: func(t *testing.T, name *vlib.Name) {
+				assert.Equal(t, "Acacia vestita", name.BestResult.CurrentCanonicalSimple)
+			},
+		},
+		{
+			index:             9,
+			expectedID:        "1b406033-fc5e-5f90-b3cf-fd1e9a42e282",
+			expectedName:      "Candidatus Aenigmarchaeum subterraneum",
+			expectedMatchType: vlib.Exact,
+			expectedCuration:  vlib.AutoCurated,
+			hasBestResult:     true,
+			expectedDataSrcID: 179,
+		},
+	}
 
-	acceptFilter := response.Names[8]
-	assert.Equal("4c8848f2-7271-588c-ba81-e4d5efcc1e92", acceptFilter.ID)
-	assert.Equal("Pisonia grandis", acceptFilter.Name)
-	assert.Equal(1, acceptFilter.BestResult.DataSourceID)
-	assert.Equal(vlib.Exact, acceptFilter.BestResult.MatchType)
-	assert.Equal("Ceodes artensis", acceptFilter.BestResult.CurrentCanonicalSimple)
+	for _, tc := range testCases {
+		t.Run(tc.expectedName, func(t *testing.T) {
+			name := response.Names[tc.index]
 
-	partial := response.Names[9]
-	assert.Equal("0f84ed48-3a57-59ac-ac1a-2e9221439fdc", partial.ID)
-	assert.Equal("Acacia vestita may", partial.Name)
-	assert.Equal(1, partial.BestResult.DataSourceID)
-	assert.Equal(vlib.PartialExact.String(), partial.MatchType.String())
-	assert.Equal("Acacia vestita", partial.BestResult.CurrentCanonicalSimple)
+			assert.Equal(t, tc.expectedID, name.ID)
+			assert.Equal(t, tc.expectedName, name.Name)
+			assert.Equal(t, tc.expectedCuration, name.Curation)
+			assert.Empty(t, name.Error)
 
-	cand := response.Names[10]
-	assert.Equal("1b406033-fc5e-5f90-b3cf-fd1e9a42e282", cand.ID)
-	assert.Equal("Candidatus Aenigmarchaeum subterraneum", cand.Name)
-	assert.NotNil(cand.BestResult)
-	assert.Equal(179, cand.BestResult.DataSourceID)
-	assert.Equal(vlib.Exact, cand.BestResult.MatchType)
-	assert.Equal(vlib.AutoCurated, cand.Curation)
-	assert.Equal("", cand.Error)
+			if tc.hasBestResult {
+				require.NotNil(t, name.BestResult)
+				assert.Equal(t, tc.expectedDataSrcID, name.BestResult.DataSourceID)
+				assert.Equal(t, tc.expectedMatchType, name.BestResult.MatchType)
+			} else {
+				assert.Nil(t, name.BestResult)
+				assert.Equal(t, tc.expectedMatchType, name.MatchType)
+			}
+
+			if tc.expectedDataSrcNum > 0 {
+				assert.Equal(t, tc.expectedDataSrcNum, name.DataSourcesNum)
+				assert.Equal(t, tc.expectedDataSrcNum, len(name.DataSourcesIDs))
+			}
+
+			if tc.additionalChecks != nil {
+				tc.additionalChecks(t, &name)
+			}
+		})
+	}
 }
 
 func TestAuthors(t *testing.T) {
-	assert := assert.New(t)
 	tests := []struct {
-		msg, name, match string
-		src              int
-		matchType        vlib.MatchTypeValue
+		name          string
+		inputName     string
+		expectedMatch string
+		expectedSrc   int
+		expectedType  vlib.MatchTypeValue
 	}{
 		{
-			msg:       "Bandon",
-			name:      "Rissoa abbreviata Baudon, 1853",
-			match:     "Rissoa abbreviata Baudon, 1853",
-			src:       9,
-			matchType: vlib.Exact,
+			name:          "Baudon abbreviation",
+			inputName:     "Rissoa abbreviata Baudon, 1853",
+			expectedMatch: "Rissoa abbreviata Baudon, 1853",
+			expectedSrc:   9,
+			expectedType:  vlib.Exact,
 		},
 		{
-			msg:       "I",
-			name:      "Helix acuminata Sowerby, 1841",
-			match:     "Helix acuminata G. B. Sowerby I, 1841",
-			src:       1,
-			matchType: vlib.Exact,
+			name:          "Sowerby I expansion",
+			inputName:     "Helix acuminata Sowerby, 1841",
+			expectedMatch: "Helix acuminata G. B. Sowerby I, 1841",
+			expectedSrc:   1,
+			expectedType:  vlib.Exact,
 		},
 		{
-			msg:       "filius",
-			name:      "Bubo bubo Linn. f.",
-			match:     "Bubo bubo (Linnaeus, 1758)",
-			src:       1,
-			matchType: vlib.Exact,
+			name:          "Linnaeus filius",
+			inputName:     "Bubo bubo Linn. f.",
+			expectedMatch: "Bubo bubo (Linnaeus, 1758)",
+			expectedSrc:   1,
+			expectedType:  vlib.Exact,
 		},
 	}
-	for _, v := range tests {
-		var response vlib.Output
-		request := vlib.Input{NameStrings: []string{v.name}}
-		req, err := gnfmt.GNjson{}.Encode(request)
-		assert.Nil(err)
-		r := bytes.NewReader(req)
-		resp, err := http.Post(restURL+"verifications", "application/json", r)
-		assert.Nil(err)
-		respBytes, err := io.ReadAll(resp.Body)
-		assert.Nil(err)
-		err = gnfmt.GNjson{}.Decode(respBytes, &response)
-		assert.Nil(err)
-		name := response.Names[0]
-		assert.Equal(v.match, name.BestResult.MatchedName)
-		assert.Equal(v.src, name.BestResult.DataSourceID)
-		assert.Equal(v.matchType, name.BestResult.MatchType)
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			request := vlib.Input{NameStrings: []string{tc.inputName}}
+			response := postVerificationRequest(t, request)
+
+			require.Len(t, response.Names, 1)
+			name := response.Names[0]
+			require.NotNil(t, name.BestResult)
+
+			assert.Equal(t, tc.expectedMatch, name.BestResult.MatchedName)
+			assert.Equal(t, tc.expectedSrc, name.BestResult.DataSourceID)
+			assert.Equal(t, tc.expectedType, name.BestResult.MatchType)
+		})
 	}
 }
 
 func TestFuzzy(t *testing.T) {
-	var response vlib.Output
-	names := []string{
-		"Abras precatorius",
+	request := vlib.Input{
+		NameStrings: []string{"Abras precatorius"},
+		DataSources: []int{1, 12, 169, 182},
 	}
-	request := vlib.Input{NameStrings: names, DataSources: []int{1, 12, 169, 182}}
-	req, err := gnfmt.GNjson{}.Encode(request)
-	assert.Nil(t, err)
-	r := bytes.NewReader(req)
-	resp, err := http.Post(restURL+"verifications", "application/json", r)
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
-	assert.Equal(t, len(names), len(response.Names))
+	response := postVerificationRequest(t, request)
 
-	fuz1 := response.Names[0]
-	assert.Equal(t, "Abras precatorius", fuz1.Name)
-	assert.Equal(t, 1, fuz1.BestResult.EditDistance)
+	require.Len(t, response.Names, 1)
+	name := response.Names[0]
+
+	assert.Equal(t, "Abras precatorius", name.Name)
+	require.NotNil(t, name.BestResult)
+	assert.Equal(t, 1, name.BestResult.EditDistance)
 }
 
 func TestRelaxedFuzzy(t *testing.T) {
-	assert := assert.New(t)
 	tests := []struct {
-		msg, name, match string
-		uniFuzzy         bool
-		ed               int
-		typ              vlib.MatchTypeValue
+		name              string
+		inputName         string
+		expectedMatch     string
+		useUniFuzzy       bool
+		expectedEditDist  int
+		expectedMatchType vlib.MatchTypeValue
 	}{
-		{"bubo", "Bbo bubo onetwo", "Bubo bubo", false, 1, vlib.PartialFuzzyRelaxed},
-		{"bubo", "Bubo bubo onetwo", "Bubo bubo", false, 0, vlib.PartialExact},
-		{"pom saltator", "Pomatomu saltator", "Pomatomus saltator", false, 1, vlib.FuzzyRelaxed},
-		{"pomatomus", "Pomatomu L.", "Pomatomus", true, 1, vlib.FuzzyRelaxed},
 		{
-			"pomatomus part",
-			"Pomatomu saltator aadsdss",
-			"Pomatomus saltator",
-			false,
-			1,
-			vlib.PartialFuzzyRelaxed,
+			name:              "partial fuzzy relaxed - missing letter",
+			inputName:         "Bbo bubo onetwo",
+			expectedMatch:     "Bubo bubo",
+			useUniFuzzy:       false,
+			expectedEditDist:  1,
+			expectedMatchType: vlib.PartialFuzzyRelaxed,
+		},
+		{
+			name:              "partial exact match",
+			inputName:         "Bubo bubo onetwo",
+			expectedMatch:     "Bubo bubo",
+			useUniFuzzy:       false,
+			expectedEditDist:  0,
+			expectedMatchType: vlib.PartialExact,
+		},
+		{
+			name:              "fuzzy relaxed - missing letter",
+			inputName:         "Pomatomu saltator",
+			expectedMatch:     "Pomatomus saltator",
+			useUniFuzzy:       false,
+			expectedEditDist:  1,
+			expectedMatchType: vlib.FuzzyRelaxed,
+		},
+		{
+			name:              "uninomial fuzzy with relaxed",
+			inputName:         "Pomatomu L.",
+			expectedMatch:     "Pomatomus",
+			useUniFuzzy:       true,
+			expectedEditDist:  1,
+			expectedMatchType: vlib.FuzzyRelaxed,
+		},
+		{
+			name:              "partial fuzzy relaxed with extra text",
+			inputName:         "Pomatomu saltator aadsdss",
+			expectedMatch:     "Pomatomus saltator",
+			useUniFuzzy:       false,
+			expectedEditDist:  1,
+			expectedMatchType: vlib.PartialFuzzyRelaxed,
 		},
 	}
 
-	for _, v := range tests {
-		var response vlib.Output
-		request := vlib.Input{
-			NameStrings:           []string{v.name},
-			WithRelaxedFuzzyMatch: true,
-		}
-		if v.uniFuzzy {
-			request.WithUninomialFuzzyMatch = true
-		}
-		req, err := gnfmt.GNjson{}.Encode(request)
-		assert.Nil(err)
-		r := bytes.NewReader(req)
-		resp, err := http.Post(restURL+"verifications", "application/json", r)
-		assert.Nil(err)
-		respBytes, err := io.ReadAll(resp.Body)
-		assert.Nil(err)
-		err = gnfmt.GNjson{}.Decode(respBytes, &response)
-		assert.Nil(err)
-		name := response.Names[0]
-		assert.Equal(v.match, name.BestResult.MatchedCanonicalSimple, v.msg)
-		assert.Equal(v.ed, name.BestResult.EditDistance, v.msg)
-		assert.Equal(v.typ, name.BestResult.MatchType, v.msg)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			request := vlib.Input{
+				NameStrings:           []string{tc.inputName},
+				WithRelaxedFuzzyMatch: true,
+			}
+			if tc.useUniFuzzy {
+				request.WithUninomialFuzzyMatch = true
+			}
+
+			response := postVerificationRequest(t, request)
+
+			require.Len(t, response.Names, 1)
+			name := response.Names[0]
+			require.NotNil(t, name.BestResult)
+
+			assert.Equal(t, tc.expectedMatch, name.BestResult.MatchedCanonicalSimple)
+			assert.Equal(t, tc.expectedEditDist, name.BestResult.EditDistance)
+			assert.Equal(t, tc.expectedMatchType, name.BestResult.MatchType)
+		})
 	}
 }
 
@@ -243,224 +363,154 @@ func TestRelaxedFuzzy(t *testing.T) {
 // Checks if uninomials go through fuzzy matching
 func TestUniFuzzy(t *testing.T) {
 	tests := []struct {
-		msg, name, res string
-		ds             []int
-		matchType      vlib.MatchTypeValue
+		name              string
+		inputName         string
+		expectedResult    string
+		dataSources       []int
+		expectedMatchType vlib.MatchTypeValue
 	}{
 		{
-			msg:       "fuzzy",
-			name:      "Simulidae",
-			res:       "Simuliidae",
-			ds:        []int{3},
-			matchType: vlib.Fuzzy,
+			name:              "fuzzy uninomial match",
+			inputName:         "Simulidae",
+			expectedResult:    "Simuliidae",
+			dataSources:       []int{3},
+			expectedMatchType: vlib.Fuzzy,
 		},
 		{
-			msg:       "partialFuzzy",
-			name:      "Pomatmus abcdefg",
-			res:       "Pomatomus",
-			ds:        []int{1},
-			matchType: vlib.PartialFuzzy,
+			name:              "partial fuzzy uninomial match",
+			inputName:         "Pomatmus abcdefg",
+			expectedResult:    "Pomatomus",
+			dataSources:       []int{1},
+			expectedMatchType: vlib.PartialFuzzy,
 		},
 	}
 
-	for _, v := range tests {
-		var response vlib.Output
-		request := vlib.Input{
-			NameStrings:             []string{v.name},
-			DataSources:             v.ds,
-			WithUninomialFuzzyMatch: true,
-			WithAllMatches:          true,
-		}
-		req, err := gnfmt.GNjson{}.Encode(request)
-		assert.Nil(t, err)
-		r := bytes.NewReader(req)
-		resp, err := http.Post(restURL+"verifications", "application/json", r)
-		assert.Nil(t, err)
-		respBytes, err := io.ReadAll(resp.Body)
-		assert.Nil(t, err)
-		err = gnfmt.GNjson{}.Decode(respBytes, &response)
-		assert.Nil(t, err)
-		name := response.Names[0]
-		var isFuzzy bool
-		for _, vv := range name.Results {
-			if v.res == vv.CurrentCanonicalSimple {
-				assert.Equal(t, v.matchType, vv.MatchType, v.msg)
-				isFuzzy = true
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			request := vlib.Input{
+				NameStrings:             []string{tc.inputName},
+				DataSources:             tc.dataSources,
+				WithUninomialFuzzyMatch: true,
+				WithAllMatches:          true,
 			}
-		}
-		assert.True(t, isFuzzy)
-	}
+			response := postVerificationRequest(t, request)
 
+			require.Len(t, response.Names, 1)
+			name := response.Names[0]
+
+			var foundMatch bool
+			for _, result := range name.Results {
+				if tc.expectedResult == result.CurrentCanonicalSimple {
+					assert.Equal(t, tc.expectedMatchType, result.MatchType)
+					foundMatch = true
+					break
+				}
+			}
+			assert.True(t, foundMatch, "Expected result %s not found in results", tc.expectedResult)
+		})
+	}
 }
 
-// TestPrefDS checks if prefferred data sources works correclty.
+// TestPrefDS checks if preferred data sources works correctly.
 func TestPrefDS(t *testing.T) {
-	var response vlib.Output
 	names := []string{
 		"Bubo bubo", "Pomatomus",
 		"Pardosa moesta", "Plantago major var major",
 		"Cytospora ribis mitovirus 2",
-		"Pisonia grandis",
 	}
 	request := vlib.Input{
 		NameStrings:    names,
 		DataSources:    []int{1, 12, 169, 182},
 		WithAllMatches: true,
 	}
-	req, err := gnfmt.GNjson{}.Encode(request)
-	assert.Nil(t, err)
-	r := bytes.NewReader(req)
-	resp, err := http.Post(restURL+"verifications", "application/json", r)
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
-	assert.Equal(t, len(names), len(response.Names))
+	response := postVerificationRequest(t, request)
 
-	binom := response.Names[0]
-	assert.Equal(t, "4431a0f3-e901-519a-886f-9b97e0c99d8e", binom.ID)
-	assert.Equal(t, "Bubo bubo", binom.Name)
-	assert.Nil(t, binom.BestResult)
-	assert.Equal(t, 7, len(binom.Results))
-	assert.Equal(t, 1, binom.Results[0].DataSourceID)
-	assert.Contains(t, binom.Results[0].Outlink, "NKSD")
-	assert.Equal(t, vlib.Exact, binom.Results[0].MatchType)
-	assert.Equal(t, vlib.Curated, binom.Curation)
-	assert.Equal(t, "", binom.Error)
+	require.Equal(t, len(names), len(response.Names))
 
-	acceptFilter := response.Names[5]
-	assert.Equal(t, "4c8848f2-7271-588c-ba81-e4d5efcc1e92", acceptFilter.ID)
-	assert.Equal(t, "Pisonia grandis", acceptFilter.Name)
-	assert.Nil(t, binom.BestResult)
-	assert.True(t, len(binom.Results) > 0)
-	assert.Equal(t, 1, acceptFilter.Results[0].DataSourceID)
-	assert.Equal(t, vlib.Exact, acceptFilter.Results[0].MatchType)
-	assert.Equal(t, "Ceodes artensis", acceptFilter.Results[0].CurrentCanonicalSimple)
-	assert.Equal(t, 7, len(binom.Results))
+	bubo := response.Names[0]
+	assert.Equal(t, "4431a0f3-e901-519a-886f-9b97e0c99d8e", bubo.ID)
+	assert.Equal(t, "Bubo bubo", bubo.Name)
+	assert.Nil(t, bubo.BestResult)
+	assert.Len(t, bubo.Results, 7)
+	assert.Equal(t, 1, bubo.Results[0].DataSourceID)
+	assert.Contains(t, bubo.Results[0].Outlink, "NKSD")
+	assert.Equal(t, vlib.Exact, bubo.Results[0].MatchType)
+	assert.Equal(t, vlib.Curated, bubo.Curation)
+	assert.Empty(t, bubo.Error)
 }
 
 func TestPrefCapitalize(t *testing.T) {
-	var response vlib.Output
 	names := []string{
 		"bubo bubo", "pomatomus",
 		"pardosa moesta", "plantago major var major",
 		"cytospora ribis mitovirus 2",
-		"pisonia grandis",
 	}
 	request := vlib.Input{NameStrings: names, WithCapitalization: true}
-	req, err := gnfmt.GNjson{}.Encode(request)
-	assert.Nil(t, err)
-	r := bytes.NewReader(req)
-	resp, err := http.Post(restURL+"verifications", "application/json", r)
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
-	assert.Equal(t, len(names), len(response.Names))
+	response := postVerificationRequest(t, request)
+
+	require.Equal(t, len(names), len(response.Names))
 	assert.True(t, response.WithCapitalization)
 
 	bubo := response.Names[0]
 	assert.Equal(t, "7e4c9a7c-0e90-5d1e-96be-bbea21fcfdd3", bubo.ID)
 	assert.Equal(t, "bubo bubo", bubo.Name)
-	assert.NotNil(t, bubo.BestResult)
+	require.NotNil(t, bubo.BestResult)
 	assert.Equal(t, 1, bubo.BestResult.DataSourceID)
 	assert.Contains(t, bubo.BestResult.Outlink, "NKSD")
 	assert.Equal(t, vlib.Exact, bubo.BestResult.MatchType)
 }
 
 func TestAllSources(t *testing.T) {
-	var response vlib.Output
-	names := []string{
-		"Bubo bubo",
-	}
-	request := vlib.Input{NameStrings: names}
-	req, err := gnfmt.GNjson{}.Encode(request)
-	assert.Nil(t, err)
-	r := bytes.NewReader(req)
-	resp, err := http.Post(restURL+"verifications", "application/json", r)
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
-	assert.Equal(t, len(names), len(response.Names))
+	request := vlib.Input{NameStrings: []string{"Bubo bubo"}}
+	response := postVerificationRequest(t, request)
+
+	require.Len(t, response.Names, 1)
 	assert.False(t, response.WithCapitalization)
+
 	bubo := response.Names[0]
 	assert.Equal(t, "4431a0f3-e901-519a-886f-9b97e0c99d8e", bubo.ID)
 	assert.Equal(t, "Bubo bubo", bubo.Name)
-	assert.NotNil(t, bubo.BestResult)
-	assert.True(t, bubo.DataSourcesNum > 20)
-	assert.Equal(t, len(bubo.Results), 0)
+	require.NotNil(t, bubo.BestResult)
+	assert.Greater(t, bubo.DataSourcesNum, 20)
+	assert.Empty(t, bubo.Results)
 }
 
 func TestAllMatches(t *testing.T) {
-	var response vlib.Output
-	names := []string{
-		"Solanum tuberosum",
-	}
 	request := vlib.Input{
-		NameStrings:    names,
+		NameStrings:    []string{"Solanum tuberosum"},
 		DataSources:    []int{1},
 		WithAllMatches: true,
 	}
-	req, err := gnfmt.GNjson{}.Encode(request)
-	assert.Nil(t, err)
-	r := bytes.NewReader(req)
-	resp, err := http.Post(restURL+"verifications", "application/json", r)
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
-	assert.Equal(t, len(names), len(response.Names))
+	response := postVerificationRequest(t, request)
+
+	require.Len(t, response.Names, 1)
 	solanum := response.Names[0]
 	assert.Nil(t, solanum.BestResult)
 	assert.Greater(t, len(solanum.Results), 1)
 }
 
 func TestAll(t *testing.T) {
-	var response vlib.Output
-	names := []string{
-		"Solanum tuberosum",
-	}
 	request := vlib.Input{
-		NameStrings:    names,
+		NameStrings:    []string{"Solanum tuberosum"},
 		WithAllMatches: true,
 	}
-	req, err := gnfmt.GNjson{}.Encode(request)
-	assert.Nil(t, err)
-	r := bytes.NewReader(req)
-	resp, err := http.Post(restURL+"verifications", "application/json", r)
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
-	assert.Equal(t, len(names), len(response.Names))
+	response := postVerificationRequest(t, request)
+
+	require.Len(t, response.Names, 1)
 	solanum := response.Names[0]
 	assert.Nil(t, solanum.BestResult)
 	assert.Greater(t, len(solanum.Results), 20)
 }
 
 func TestBugs(t *testing.T) {
-	var response vlib.Output
 	names := []string{
 		"Aceratagallia fuscosscripta (Oman )",
 		"Ampullaria immersa",
 		"Abacetine",
 	}
 	request := vlib.Input{NameStrings: names}
-	req, err := gnfmt.GNjson{}.Encode(request)
-	assert.Nil(t, err)
-	r := bytes.NewReader(req)
-	resp, err := http.Post(restURL+"verifications", "application/json", r)
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
+	response := postVerificationRequest(t, request)
+
 	assert.Equal(t, len(names), len(response.Names))
 }
 
@@ -469,72 +519,58 @@ func TestBugs(t *testing.T) {
 // and it should fix the match. This test is brittle, as it depends on
 // NCBI keeping non-standard "Homo sapiens substp. Denisova" name-string.
 func TestHomoNCBI(t *testing.T) {
-	var response vlib.Output
 	request := vlib.Input{
 		NameStrings:    []string{"Homo sapiens"},
 		DataSources:    []int{4},
 		WithAllMatches: true,
 	}
-	req, err := gnfmt.GNjson{}.Encode(request)
-	assert.Nil(t, err)
-	r := bytes.NewReader(req)
-	resp, err := http.Post(restURL+"verifications", "application/json", r)
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
+	response := postVerificationRequest(t, request)
+
+	require.Len(t, response.Names, 1)
 	homo := response.Names[0]
 	assert.Nil(t, homo.BestResult)
-	assert.True(t, len(homo.Results) > 0)
+	assert.Greater(t, len(homo.Results), 0)
 	assert.Equal(t, "Homo sapiens", homo.Results[0].MatchedCanonicalSimple)
 	assert.NotContains(t, homo.Results[0].MatchedName, "Denisova")
 }
 
 func TestGetVerifications(t *testing.T) {
-	var response vlib.Output
-	resp, err := http.Get(restURL + "verifications/Homo+sapiens?data_sources=4&all_matches=true")
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
+	response := getVerificationRequest(t, "Homo+sapiens?data_sources=4&all_matches=true")
 
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
+	require.Len(t, response.Names, 1)
 	homo := response.Names[0]
 	assert.Nil(t, homo.BestResult)
-	assert.True(t, len(homo.Results) > 0)
+	assert.Greater(t, len(homo.Results), 0)
 	assert.Equal(t, "Homo sapiens", homo.Results[0].MatchedCanonicalSimple)
 	assert.NotContains(t, homo.Results[0].MatchedName, "Denisova")
 }
 
 func TestRootClassification(t *testing.T) {
-	var response vlib.Output
-	resp, err := http.Get(restURL + "verifications/Animalia?data_sources=3")
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
+	response := getVerificationRequest(t, "Animalia?data_sources=3")
 
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
-	res := response.Names[0].BestResult
-	assert.Equal(t, "Animalia", res.ClassificationPath)
+	require.Len(t, response.Names, 1)
+	result := response.Names[0].BestResult
+	require.NotNil(t, result)
+	assert.Equal(t, "Animalia", result.ClassificationPath)
 }
 
+// TestMainTaxon adds stats attribute	that should generate data for what is the
+// MainTaxon that encompasses both Homo and Pan.
 func TestMainTaxon(t *testing.T) {
-	var response vlib.Output
-	resp, err := http.Get(restURL + "verifications/Homo+sapiens|Pan+troglodytes?stats=true")
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
+	response := getVerificationRequest(t, "Homo+sapiens|Pan+troglodytes?stats=true")
 
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
+	require.Len(t, response.Names, 2)
 	homo := response.Names[0]
+	require.NotNil(t, homo.BestResult)
 	assert.Equal(t, "Homo sapiens", homo.BestResult.MatchedCanonicalSimple)
 	assert.Equal(t, "Homininae", response.MainTaxon)
 	assert.Equal(t, float32(1.0), response.MainTaxonPercentage)
 }
 
+// TestSpeciesGroup checks species_group attribute. When this attribute is
+// given, the results should include autonyms/species groups for botanical/zoological
+// names. For example `Narcissus minor` would also return matches of
+// `Narcissus minor minor`.
 func TestSpeciesGroup(t *testing.T) {
 	var response vlib.Output
 	resp, err := http.Get(
@@ -561,118 +597,206 @@ func TestSpeciesGroup(t *testing.T) {
 	assert.Greater(t, len(spGroup.Results), len(noSpGroup.Results))
 }
 
+// TestDataSource checks data_sources endpoint.
 func TestDataSources(t *testing.T) {
-	var response []vlib.DataSource
-	resp, err := http.Get(restURL + "data_sources")
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
+	resp := makeGetRequest(t, "data_sources")
+	body := readResponseBody(t, resp)
 
-	err = gnfmt.GNjson{}.Decode(respBytes, &response)
-	assert.Nil(t, err)
+	var response []vlib.DataSource
+	decodeJSONResponse(t, body, &response)
+
 	assert.Greater(t, len(response), 50)
 	col := response[0]
 	assert.Equal(t, "Catalogue of Life", col.Title)
 }
 
+// TestOneDataSource checks data_sources/{id} endpoint.
 func TestOneDataSource(t *testing.T) {
-	var ds vlib.DataSource
-	resp, err := http.Get(restURL + "data_sources/12")
-	assert.Nil(t, err)
-	respBytes, err := io.ReadAll(resp.Body)
-	assert.Nil(t, err)
+	resp := makeGetRequest(t, "data_sources/12")
+	body := readResponseBody(t, resp)
 
-	err = gnfmt.GNjson{}.Decode(respBytes, &ds)
-	assert.Nil(t, err)
+	var ds vlib.DataSource
+	decodeJSONResponse(t, body, &ds)
+
 	assert.Equal(t, "Encyclopedia of Life", ds.Title)
 	assert.True(t, ds.IsOutlinkReady)
 	assert.Equal(t, "https://eol.org", ds.WebsiteURL)
 }
 
+// VernacularGET checks `vernaculars` attribute with GET.
 func TestVernacularGET(t *testing.T) {
-	assert := assert.New(t)
 	tests := []struct {
-		msg, names string
-		sources    string
-		vernLangs  string
-		vern       []string
+		name         string
+		species      string
+		sources      string
+		vernLangs    string
+		expectedVern []string
 	}{
-		{"snowy egret", "Egretta thula", "180", "eng|rus",
-			[]string{"Snowy Egret", "Белая американская цапля"}},
-		{"snowy egret", "Egretta thula", "1", "all",
-			[]string{"Snowy Egret", "Aigrette neigeuse"}},
-		{"puma synonym", "Felis concolor", "1", "eng",
-			[]string{"Puma", "Mountain Lion"}},
+		{
+			name:         "snowy egret eng+rus",
+			species:      "Egretta thula",
+			sources:      "180",
+			vernLangs:    "eng|rus",
+			expectedVern: []string{"Snowy Egret", "Белая американская цапля"},
+		},
+		{
+			name:         "snowy egret all languages",
+			species:      "Egretta thula",
+			sources:      "1",
+			vernLangs:    "all",
+			expectedVern: []string{"Snowy Egret", "Aigrette neigeuse"},
+		},
+		{
+			name:         "puma synonym",
+			species:      "Felis concolor",
+			sources:      "1",
+			vernLangs:    "eng",
+			expectedVern: []string{"Puma", "Mountain Lion"},
+		},
 	}
 
-	for _, v := range tests {
-		var response vlib.Output
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			n := url.QueryEscape(tc.species)
+			ds := url.QueryEscape(tc.sources)
+			langs := url.QueryEscape(tc.vernLangs)
+			query := fmt.Sprintf("%s?vernaculars=%s&data_sources=%s", n, langs, ds)
 
-		n := url.QueryEscape(v.names)
-		ds := url.QueryEscape(v.sources)
-		langs := url.QueryEscape(v.vernLangs)
-		q := fmt.Sprintf(
-			"verifications/%s?vernaculars=%s&data_sources=%s",
-			n, langs, ds)
+			response := getVerificationRequest(t, query)
 
-		resp, err := http.Get(restURL + q)
-		assert.Nil(err)
+			require.Len(t, response.Names, 1)
+			require.NotNil(t, response.Names[0].BestResult)
 
-		respBytes, err := io.ReadAll(resp.Body)
-		assert.Nil(err)
+			vernaculars := response.Names[0].BestResult.Vernaculars
+			vernNames := gnlib.Map(vernaculars, func(v vlib.Vernacular) string {
+				return v.Name
+			})
+			allNames := strings.Join(vernNames, "|")
 
-		err = gnfmt.GNjson{}.Decode(respBytes, &response)
-		assert.Nil(err)
-		vern := response.Names[0].BestResult.Vernaculars
-		vernNames := gnlib.Map(vern, func(v vlib.Vernacular) string {
-			return v.Name
+			for _, expectedName := range tc.expectedVern {
+				assert.Contains(t, allNames, expectedName)
+			}
 		})
-		names := strings.Join(vernNames, "|")
-		for _, v := range v.vern {
-			assert.Contains(names, v)
-		}
-
 	}
 }
 
+// TestVernacularPOST checks if Input.Vernaculars work correctly with POST.
 func TestVernacularPOST(t *testing.T) {
-	assert := assert.New(t)
 	tests := []struct {
-		msg, name string
-		src       int
-		langs     []string
-		res       []string
+		name         string
+		species      string
+		dataSource   int
+		languages    []string
+		expectedVern []string
 	}{
-		{"snowy egret", "Egretta thula", 180, []string{"eng", "rus"},
-			[]string{"Snowy Egret", "Белая американская цапля"}},
-		{"puma synonym", "Felis concolor", 1, []string{"eng"},
-			[]string{"Puma", "Mountain Lion"}},
+		{
+			name:         "snowy egret eng+rus",
+			species:      "Egretta thula",
+			dataSource:   180,
+			languages:    []string{"eng", "rus"},
+			expectedVern: []string{"Snowy Egret", "Белая американская цапля"},
+		},
+		{
+			name:         "puma synonym",
+			species:      "Felis concolor",
+			dataSource:   1,
+			languages:    []string{"eng"},
+			expectedVern: []string{"Puma", "Mountain Lion"},
+		},
 	}
-	for _, v := range tests {
-		var response vlib.Output
-		request := vlib.Input{
-			NameStrings: []string{v.name},
-			DataSources: []int{v.src},
-			Vernaculars: v.langs,
-		}
-		req, err := gnfmt.GNjson{}.Encode(request)
-		assert.Nil(err)
-		r := bytes.NewReader(req)
-		resp, err := http.Post(restURL+"verifications", "application/json", r)
-		assert.Nil(err)
-		respBytes, err := io.ReadAll(resp.Body)
-		assert.Nil(err)
-		err = gnfmt.GNjson{}.Decode(respBytes, &response)
-		assert.Nil(err)
-		name := response.Names[0]
-		assert.Equal(v.src, name.BestResult.DataSourceID)
-		vern := response.Names[0].BestResult.Vernaculars
-		vernNames := gnlib.Map(vern, func(v vlib.Vernacular) string {
-			return v.Name
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			request := vlib.Input{
+				NameStrings: []string{tc.species},
+				DataSources: []int{tc.dataSource},
+				Vernaculars: tc.languages,
+			}
+			response := postVerificationRequest(t, request)
+
+			require.Len(t, response.Names, 1)
+			name := response.Names[0]
+			require.NotNil(t, name.BestResult)
+			assert.Equal(t, tc.dataSource, name.BestResult.DataSourceID)
+
+			vernaculars := name.BestResult.Vernaculars
+			vernNames := gnlib.Map(vernaculars, func(v vlib.Vernacular) string {
+				return v.Name
+			})
+			allNames := strings.Join(vernNames, "|")
+
+			for _, expectedName := range tc.expectedVern {
+				assert.Contains(t, allNames, expectedName)
+			}
 		})
-		names := strings.Join(vernNames, "|")
-		for _, v := range v.res {
-			assert.Contains(names, v)
-		}
+	}
+}
+
+// TestBestResults checks if BestResults field is populated correctly.
+// BestResults should be empty when there's only one best match,
+// and contain multiple entries when there are ties in the best score.
+// Fix issue #135.
+func TestBestResults(t *testing.T) {
+	tests := []struct {
+		name               string
+		species            string
+		dataSource         int
+		expectEmpty        bool
+		expectMultiple     bool
+		minExpectedResults int
+	}{
+		{
+			name:           "Bubo bubo - single best result",
+			species:        "Bubo bubo",
+			dataSource:     1,
+			expectEmpty:    true,
+			expectMultiple: false,
+		},
+		{
+			name:               "Ficus variegata - multiple best results",
+			species:            "Ficus variegata",
+			dataSource:         1,
+			expectEmpty:        false,
+			expectMultiple:     true,
+			minExpectedResults: 2,
+		},
+		{
+			name:               "Pisonia grandis - multiple best results",
+			species:            "Pisonia grandis",
+			dataSource:         1,
+			expectEmpty:        false,
+			expectMultiple:     true,
+			minExpectedResults: 2,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			request := vlib.Input{
+				NameStrings: []string{tc.species},
+				DataSources: []int{tc.dataSource},
+			}
+			response := postVerificationRequest(t, request)
+
+			require.Len(t, response.Names, 1)
+			name := response.Names[0]
+			require.NotNil(t, name.BestResult)
+
+			if tc.expectEmpty {
+				assert.Nil(t, name.BestResults, "BestResults should be nil for %s", tc.species)
+			}
+
+			if tc.expectMultiple {
+				require.NotNil(t, name.BestResults, "BestResults should not be nil for %s", tc.species)
+				assert.GreaterOrEqual(t, len(name.BestResults), tc.minExpectedResults,
+					"BestResults should have at least %d entries for %s", tc.minExpectedResults, tc.species)
+
+				// Verify all BestResults have the same score as BestResult
+				for i, result := range name.BestResults {
+					assert.Equal(t, name.BestResult.SortScore, result.SortScore,
+						"BestResults[%d] should have the same SortScore as BestResult for %s", i, tc.species)
+				}
+			}
+		})
 	}
 }

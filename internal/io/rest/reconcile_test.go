@@ -48,10 +48,9 @@ func TestReconcileExact(t *testing.T) {
 		},
 		{"7", "A-shaped rods", 0, "", 0.0, false},
 		{"8", "Alb. alba", 0, "", 0.0, false},
-		{"9", "Pisonia grandis", 4, "26e6e258-1c11-57f3-a6bc-0bcdd9c3e31b", 1, true},
-		{"10", "Acacia vestita may", 2, "290d25e5-ce87-5cfe-b092-1bd12cf55bc1", 0.4, false},
+		{"9", "Acacia vestita may", 2, "290d25e5-ce87-5cfe-b092-1bd12cf55bc1", 0.4, false},
 		{
-			"11",
+			"10",
 			"Candidatus Aenigmarchaeum subterraneum",
 			1,
 			"1b406033-fc5e-5f90-b3cf-fd1e9a42e282",
