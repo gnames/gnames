@@ -4,6 +4,8 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add: switch from make to just, update Dockerfile
+
 ## [v1.5.0] - 2025-09-30 Tue
 
 - Add [#135]: `bestResults` list for tied scores. When multiple verification
