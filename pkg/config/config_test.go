@@ -23,7 +23,7 @@ func TestNew(t *testing.T) {
 		PgUser:        "postgres",
 		PgPass:        "postgres",
 		PgDB:          "gnames",
-		MatcherURL:    "https://matcher.globalnames.org/api/v1/",
+		MatcherURL:    "",
 		WebPageURL:    "https://verifier.globalnames.org",
 		GnamesHostURL: "https://verifier.globalnames.org",
 	}
@@ -44,7 +44,7 @@ func TestNewOpts(t *testing.T) {
 		PgUser:        "gnm",
 		PgPass:        "secret",
 		PgDB:          "gnm",
-		MatcherURL:    "https://matcher.globalnames.org/api/v1/",
+		MatcherURL:    "",
 		WebPageURL:    "https://example.org",
 		GnamesHostURL: "https://example.com",
 	}

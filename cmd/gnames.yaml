@@ -26,10 +26,12 @@
 #
 # JobsNum: 4
 
-# MatcherURL is a URL to a GNmatcher service.
-# Example for localhost: http://0.0.0.0:8080/api/v1/
+# MatcherURL is a URL to a remote GNmatcher service.
+# When set, gnames uses the remote service instead of the embedded matcher.
+# Useful for global deployments with multiple gnmatcher instances.
+# Example: MatcherURL: "https://matcher.globalnames.org/api/v1/"
 #
-# MatcherURL: "https://matcher.globalnames.org/api/v1/"
+# MatcherURL: ""
 
 # WebPageURL provides a URL to the Web UI of GNverifier. It is used by
 # reconciliation service to show details about name-string variants.

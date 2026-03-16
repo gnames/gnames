@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "gnames: A fast scientific name verification service"
+authors:
+  - family-names: Mozzherin
+    given-names: Dmitry
+    orcid: https://orcid.org/0000-0003-1593-1417
+    affiliation: "Species File Group, University of Illinois"
+version: v1.6.0
+date-released: 2026-03-23
+license: MIT
+repository-code: https://github.com/gnames/gnames
+doi: 10.5281/zenodo.16968039
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.16968039
+    description: Concept DOI — resolves to the latest version
+keywords:
+  - biodiversity
+  - taxonomy
+  - scientific names
+  - name verification
+  - fuzzy matching
+  - reconciliation
+  - Go

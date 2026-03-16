@@ -1,0 +1,29 @@
+{
+  "title": "gnames: A fast scientific name verification service",
+  "description": "GNames provides accurate and fast verification of scientific names in unlimited quantities. It supports exact and fuzzy matching of input strings to scientific names aggregated from a large number of biodiversity data-sources, returning matched names, synonyms, taxonomic status, classification, and vernacular names. It also supports a Reconciliation API for integration with tools like OpenRefine.",
+  "license": "MIT",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Mozzherin, Dmitry",
+      "affiliation": "Species File Group, University of Illinois",
+      "orcid": "0000-0003-1593-1417"
+    }
+  ],
+  "keywords": [
+    "biodiversity",
+    "taxonomy",
+    "scientific names",
+    "name verification",
+    "fuzzy matching",
+    "reconciliation",
+    "Go"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/gnames/gnames",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

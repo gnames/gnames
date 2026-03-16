@@ -64,6 +64,7 @@ func (p *pgio) idData(match []*verifSQL) *verif.MatchRecord {
 			resData.MatchType = vlib.Virus
 			res.MatchResults = append(res.MatchResults, &resData)
 		}
+		return res
 	}
 
 	if !prsd.Parsed {
