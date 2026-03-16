@@ -57,9 +57,12 @@ simpler output.
     algorithm.
   - Optionally, limiting results to data-sources that are important
     to a [GNames] user.
+- Providing vernacular (common) names associated with matched scientific names.
 - Providing outlink URLs to some data-sources websites to show the original
   record of a name.
 - Providing meta-information about aggregated data-sources.
+- [Reconciliation API] support for integration with tools like OpenRefine.
+- Name-string lookup by UUID or exact string.
 
 ## Installation
 
@@ -121,7 +124,7 @@ the service.
 
    ```bash
    docker pull gnames/gnames:latest
-   docker run -env_file path_to_env_file -d -i -t -p 8888:8888 \
+   docker run --env-file path_to_env_file -d -i -t -p 8888:8888 \
      gnames/gnames:latest rest -p 8888
    ```
 
@@ -134,18 +137,20 @@ Configuration settings can either be given in the config file
 located at `$HOME/.config/gnames.yaml`, or by setting the following
 environment variables:
 
-| Env. Var.        | Configuration |
-| ---------------- | ------------- |
-| GN_CACHE_DIR     | CacheDir      |
-| GN_JOBS_NUM      | JobsNum       |
-| GN_MATCHER_URL   | MatcherURL    |
-| GN_MAX_EDIT_DIST | MaxEditDist   |
-| GN_PG_DB         | PgDB          |
-| GN_PG_HOST       | PgHost        |
-| GN_PG_PASS       | PgPass        |
-| GN_PG_PORT       | PgPort        |
-| GN_PG_USER       | PgUser        |
-| GN_PORT          | Port          |
+| Env. Var.           | Configuration  |
+| ------------------- | -------------- |
+| GN_CACHE_DIR        | CacheDir       |
+| GN_GNAMES_HOST_URL  | GnamesHostURL  |
+| GN_JOBS_NUM         | JobsNum        |
+| GN_MATCHER_URL      | MatcherURL     |
+| GN_MAX_EDIT_DIST    | MaxEditDist    |
+| GN_PG_DB            | PgDB           |
+| GN_PG_HOST          | PgHost         |
+| GN_PG_PASS          | PgPass         |
+| GN_PG_PORT          | PgPort         |
+| GN_PG_USER          | PgUser         |
+| GN_PORT             | Port           |
+| GN_WEB_PAGE_URL     | WebPageURL     |
 
 The meaning of configuration settings are provided in the [default gnames.yaml].
 
@@ -207,14 +212,15 @@ Direnv provides a flexible way to configure your environment.
 ## Development
 
 - Install Go language for your Linux operating system.
+- Install [just] task runner.
 - Create PostgreSQL database as described in installation.
 - Clone the [GNames] code.
 - Clone the [GNmatcher] and set it up for development.
 - Install docker and docker compose.
 - Go to your local `gnames` directory
-  - Run `make dc`
-  - Run `docker-compose up`
-  - In another terminal window run `go test ./...`
+  - Run `just dc`
+  - Run `docker compose up`
+  - In another terminal window run `just test`
 
 ## Authors
 
@@ -230,11 +236,12 @@ The `GNames` code is released under [MIT license].
 [gnames]: https://github.com/gnames/gnames
 [gnmatcher]: https://github.com/gnames/gnmatcher
 [gnverifier]: https://github.com/gnames/gnverifier
+[just]: https://github.com/casey/just
 [mit license]: https://github.com/gnames/gnames/blob/master/LICENSE
-[nsq]: https://nsq.io/
+[reconciliation api]: https://reconciliation-api.github.io/specs/latest/
 [restful api documentation]: https://apidoc.globalnames.org/gnames
 [restful api example]: https://verifier.globalnames.org/api/v1/verifications/Monochamus%20galloprovincialis?data_sources=1|12|170&all_matches=true
-[default gnames.yaml]: https://github.com/gnames/gnames/blob/master/gnames/cmd/gnames.yaml
+[default gnames.yaml]: https://github.com/gnames/gnames/blob/master/cmd/gnames.yaml
 [example of environment file]: https://github.com/gnames/gnames/blob/master/.env.example
 [gnames dbdump]: http://opendata.globalnames.org/dumps/gnames-latest.tar.gz
 [godoc]: https://pkg.go.dev/github.com/gnames/gnames
