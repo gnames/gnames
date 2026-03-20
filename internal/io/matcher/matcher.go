@@ -18,8 +18,8 @@ type matcherREST struct {
 	enc gnfmt.Encoder
 }
 
-// New creates an implementation of GNmatcher interface.
-func New(url string) gnmatcher.GNmatcher {
+// NewREST creates an HTTP-based implementation of GNmatcher interface.
+func NewREST(url string) gnmatcher.GNmatcher {
 	return matcherREST{url: url, enc: gnfmt.GNjson{}}
 }
 
@@ -71,6 +71,12 @@ func (mr matcherREST) MatchNames(
 		slog.Error("Cannot decode matches", "error", err)
 	}
 	return response
+}
+
+// GetConfig is a placeholder
+// Init is a no-op for the REST client; the remote service manages its own state.
+func (mr matcherREST) Init() error {
+	return nil
 }
 
 // GetConfig is a placeholder

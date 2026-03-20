@@ -18,13 +18,13 @@ func getConfig() config.Config {
 var url = getConfig().MatcherURL
 
 func TestVer(t *testing.T) {
-	m := matcher.New(url)
+	m := matcher.NewREST(url)
 	ver := m.GetVersion()
 	assert.Regexp(t, `^v\d+\.\d+\.\d+`, ver.Version)
 }
 
 func TestMatch(t *testing.T) {
-	m := matcher.New(url)
+	m := matcher.NewREST(url)
 	res := m.MatchNames([]string{"Pardosa moeste"})
 	assert.Equal(t, "Pardosa moeste", res.Matches[0].Name)
 	assert.Equal(t, vlib.Fuzzy, res.Matches[0].MatchType)

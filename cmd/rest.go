@@ -78,7 +78,11 @@ var restCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		gn := gnames.New(cfg, vf, vern, srch)
+		gn, err := gnames.New(cfg, vf, vern, srch)
+		if err != nil {
+			slog.Error("Cannot initialize gnames", "error", err)
+			os.Exit(1)
+		}
 
 		rest.Run(gn, port)
 		os.Exit(0)

@@ -174,7 +174,7 @@ func New(opts ...Option) Config {
 	cnf := Config{
 		CacheDir:      filepath.Join(cacheDir, "gnames"),
 		JobsNum:       8,
-		MatcherURL:    "https://matcher.globalnames.org/api/v1/",
+		MatcherURL:    "",
 		WebPageURL:    "https://verifier.globalnames.org",
 		GnamesHostURL: "https://verifier.globalnames.org",
 		MaxEditDist:   1,

@@ -14,14 +14,14 @@ import (
 )
 
 func TestVerifier(t *testing.T) {
-	var g gnames.GNames
 	cfg := config.New()
 	config.LoadEnv(&cfg)
 	ctx := context.Background()
 	vf := mockVerifier{}
 	vern := mockVernacular{}
 	fct := mockFacet{}
-	g = gnames.New(cfg, vf, vern, fct)
+	g, err := gnames.New(cfg, vf, vern, fct)
+	assert.Nil(t, err)
 	testData := []struct {
 		name string
 	}{
