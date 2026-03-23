@@ -96,11 +96,12 @@ the service.
    gunzip -c gnames_latest.tar.gz |pg_restore -d gnames
    ```
 
-2. **GNmatcher**
+2. **GNames**
 
-   Refer to the [GNmatcher] documentation for its installation.
-
-3. **GNames**
+   By default, GNames uses [GNmatcher] as an embedded library, so you do
+   **not** need to install [GNmatcher] separately. If you prefer to run
+   [GNmatcher] as a standalone service, you can point GNames to it via the
+   `GN_MATCHER_URL` configuration setting.
 
    Download the [latest release] of GNames, unpack it and place somewhere
    in the `PATH`.
