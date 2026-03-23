@@ -2,7 +2,7 @@ FROM alpine:3.21
 
 LABEL maintainer="Dmitry Mozzherin"
 
-RUN adduser -D -H gnames
+RUN adduser -D gnames
 
 WORKDIR /bin
 

@@ -4,6 +4,10 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+## [v1.6.1] - 2026-03-23 Mon
+
+- Fix: Dockerfile.
+
 ## [v1.6.0] - 2026-03-23 Mon
 
 - Add [#136]: make it possible to use gnmatcher as a library or RESTful API.
@@ -523,6 +527,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.6.1]: https://github.com/gnames/gnames/compare/v1.6.0...v1.6.1
 [v1.6.0]: https://github.com/gnames/gnames/compare/v1.5.0...v1.6.0
 [v1.5.0]: https://github.com/gnames/gnames/compare/v1.4.5...v1.5.0
 [v1.4.5]: https://github.com/gnames/gnames/compare/v1.4.4...v1.4.5
