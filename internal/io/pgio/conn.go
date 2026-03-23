@@ -10,10 +10,10 @@ import (
 )
 
 var dbOnce sync.Once
+var dbPool *pgxpool.Pool
 
 // conn creates a pool of connections to PostgreSQL database.
 func conn(cfg config.Config) (*pgio, error) {
-	var db *pgxpool.Pool
 	var err error
 
 	pgxCfg, err := pgxpool.ParseConfig(opts(cfg))
@@ -23,7 +23,7 @@ func conn(cfg config.Config) (*pgio, error) {
 	pgxCfg.MaxConns = 15
 
 	dbOnce.Do(func() {
-		db, err = pgxpool.NewWithConfig(
+		dbPool, err = pgxpool.NewWithConfig(
 			context.Background(),
 			pgxCfg,
 		)
@@ -31,12 +31,11 @@ func conn(cfg config.Config) (*pgio, error) {
 	if err != nil {
 		return nil, fmt.Errorf("pgio.conn: %w", err)
 	}
-	res := &pgio{db: db}
-	return res, nil
+	return &pgio{db: dbPool}, nil
 }
 
 // opts creates a string with options for connecting to PostgreSQL database.
 func opts(cfg config.Config) string {
-	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable",
-		cfg.PgHost, cfg.PgUser, cfg.PgPass, cfg.PgDB)
+	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		cfg.PgHost, cfg.PgPort, cfg.PgUser, cfg.PgPass, cfg.PgDB)
 }

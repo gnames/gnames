@@ -273,7 +273,11 @@ func (p *pgio) dsData(
 	vsql *verifSQL,
 ) (*vlib.DataSource, string, string) {
 	var outlink string
-	ds := p.dsm[vsql.DataSourceID]
+	ds, ok := p.dsm[vsql.DataSourceID]
+	if !ok || ds == nil {
+		slog.Warn("Unknown data source ID", slog.Int("dataSourceID", vsql.DataSourceID))
+		return &vlib.DataSource{}, "", ""
+	}
 	if ds.OutlinkURL != "" && vsql.OutlinkID.String != "" {
 		outlink = strings.Replace(ds.OutlinkURL, "{}", vsql.OutlinkID.String, 1)
 	}

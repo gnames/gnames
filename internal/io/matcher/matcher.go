@@ -24,15 +24,20 @@ func NewREST(url string) gnmatcher.GNmatcher {
 }
 
 func (mr matcherREST) GetVersion() gnvers.Version {
-	var err error
 	response := gnvers.Version{}
+	if mr.url == "" {
+		return response
+	}
 	resp, err := http.Get(mr.url + "version")
 	if err != nil {
 		slog.Error("Cannot get gnmatcher version", "error", err)
+		return response
 	}
+	defer resp.Body.Close()
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		slog.Error("Cannot get gnmatcher version", "error", err)
+		return response
 	}
 	err = mr.enc.Decode(respBytes, &response)
 	if err != nil {
@@ -46,6 +51,9 @@ func (mr matcherREST) MatchNames(
 	opts ...gnmcfg.Option,
 ) mlib.Output {
 	var response mlib.Output
+	if mr.url == "" {
+		return response
+	}
 	cfg := gnmcfg.New(opts...)
 	req, err := mr.enc.Encode(mlib.Input{
 		Names:                   names,
@@ -61,10 +69,13 @@ func (mr matcherREST) MatchNames(
 	resp, err := http.Post(mr.url+"matches", "application/json", r)
 	if err != nil {
 		slog.Error("Cannot get matches response", "error", err)
+		return response
 	}
+	defer resp.Body.Close()
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		slog.Error("Cannot read matches from response", "error", err)
+		return response
 	}
 	err = mr.enc.Decode(respBytes, &response)
 	if err != nil {

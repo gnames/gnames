@@ -9,6 +9,8 @@ import (
 	"github.com/gnames/gnames/pkg/ent/verif"
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
+	"github.com/gnames/gnlib/ent/gnvers"
+	gnmcfg "github.com/gnames/gnmatcher/pkg/config"
 	"github.com/gnames/gnquery/ent/search"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +22,7 @@ func TestVerifier(t *testing.T) {
 	vf := mockVerifier{}
 	vern := mockVernacular{}
 	fct := mockFacet{}
-	g, err := gnames.New(cfg, vf, vern, fct)
+	g, err := gnames.New(cfg, vf, vern, fct, gnames.WithMatcher(mockMatcher{}))
 	assert.Nil(t, err)
 	testData := []struct {
 		name string
@@ -67,6 +69,22 @@ func (mv mockVernacular) AddVernacularNames(
 ) ([]vlib.Name, error) {
 	return names, nil
 }
+
+type mockMatcher struct{}
+
+func (m mockMatcher) Init() error { return nil }
+
+func (m mockMatcher) MatchNames(names []string, opts ...gnmcfg.Option) mlib.Output {
+	matches := make([]mlib.Match, len(names))
+	for i, name := range names {
+		matches[i] = mlib.Match{Name: name, ID: name}
+	}
+	return mlib.Output{Matches: matches}
+}
+
+func (m mockMatcher) GetConfig() gnmcfg.Config { return gnmcfg.New() }
+
+func (m mockMatcher) GetVersion() gnvers.Version { return gnvers.Version{} }
 
 type mockFacet struct{}
 
