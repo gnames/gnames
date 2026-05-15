@@ -1,6 +1,19 @@
 package recon
 
-import "github.com/gnames/gnlib/ent/reconciler"
+import (
+	"strings"
+
+	"github.com/gnames/gnlib/ent/reconciler"
+)
+
+const (
+	// TypeID is the reconciliation type identifier used in the manifest and
+	// as the Type of each reconciliation candidate.
+	TypeID = "name_string"
+
+	// TypeName is the human-readable label for the reconciliation type.
+	TypeName = "ScientificNameString"
+)
 
 // GnamesProperty is used for extending the reconciliation process.
 // These properties can be obtained for matched reconciliation results and
@@ -70,6 +83,71 @@ func NewProp(id string) GnamesProperty {
 	default:
 		return Unknown
 	}
+}
+
+// allTypes lists the entity types the service exposes.
+var allTypes = []reconciler.SuggestResult{
+	{
+		ID:          TypeID,
+		Name:        TypeName,
+		Description: "A scientific biological name governed by nomenclatural codes",
+	},
+}
+
+// SuggestTypes returns types whose ID or name starts with prefix.
+// An empty prefix returns all types.
+func SuggestTypes(prefix string) reconciler.SuggestOutput {
+	if prefix == "" {
+		return reconciler.SuggestOutput{Results: allTypes}
+	}
+	prefix = strings.ToLower(prefix)
+	var res []reconciler.SuggestResult
+	for _, t := range allTypes {
+		if strings.HasPrefix(strings.ToLower(t.ID), prefix) ||
+			strings.HasPrefix(strings.ToLower(t.Name), prefix) {
+			res = append(res, t)
+		}
+	}
+	if res == nil {
+		res = []reconciler.SuggestResult{}
+	}
+	return reconciler.SuggestOutput{Results: res}
+}
+
+// filterProperties lists reconciliation filter properties shown in the OpenRefine
+// suggest UI. Only input-hint properties belong here; data extension properties
+// are discovered through the extend endpoint.
+var filterProperties = []reconciler.SuggestResult{
+	{
+		ID:          "higher_taxon",
+		Name:        "Higher Taxon",
+		Description: "Restrict results to names within a higher taxon (e.g. Plantae, Mollusca)",
+	},
+	{
+		ID:          "data_source_ids",
+		Name:        "Data Source IDs",
+		Description: "Restrict results to given data-source IDs (comma-separated, e.g. 1,11)",
+	},
+}
+
+// SuggestProperties returns properties whose ID or name starts with prefix.
+// An empty prefix returns all properties.
+func SuggestProperties(prefix string) reconciler.SuggestOutput {
+	if prefix == "" {
+		return reconciler.SuggestOutput{Results: filterProperties}
+	}
+	prefix = strings.ToLower(prefix)
+	var res []reconciler.SuggestResult
+	for _, p := range filterProperties {
+		if strings.HasPrefix(strings.ToLower(p.ID), prefix) ||
+			strings.HasPrefix(strings.ToLower(p.Name), prefix) {
+			res = append(res, p)
+		}
+	}
+	if res == nil {
+		res = []reconciler.SuggestResult{}
+	}
+	return reconciler.SuggestOutput{Results: res}
 }
 
 func (p GnamesProperty) Property() reconciler.Property {

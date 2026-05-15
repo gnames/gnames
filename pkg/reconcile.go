@@ -38,17 +38,18 @@ func (g gnames) Reconcile(
 				first = 1
 			}
 
-			if lg.Data[0].MatchType == vlib.Exact {
+			switch lg.Data[0].MatchType {
+			case vlib.Exact:
 				exact = 1
 				complete = 1
-			} else if lg.Data[0].MatchType == vlib.Fuzzy {
+			case vlib.Fuzzy:
 				complete = 1
-			} else if lg.Data[0].MatchType == vlib.PartialExact {
+			case vlib.PartialExact:
 				exact = 1
 				if lg.Data[0].MatchedCardinality == 1 {
 					complete = 0.2
 				}
-			} else if lg.Data[0].MatchType == vlib.PartialFuzzy {
+			case vlib.PartialFuzzy:
 				if lg.Data[0].MatchedCardinality == 1 {
 					complete = 0.2
 				}
@@ -82,6 +83,7 @@ func (g gnames) Reconcile(
 				Match:    score == 1,
 				Features: features,
 				Name:     lg.Name,
+				Types:    []reconciler.Type{{ID: recon.TypeID, Name: recon.TypeName}},
 			}
 			rcs = append(rcs, rc)
 		}
@@ -114,20 +116,24 @@ func filterGroup(
 	prs []reconciler.PropertyInfo,
 ) lexgroup.LexicalGroup {
 	var res lexgroup.LexicalGroup
-	fs := make(map[string]string)
+	// Collect all values per pid; the spec allows multiple entries with the
+	// same pid to express multiple acceptable values.
+	fs := make(map[string][]string)
 	for i := range prs {
 		pid := strings.ToLower(prs[i].PropertyID)
-		fs[pid] = prs[i].PropertyValue
+		fs[pid] = append(fs[pid], prs[i].PropertyValue)
 	}
-	if taxon, ok := fs[recon.HigherTaxon.Property().ID]; ok {
-		res = filterByTaxon(lg, taxon)
+	if taxa, ok := fs[recon.HigherTaxon.Property().ID]; ok && len(taxa) > 0 {
+		res = filterByTaxon(lg, taxa[0])
 	} else {
 		res = lg
 	}
-	if idStr, ok := fs[recon.DataSourceIDs.Property().ID]; ok {
-		ids := filteredDataSrcIDs(idStr)
+	if idStrs, ok := fs[recon.DataSourceIDs.Property().ID]; ok {
+		// Join all entries (including any comma-separated values within each)
+		// so both {"v":"1,11"} and two separate {"v":"1"},{"v":"11"} work.
+		ids := filteredDataSrcIDs(strings.Join(idStrs, ","))
 		if len(ids) > 0 {
-			res = filterByDataSource(lg, ids)
+			res = filterByDataSource(res, ids)
 		}
 	}
 	return res
@@ -135,8 +141,7 @@ func filterGroup(
 
 func filteredDataSrcIDs(s string) map[int]struct{} {
 	res := make(map[int]struct{})
-	elements := strings.Split(s, ",")
-	for _, v := range elements {
+	for v := range strings.SplitSeq(s, ",") {
 		v = strings.TrimSpace(v)
 		id, err := strconv.Atoi(v)
 		if err == nil {
@@ -157,7 +162,7 @@ func filterByTaxon(
 		if d[i].ClassificationPath == "" {
 			continue
 		}
-		if strings.Index(d[i].ClassificationPath, taxon) > -1 {
+		if strings.Contains(d[i].ClassificationPath, taxon) {
 			ds = append(ds, d[i])
 		}
 	}

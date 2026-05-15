@@ -81,7 +81,7 @@ func outputName(mr *verif.MatchRecord, allMatches bool) vlib.Name {
 	}
 	var bestResults []*vlib.ResultData
 	bestScore := results[0].SortScore
-	for i, _ := range results {
+	for i := range results {
 		if results[i].SortScore == bestScore {
 			bestResults = append(bestResults, results[i])
 		} else {

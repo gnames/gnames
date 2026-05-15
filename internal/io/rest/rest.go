@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -25,9 +26,7 @@ import (
 )
 
 var (
-	apiPath       = "/api/v1/"
-	reconcileType = "ScientificNameString"
-	reconcileID   = "name_string"
+	apiPath = "/api/v1/"
 )
 
 // Run starts HTTP/1 service on given port for scientific names verification.
@@ -61,6 +60,9 @@ func Run(gn gnames.GNames, port int) {
 	e.GET(apiPath+"reconcile", reconcileGET(gn))
 	e.POST(apiPath+"reconcile", reconcilePOST(gn))
 	e.GET(apiPath+"reconcile/properties", propertiesGET(gn))
+	e.GET(apiPath+"reconcile/suggest/properties", suggestPropertiesGET)
+	e.GET(apiPath+"reconcile/suggest/entities", suggestEntitiesGET(gn))
+	e.GET(apiPath+"reconcile/suggest/types", suggestTypesGET)
 
 	addr := fmt.Sprintf(":%d", port)
 	s := &http.Server{
@@ -175,6 +177,7 @@ func reconcilePOST(gn gnames.GNames) func(echo.Context) error {
 					err = c.JSON(http.StatusOK, extRes)
 				}
 				chErr <- err
+				return
 			}
 
 			var params map[string]reconciler.Query
@@ -229,6 +232,57 @@ func reconcile(
 	return res, nil
 }
 
+func suggestJSON(c echo.Context, v any) error {
+	cb := c.QueryParam("callback")
+	if cb == "" {
+		return c.JSON(http.StatusOK, v)
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return c.String(http.StatusOK, cb+"("+string(b)+")")
+}
+
+func suggestPropertiesGET(c echo.Context) error {
+	prefix, _ := url.QueryUnescape(c.QueryParam("prefix"))
+	res := recon.SuggestProperties(strings.TrimSpace(prefix))
+	return suggestJSON(c, res)
+}
+
+func suggestTypesGET(c echo.Context) error {
+	prefix, _ := url.QueryUnescape(c.QueryParam("prefix"))
+	res := recon.SuggestTypes(strings.TrimSpace(prefix))
+	return suggestJSON(c, res)
+}
+
+func suggestEntitiesGET(gn gnames.GNames) func(echo.Context) error {
+	return func(c echo.Context) error {
+		prefix, _ := url.QueryUnescape(c.QueryParam("prefix"))
+		prefix = strings.TrimSpace(prefix)
+		if prefix == "" {
+			return suggestJSON(c, reconciler.SuggestOutput{
+				Results: []reconciler.SuggestResult{},
+			})
+		}
+		inp := gnquery.New().Process(search.Input{NameString: prefix})
+		out := gn.Search(c.Request().Context(), inp)
+
+		res := make([]reconciler.SuggestResult, 0, len(out.Names))
+		for _, name := range out.Names {
+			sr := reconciler.SuggestResult{
+				ID:   name.ID,
+				Name: name.Name,
+			}
+			if name.BestResult != nil {
+				sr.Description = name.BestResult.DataSourceTitleShort
+			}
+			res = append(res, sr)
+		}
+		return suggestJSON(c, reconciler.SuggestOutput{Results: res})
+	}
+}
+
 func propertiesGET(gn gnames.GNames) func(echo.Context) error {
 	return func(c echo.Context) error {
 		t, err := url.QueryUnescape(c.QueryParam("type"))
@@ -236,8 +290,8 @@ func propertiesGET(gn gnames.GNames) func(echo.Context) error {
 			return fmt.Errorf("rest.propertiesGET: %w", err)
 		}
 		t = strings.TrimSpace(t)
-		if t != reconcileID {
-			t = reconcileID
+		if t != recon.TypeID {
+			t = recon.TypeID
 		}
 		res := properties(gn, t)
 
@@ -247,7 +301,7 @@ func propertiesGET(gn gnames.GNames) func(echo.Context) error {
 
 func properties(gn gnames.GNames, typ string) reconciler.PropertyOutput {
 	return reconciler.PropertyOutput{
-		Type: reconcileType,
+		Type: recon.TypeName,
 		Properties: []reconciler.Property{
 			recon.CanonicalForm.Property(),
 			recon.CurrentName.Property(),
@@ -259,13 +313,24 @@ func properties(gn gnames.GNames, typ string) reconciler.PropertyOutput {
 	}
 }
 
+func requestBaseURL(c echo.Context) string {
+	scheme := "http"
+	if c.IsTLS() {
+		scheme = "https"
+	}
+	if proto := c.Request().Header.Get("X-Forwarded-Proto"); proto != "" {
+		scheme = proto
+	}
+	return scheme + "://" + c.Request().Host
+}
+
 func manifest(c echo.Context, gn gnames.GNames) error {
 	gnvURL := gn.GetConfig().WebPageURL
-	gnamesURL := gn.GetConfig().GnamesHostURL
+	gnamesURL := requestBaseURL(c)
 	types := []reconciler.Type{
 		{
-			ID:   reconcileID,
-			Name: reconcileType,
+			ID:   recon.TypeID,
+			Name: recon.TypeName,
 		},
 	}
 	preview := reconciler.Preview{
@@ -285,6 +350,21 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 		},
 	}
 
+	suggest := reconciler.Suggest{
+		Property: &reconciler.SuggestEntry{
+			ServiceURL:  gnamesURL,
+			ServicePath: apiPath + "reconcile/suggest/properties",
+		},
+		Entity: &reconciler.SuggestEntry{
+			ServiceURL:  gnamesURL,
+			ServicePath: apiPath + "reconcile/suggest/entities",
+		},
+		Type: &reconciler.SuggestEntry{
+			ServiceURL:  gnamesURL,
+			ServicePath: apiPath + "reconcile/suggest/types",
+		},
+	}
+
 	res := reconciler.Manifest{
 		Versions:        []string{"0.2"},
 		Name:            "GlobalNames",
@@ -295,6 +375,7 @@ func manifest(c echo.Context, gn gnames.GNames) error {
 		View:            view,
 		BatchSize:       50,
 		Extend:          ext,
+		Suggest:         suggest,
 	}
 	return c.JSON(http.StatusOK, res)
 }
