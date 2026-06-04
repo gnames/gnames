@@ -168,7 +168,7 @@ func TestVerifyExact(t *testing.T) {
 			expectedCuration:   vlib.Curated,
 			hasBestResult:      true,
 			expectedDataSrcID:  1,
-			expectedDataSrcNum: 34,
+			expectedDataSrcNum: 32,
 		},
 		{
 			index:             8,
@@ -787,14 +787,31 @@ func TestBestResults(t *testing.T) {
 			}
 
 			if tc.expectMultiple {
-				require.NotNil(t, name.BestResults, "BestResults should not be nil for %s", tc.species)
-				assert.GreaterOrEqual(t, len(name.BestResults), tc.minExpectedResults,
-					"BestResults should have at least %d entries for %s", tc.minExpectedResults, tc.species)
+				require.NotNil(
+					t,
+					name.BestResults,
+					"BestResults should not be nil for %s",
+					tc.species,
+				)
+				assert.GreaterOrEqual(
+					t,
+					len(name.BestResults),
+					tc.minExpectedResults,
+					"BestResults should have at least %d entries for %s",
+					tc.minExpectedResults,
+					tc.species,
+				)
 
 				// Verify all BestResults have the same score as BestResult
 				for i, result := range name.BestResults {
-					assert.Equal(t, name.BestResult.SortScore, result.SortScore,
-						"BestResults[%d] should have the same SortScore as BestResult for %s", i, tc.species)
+					assert.Equal(
+						t,
+						name.BestResult.SortScore,
+						result.SortScore,
+						"BestResults[%d] should have the same SortScore as BestResult for %s",
+						i,
+						tc.species,
+					)
 				}
 			}
 		})

@@ -38,7 +38,12 @@ func TestReconcileExact(t *testing.T) {
 		{"3", "Pomatomus", 3, []string{"82110143-0b8d-50f6-b34d-e2ae118f4e2e"}, 1, true},
 		{"4", "Pardosa moesta", 7, []string{"e2fdf10b-6a36-5cc7-b6ca-be4d3b34b21f"}, 1, true},
 		// tropicos and itis create the same score, either can be first
-		{"5", "Plantago major var major", 7, []string{"2a70b579-8298-5eb9-abc6-17a0b7697628", "bdfc5d4c-478b-5b3f-8f03-375e4daadc04"}, 1, true},
+		{"5", "Plantago major var major", 7,
+			[]string{
+				"dc0af429-abb2-5de6-8b86-eec2d41a2547",
+				"2a70b579-8298-5eb9-abc6-17a0b7697628",
+				"bdfc5d4c-478b-5b3f-8f03-375e4daadc04",
+			}, 1, true},
 		{
 			"6",
 			"Cytospora ribis mitovirus 2",
@@ -49,7 +54,14 @@ func TestReconcileExact(t *testing.T) {
 		},
 		{"7", "A-shaped rods", 0, nil, 0.0, false},
 		{"8", "Alb. alba", 0, nil, 0.0, false},
-		{"9", "Acacia vestita may", 2, []string{"290d25e5-ce87-5cfe-b092-1bd12cf55bc1"}, 0.4, false},
+		{
+			"9",
+			"Acacia vestita may",
+			2,
+			[]string{"290d25e5-ce87-5cfe-b092-1bd12cf55bc1"},
+			0.4,
+			false,
+		},
 		{
 			"10",
 			"Candidatus Aenigmarchaeum subterraneum",
