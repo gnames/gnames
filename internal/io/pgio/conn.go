@@ -3,6 +3,7 @@ package pgio
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"sync"
 
 	"github.com/gnames/gnames/pkg/config"
@@ -23,6 +24,12 @@ func conn(cfg config.Config) (*pgio, error) {
 	pgxCfg.MaxConns = 15
 
 	dbOnce.Do(func() {
+		slog.Info("Connecting to PostgreSQL",
+			"host", cfg.PgHost,
+			"port", cfg.PgPort,
+			"user", cfg.PgUser,
+			"database", cfg.PgDB,
+		)
 		dbPool, err = pgxpool.NewWithConfig(
 			context.Background(),
 			pgxCfg,

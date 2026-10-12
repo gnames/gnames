@@ -62,11 +62,16 @@ func TestReconcileExact(t *testing.T) {
 			0.4,
 			false,
 		},
+		// Open Tree of Life has records with and without "Candidatus" that
+		// create the same score, either can be first
 		{
 			"10",
 			"Candidatus Aenigmarchaeum subterraneum",
 			1,
-			[]string{"1b406033-fc5e-5f90-b3cf-fd1e9a42e282"},
+			[]string{
+				"1b406033-fc5e-5f90-b3cf-fd1e9a42e282",
+				"d6403bcf-3835-5be6-a552-ad804a90ddbf",
+			},
 			1,
 			true,
 		},
