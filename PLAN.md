@@ -1,0 +1,236 @@
+# PLAN: Abbreviated names endpoint
+
+Status: requirements. No implementation decisions are made here.
+
+## Motivation
+
+GNfinder finds many names with an abbreviated genus, such as
+`C. elegans` or `P. t. altaica`. One abbreviation alone is hard to
+reconcile: `C. alba` matches hundreds of genera. But a text usually
+has several abbreviations with the same genus abbreviation, and they
+usually belong to the same genus. If gnames receives such names
+together and returns candidate genera that explain most of them, the
+group gives a strong hint for reconciliation.
+
+The endpoint uses the `abbr_lookups` table built by `gndb optimize`
+(see gndb `PLAN.md`). Its keys are the lowercase first letter of the
+genus and the epithet stem (`c-elegans`), built by gnparser's
+`stemmer.AbbrKey`. Every epithet of a name has its own row, so
+`P. t. altaica` finds both *Panthera tigris altaica* and
+*Panthera altaica*.
+
+## Context and scope
+
+- The main client is GNfinder, run over about 60 million pages of the
+  Biodiversity Heritage Library (BHL). Speed of a single request is
+  important.
+- Borders of documents are often unknown in BHL. Pages are known to
+  come from one book or journal. Deciding which names belong together
+  is a GNfinder task, not a gnames task.
+- GNfinder knows the taxonomic context of a book or journal from
+  GNverifier statistics, and the positions of full genus names in the
+  text. It sends this knowledge as hints.
+- gnames does not make the final decision. It returns ranked
+  candidates with the evidence behind them, and the client decides.
+
+## Endpoint
+
+- `POST /api/v1/abbr_names`: the main endpoint.
+- `GET /api/v1/abbr_names/:names`: optional, for manual tests. Names
+  are separated by `|`, as in `verifications`.
+
+## Input
+
+| Parameter       | Level    | Description |
+|-----------------|----------|-------------|
+| `names`         | request  | Abbreviated names as found in text, each with an optional client ID. |
+| `genusHints`    | per name | Full genus names found near the abbreviation, the closest first. |
+| `mainTaxon`     | request  | Lowest common ancestor of the source's names, from GNverifier. |
+| `dominantClass` | request  | Most common class of the source's names, from GNverifier. |
+| `tolerance`     | request  | Percentage (0–100) of names that may be unmatched for a genus. |
+| `maxGenusSize`  | request  | Largest genus, in distinct epithets, checked for misspellings. |
+| `generaLimit`   | request  | Maximum number of candidate genera in the result. |
+
+### names
+
+- Names are sent verbatim. gnames parses them and builds keys, so keys
+  are always built by the same gnparser version.
+- All names of a request must have the same genus abbreviation. Case
+  and the period are ignored: `Cae.`, `cae.` and `Cae` are the same.
+- Different abbreviations in one request are an error, including
+  `C.` with `Cae.`. Authors often use a longer abbreviation to
+  distinguish genera with the same first letter, so such names should
+  not be mixed. The error lists the abbreviations found and no results
+  are returned.
+- An abbreviation with several letters (`Cae.`) limits candidates to
+  genera that start with these letters.
+- A name with a full genus is an error. Full genera belong to
+  `genusHints`.
+- Abbreviated epithets (`P. t. altaica`) are ignored in v1. Only full
+  epithets are matched.
+- Client IDs allow mapping results back to positions in text, because
+  the same verbatim name can occur many times.
+
+### genusHints
+
+- A list of full genera found near the abbreviation, sorted by
+  closeness, the closest first. GNfinder decides what "near" means.
+- The order is the only distance information. The first hint is the
+  strongest.
+- A hint matters only if the database has the hinted genus with the
+  abbreviation's epithet. This removes most false hints, which are
+  common because many genera can start with the same letter.
+- Genera that do not start with the abbreviation are ignored.
+- The list length is capped.
+
+### mainTaxon and dominantClass
+
+- `mainTaxon` is the lowest taxon that contains most of the names of a
+  source. GNverifier calculates it with a threshold, so a few off-topic
+  names (host plants in an insect book) do not move it to a very high
+  taxon.
+- `dominantClass` is the most common class of the source's names. It
+  helps when `mainTaxon` is too broad, for example `Chordata` for a book
+  about birds and mammals.
+- Abbreviated names belong to the dominant group of a source more often
+  than other names: authors abbreviate genera they use repeatedly. A
+  candidate outside of the dominant group can still win, but needs
+  stronger evidence (confirmed hints or several matched names).
+- Requires an addition to verification output: GNverifier statistics
+  must return the dominant class and its percentage next to `Kingdom`
+  and `MainTaxon`. gnstats already calculates it, but gnames and the
+  gnlib `verifier.Meta` type do not expose it yet.
+
+### tolerance
+
+- Misspellings and OCR errors make some names unmatched. A genus is
+  still a candidate if the share of unmatched names is within
+  `tolerance`.
+- A percentage, not a number of names, because groups vary from a few
+  names on a page to hundreds in a book.
+- The number of allowed unmatched names is rounded down. With 20%, a
+  group of 3 names allows none, a group of 5 allows one.
+- Default is about 20. `0` requires all names to match.
+- A genus needs a minimal number of matched names (about 2, not
+  configurable in v1) before unmatched names are tolerated.
+- Unmatched names are not corrected by gnames. With a known genus, the
+  client can verify the full name (*Caenorhabditis clegans*), where
+  fuzzy matching already exists. Unmatched names can also be new
+  species that are not in the database.
+
+### maxGenusSize
+
+- Unmatched names of a candidate genus can be compared with all
+  epithets of the genus to find misspellings.
+- The size of a genus is the number of its distinct epithet stems in
+  the database. All names count: the database covers 250 years of
+  nomenclature, and its data does not show which names are accepted,
+  synonyms, or forgotten.
+- For genera larger than `maxGenusSize`, misspellings are not checked.
+  Exact matches are still returned, and the result marks the genus.
+- Default is 500. It covers 99.67% of genera (see below). Large genera
+  give many false matches for misspellings, and a small limit keeps
+  requests fast.
+
+### generaLimit
+
+- The maximum number of candidate genera in the result. Hints decide
+  which genera are good enough to be included.
+
+## Matching
+
+- Matching ignores gender endings: keys use epithet stems, so
+  *alba*, *albus* and *album* match each other.
+- An epithet matches regardless of its position, because species can
+  become subspecies and the other way around.
+- A matched name has one of three match types:
+
+  | Type         | Example input       | Example match              |
+  |--------------|---------------------|----------------------------|
+  | full         | `P. tigris altaica` | *Panthera tigris altaica*  |
+  | rank changed | `P. altaica`        | *Panthera tigris altaica*  |
+  | partial      | `P. tigris altaica` | *Panthera tigris* only     |
+
+- A partial match is not the name from the text, but it still shows
+  the genus. Partial matches count for the genus with a smaller weight.
+- Hints never exclude candidates. They only change the ranking.
+
+## Output
+
+### Metadata
+
+- Input names and their client IDs.
+- Input parameters as applied, including defaults.
+- Number of names submitted, matched and unmatched.
+- gnparser version of gnames and of the `abbr_lookups` table, with a
+  warning if they differ. Keys from different stemmer versions might
+  not match.
+
+### Results
+
+A single list of candidate genera, sorted by total score. If nothing
+matched, the list is empty and the input names are only in metadata.
+
+Each candidate genus has:
+
+- the genus name and its classification;
+- a score: separate parts for genus hints, dominant class, main taxon
+  and matched names, and their total;
+- matched names, each with:
+  - the input name and its client ID;
+  - the full canonical form it matched;
+  - the match type: full, rank changed or partial;
+  - whether the epithet ending matched exactly or only by stem;
+- unmatched names (within `tolerance`);
+- a flag for genera larger than `maxGenusSize`.
+
+The same input name can be matched by several genera. Names that are
+not in any genus's matched list are unmatched by all of them.
+
+## Data
+
+Measured on the `gntest` database (`abbr_lookups` built with gnparser
+v1.15.2): 9.06M rows, 499,313 genera, 8.0M stemmed names (6.72M
+binomials, 1.27M names with 3 or more words). 78K genera (16%) have
+infraspecific names.
+
+Distribution per genus:
+
+| Per genus         | 50% | 90% | 95% | 99% | 99.9% | 99.99% | Max    |
+|-------------------|-----|-----|-----|-----|-------|--------|--------|
+| binomials         | 2   | 21  | 46  | 200 | 967   | 2,965  | 12,321 |
+| trinomials        | 0   | 2   | 6   | 40  | 325   | 1,577  | 17,604 |
+| all names         | 2   | 24  | 53  | 240 | 1,251 | 3,914  | 29,925 |
+| distinct epithets | 2   | 23  | 49  | 215 | 1,053 | 3,178  | 17,013 |
+
+Genera within a given `maxGenusSize`:
+
+| maxGenusSize | Genera within | Genera above |
+|--------------|---------------|--------------|
+| 100          | 97.54%        | 12,280       |
+| 500          | 99.67%        | 1,627        |
+| 1,000        | 99.89%        | 547          |
+| 2,000        | 99.97%        | 144          |
+| 5,000        | ~100%         | 13           |
+
+The largest genera by distinct epithets are *Hieracium* (17,013),
+*Helix* (9,639), *Rubus* (8,836), *Carabus* (7,394) and *Astragalus*
+(6,758). Some of them (*Helix*, *Phalaena*, *Unio*) were large
+catch-all genera of the 18th and 19th centuries, and old literature
+uses their names.
+
+## Out of scope for v1
+
+- Abbreviated epithets (`P. t. altaica`) used as a filter.
+- Several abbreviation groups in one request, if throughput requires
+  it.
+- Correction of OCR errors in the genus abbreviation (`C.` read as
+  `G.`).
+- Ranking by taxonomic data stored in `abbr_lookups` (see "Future" in
+  gndb `PLAN.md`).
+
+## Open questions
+
+- Weights of score parts. They should be tuned on a test set of
+  abbreviated names from BHL that are resolved manually.
+- Maximum number of names per request and of genus hints per name.
