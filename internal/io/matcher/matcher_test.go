@@ -1,25 +1,22 @@
 package matcher_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/gnames/gnames/internal/io/matcher"
-	"github.com/gnames/gnames/pkg/config"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/stretchr/testify/assert"
 )
 
-func getConfig() config.Config {
-	cfg := config.New()
-	config.LoadEnv(&cfg)
-	return cfg
-}
-
-var url = getConfig().MatcherURL
+// url is a standalone gnmatcher service for REST client tests. It is
+// separate from GN_MATCHER_URL, so tests never reach a service by
+// accident. The service should use the gntest database.
+var url = os.Getenv("GN_TEST_MATCHER_URL")
 
 func TestVer(t *testing.T) {
 	if url == "" {
-		t.Skip("GN_MATCHER_URL not set, skipping REST test")
+		t.Skip("GN_TEST_MATCHER_URL not set, skipping REST test")
 	}
 	m := matcher.NewREST(url)
 	ver := m.GetVersion()
@@ -28,7 +25,7 @@ func TestVer(t *testing.T) {
 
 func TestMatch(t *testing.T) {
 	if url == "" {
-		t.Skip("GN_MATCHER_URL not set, skipping REST test")
+		t.Skip("GN_TEST_MATCHER_URL not set, skipping REST test")
 	}
 	m := matcher.NewREST(url)
 	res := m.MatchNames([]string{"Pardosa moeste"})

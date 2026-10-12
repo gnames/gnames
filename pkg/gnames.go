@@ -3,6 +3,7 @@ package gnames
 import (
 	"github.com/gnames/gnames/internal/io/matcher"
 	"github.com/gnames/gnames/pkg/config"
+	"github.com/gnames/gnames/pkg/ent/abbr"
 	"github.com/gnames/gnames/pkg/ent/srch"
 	"github.com/gnames/gnames/pkg/ent/verif"
 	"github.com/gnames/gnames/pkg/ent/vern"
@@ -26,6 +27,7 @@ type gnames struct {
 	vf      verif.Verifier
 	vern    vern.Vernaculars
 	sr      srch.Searcher
+	ab      abbr.Store
 	matcher gnmatcher.GNmatcher
 }
 
@@ -38,6 +40,7 @@ func New(
 	vf verif.Verifier,
 	vern vern.Vernaculars,
 	sr srch.Searcher,
+	ab abbr.Store,
 	opts ...Option,
 ) (GNames, error) {
 	g := &gnames{
@@ -45,6 +48,7 @@ func New(
 		vf:   vf,
 		vern: vern,
 		sr:   sr,
+		ab:   ab,
 	}
 
 	for _, opt := range opts {

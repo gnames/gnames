@@ -3,6 +3,7 @@ package pg
 import (
 	"context"
 
+	"github.com/gnames/gnames/pkg/ent/abbr"
 	"github.com/gnames/gnames/pkg/ent/verif"
 	"github.com/gnames/gnames/pkg/ent/vern"
 	"github.com/gnames/gnlib/ent/verifier"
@@ -11,6 +12,9 @@ import (
 )
 
 type PG interface {
+	// Store provides data for abbreviated names.
+	abbr.Store
+
 	// DataSourcesMap returns a map of all data-sources known to gnames.
 	// Keys are data-source IDs.
 	DataSourcesMap() map[int]*vlib.DataSource

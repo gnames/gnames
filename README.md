@@ -215,14 +215,16 @@ Direnv provides a flexible way to configure your environment.
 
 - Install Go language for your Linux operating system.
 - Install [just] task runner.
-- Create PostgreSQL database as described in installation.
+- Create a PostgreSQL database `gntest` as described in installation.
+  Tests always use `gntest`, whatever the configuration or environment
+  says, so the production `gnames` database stays out of development.
 - Clone the [GNames] code.
-- Clone the [GNmatcher] and set it up for development.
-- Install docker and docker compose.
-- Go to your local `gnames` directory
-  - Run `just dc`
-  - Run `docker compose up`
-  - In another terminal window run `just test`
+- Go to your local `gnames` directory and run `just test`. REST tests
+  start their own server with an embedded GNmatcher. Its cache is kept
+  in `~/.cache/gnames-test`; the first run builds it from `gntest` and
+  takes a while.
+- Tests of the GNmatcher REST client run only if `GN_TEST_MATCHER_URL`
+  points to a standalone GNmatcher service that uses `gntest`.
 
 ## Authors
 
