@@ -6,6 +6,7 @@ import (
 
 	gnames "github.com/gnames/gnames/pkg"
 	"github.com/gnames/gnames/pkg/config"
+	"github.com/gnames/gnames/pkg/ent/abbr"
 	"github.com/gnames/gnames/pkg/ent/verif"
 	mlib "github.com/gnames/gnlib/ent/matcher"
 	vlib "github.com/gnames/gnlib/ent/verifier"
@@ -22,7 +23,7 @@ func TestVerifier(t *testing.T) {
 	vf := mockVerifier{}
 	vern := mockVernacular{}
 	fct := mockFacet{}
-	g, err := gnames.New(cfg, vf, vern, fct, gnames.WithMatcher(mockMatcher{}))
+	g, err := gnames.New(cfg, vf, vern, fct, mockAbbr{}, gnames.WithMatcher(mockMatcher{}))
 	assert.Nil(t, err)
 	testData := []struct {
 		name string
@@ -94,4 +95,34 @@ func (mf mockFacet) AdvancedSearch(
 ) (map[string]*verif.MatchRecord, error) {
 	var res map[string]*verif.MatchRecord
 	return res, nil
+}
+
+type mockAbbr struct{}
+
+func (ma mockAbbr) AbbrLookups(
+	ctx context.Context,
+	keys []string,
+) ([]abbr.Lookup, error) {
+	return nil, nil
+}
+
+func (ma mockAbbr) AbbrGenera(
+	ctx context.Context,
+	genera []string,
+) ([]abbr.GenusRecord, error) {
+	return nil, nil
+}
+
+func (ma mockAbbr) AbbrPrefixSize(
+	ctx context.Context,
+	prefix string,
+) (int, error) {
+	return 0, nil
+}
+
+func (ma mockAbbr) AbbrCanonicals(
+	ctx context.Context,
+	stemIDs []string,
+) (map[string][]string, error) {
+	return nil, nil
 }

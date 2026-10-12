@@ -124,6 +124,7 @@ func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 	}
 	var c stats.Stats
 	var ks []vlib.Kingdom
+	var cs []vlib.Class
 
 	if input.WithStats {
 		c = stats.New(hs, input.MainTaxonThreshold)
@@ -131,6 +132,14 @@ func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 		for i, v := range c.Kingdoms {
 			ks[i] = vlib.Kingdom{
 				KingdomName: v.Name,
+				NamesNumber: v.NamesNum,
+				Percentage:  v.Percentage,
+			}
+		}
+		cs = make([]vlib.Class, len(c.Classes))
+		for i, v := range c.Classes {
+			cs[i] = vlib.Class{
+				ClassName:   v.Name,
 				NamesNumber: v.NamesNum,
 				Percentage:  v.Percentage,
 			}
@@ -154,6 +163,9 @@ func meta(input vlib.Input, names []vlib.Name) vlib.Meta {
 		Kingdom:                 c.Kingdom.Name,
 		KingdomPercentage:       c.KingdomPercentage,
 		Kingdoms:                ks,
+		Class:                   c.Class.Name,
+		ClassPercentage:         c.ClassPercentage,
+		Classes:                 cs,
 	}
 	return res
 }

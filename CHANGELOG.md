@@ -4,6 +4,17 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add [#137]: `abbr_names` endpoint finds candidate genera for names
+  with the same abbreviated genus (`C. elegans`). Needs `abbr_lookups`
+  and `abbr_genera` tables built by `gndb optimize`. With
+  `withFeatures` (`with_features` in GET) it also returns raw features
+  of the score, to tune the weights on BHL data. Genus hints can be
+  genera or binomial and trinomial names, which weigh more; one-word
+  hints that are not genera in `abbr_genera` are removed before
+  scoring.
+- Add: class statistics in verification metadata.
+- Add: REST tests run their own server on the `gntest` database.
+
 ## [v1.6.2] - 2026-05-18 Mon
 
 - Fix [#134]: filters data_source_ids and hither_taxon in OpenRefine

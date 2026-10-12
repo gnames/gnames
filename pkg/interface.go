@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gnames/gnames/pkg/config"
+	"github.com/gnames/gnlib/ent/abbr"
 	"github.com/gnames/gnlib/ent/gnvers"
 	"github.com/gnames/gnlib/ent/reconciler"
 	"github.com/gnames/gnlib/ent/verifier"
@@ -41,6 +42,11 @@ type GNames interface {
 	// It can also utilize year and year range information to narrow
 	// down the search.
 	Search(ctx context.Context, srch search.Input) search.Output
+
+	// AbbrNames takes names with the same abbreviated genus, such as
+	// `C. elegans`, and returns candidate genera that explain most of
+	// them, sorted by score.
+	AbbrNames(ctx context.Context, inp abbr.Input) (abbr.Output, error)
 
 	// NameByID finds a name-string according to its UUID or exact spelling.
 	// The boolean argument allows to return not only identical strings, but

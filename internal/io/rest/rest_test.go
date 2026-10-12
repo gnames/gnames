@@ -9,7 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gnames/gnames/pkg/config"
 	"github.com/gnames/gnfmt"
 	"github.com/gnames/gnlib"
 	"github.com/gnames/gnlib/ent/gnvers"
@@ -17,14 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-var restURL = getConfig().GnamesHostURL + "/api/v1/"
-
-func getConfig() config.Config {
-	cfg := config.New()
-	config.LoadEnv(&cfg)
-	return cfg
-}
 
 // Test helper functions
 
