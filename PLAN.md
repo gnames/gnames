@@ -188,8 +188,10 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
   epithet, because such matches happen by chance more often. A large
   genus can still win, but it needs more matched names.
 - Enough matched names win over a confirmed hint of another genus.
-  `dominantClass` and `mainTaxon` decide only between close candidates
-  and between homonyms, such as *Morus* (plant) and *Morus* (bird).
+  `dominantClass` and `mainTaxon` decide only between close candidates.
+- A genus without a classification is not penalized as being outside
+  of `dominantClass` and `mainTaxon`: an unknown classification is
+  neutral, a different one counts against the genus.
 - Weights are hardcoded constants, not request parameters. They change
   when tests on real data show it.
 - The output returns each part after weighting, so the parts add up to
@@ -258,15 +260,82 @@ The largest genera by distinct epithets are *Hieracium* (17,013),
 catch-all genera of the 18th and 19th centuries, and old literature
 uses their names.
 
-### Needed from gndb
+### Genus table from gndb
 
-- The size of every genus in distinct epithet stems, for the score and
-  for `maxGenusSize`. Counting it at request time is too slow, so
-  `gndb optimize` should store it, in a small table or as a column of
-  `abbr_lookups`.
+`gndb optimize` builds `abbr_genera` in its abbreviation step, right
+after `abbr_lookups`. It has one row per genus and kingdom:
+
+| Column                 | Description |
+|------------------------|-------------|
+| `genus`                | Genus name, as in `abbr_lookups`. |
+| `kingdom`              | Kingdom from the classification, empty if there is no kingdom. |
+| `epithets_num`         | Number of distinct epithet stems of the genus. |
+| `names_num`            | Number of records of the genus in this kingdom. |
+| `classification`       | Classification path, ending with the genus. |
+| `classification_ranks` | Ranks of the classification. |
+| `data_source_id`       | Source of the classification, 0 if there is none. |
+
+- The table is denormalized on purpose. Counting the size at request
+  time would scan all rows of a genus (more than 17,000 for
+  *Hieracium*). With about 506K rows it is small enough for gnames to
+  load into memory at startup. It takes about 50 seconds to build.
+- The size is used by the score and by `maxGenusSize`.
+- Classifications are needed for the output, and for comparison with
+  `mainTaxon` and `dominantClass`.
+
+#### Source of classifications
+
+- Classifications come from Catalogue of Life XR (data source 13). It
+  is less accurate than Catalogue of Life (data source 1), but covers
+  more genera: 63% of `abbr_lookups` genera against 54%. Without CoL XR
+  gndb uses Catalogue of Life, and then the largest data source with
+  genus ranks.
+- The classification of a genus is cut from the classifications of its
+  species and lower names: the part above the genus rank, and the
+  genus itself. Synonyms have the classification of their current
+  name, so a synonym's own genus replaces the genus of the path. Paths
+  of accepted names are preferred, then the most common path.
+- 37% of genera have no classification in CoL XR. For them the score
+  treats `dominantClass` and `mainTaxon` as unknown, not as outside of
+  them.
+- `mainTaxon` and `dominantClass` names must come from the same
+  classification as the genus table, because sources name higher taxa
+  differently (Animalia and Metazoa). Verification statistics use
+  Catalogue of Life now. An option to choose their data source is
+  planned separately.
+
+#### Homonyms
+
+Homonyms are allowed only between nomenclatural codes, such as *Morus*
+(a plant and a bird). The table separates them by kingdom, not by code:
+
+- Codes of records are sometimes wrong: CoL XR has about 6,300 records
+  whose code contradicts their classification, such as beetles marked
+  as botanical. Grouping by code made false homonyms of *Carabus* and
+  *Agaricus*.
+- Chromista and Protozoa have no fixed code, so the same foraminiferan
+  genus can be filed under both codes.
+
+Grouped by kingdom, 6,173 genera (2%) have more than one row. Many
+have a small second side that is still a real homonym, such as
+*Moseleya* (a coral and a plant) or *Gomphos* (a fish and a fungus),
+so no threshold is used.
+
+v1 handles homonyms simply:
+
+- All rows of a homonym have the same size, counting names of all its
+  kingdoms. The smaller homonym looks larger than it is: *Ficus* the
+  snail (133 names) gets the size of *Ficus* the plant (3,736). It can
+  still win, but needs more matched names.
+- `dominantClass` and `mainTaxon` are true if any classification of the
+  genus fits. *Ficus* in a book about molluscs gets the bonus. The
+  output shows all classifications, so the client sees that the genus
+  is ambiguous.
 
 ## Out of scope for v1
 
+- Separate sizes for homonyms of different kingdoms. It needs a kingdom
+  in every `abbr_lookups` row (see "Future" in gndb `PLAN.md`).
 - Checks of gnparser versions of gnames and `abbr_lookups`. Keys depend
   only on `stemmer.AbbrKey`, which has not changed. If it changes,
   gnames can compare the versions once at startup and log a warning.
