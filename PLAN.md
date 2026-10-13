@@ -48,7 +48,6 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
 | `mainTaxon`     | request  | Lowest common ancestor of the source's names, from GNverifier. |
 | `dominantClass` | request  | Most common class of the source's names, from GNverifier. |
 | `tolerance`     | request  | Percentage (0–100) of names that may be unmatched for a genus. |
-| `maxGenusSize`  | request  | Largest genus, in distinct epithets, checked for misspellings. |
 | `generaLimit`   | request  | Maximum number of candidate genera in the result. |
 
 ### names
@@ -95,10 +94,9 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
   than other names: authors abbreviate genera they use repeatedly. A
   candidate outside of the dominant group can still win, but needs
   stronger evidence (confirmed hints or several matched names).
-- Requires an addition to verification output: GNverifier statistics
-  must return the dominant class and its percentage next to `Kingdom`
-  and `MainTaxon`. gnstats already calculates it, but gnames and the
-  gnlib `verifier.Meta` type do not expose it yet.
+- GNverifier statistics return the dominant class, its percentage and
+  the distribution of names across classes next to `Kingdom` and
+  `MainTaxon` (gnlib v0.65.0, gnstats v0.2.2).
 
 ### tolerance
 
@@ -116,20 +114,6 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
   client can verify the full name (*Caenorhabditis clegans*), where
   fuzzy matching already exists. Unmatched names can also be new
   species that are not in the database.
-
-### maxGenusSize
-
-- Unmatched names of a candidate genus can be compared with all
-  epithets of the genus to find misspellings.
-- The size of a genus is the number of its distinct epithet stems in
-  the database. All names count: the database covers 250 years of
-  nomenclature, and its data does not show which names are accepted,
-  synonyms, or forgotten.
-- For genera larger than `maxGenusSize`, misspellings are not checked.
-  Exact matches are still returned, and the result marks the genus.
-- Default is 500. It covers 99.67% of genera (see below). Large genera
-  give many false matches for misspellings, and a small limit keeps
-  requests fast.
 
 ### generaLimit
 
@@ -222,8 +206,7 @@ Each candidate genus has:
   - the full canonical form it matched;
   - the match type: full, epithet moved or species level;
   - whether the epithet ending matched exactly or only by stem;
-- unmatched names (within `tolerance`);
-- a flag for genera larger than `maxGenusSize`.
+- unmatched names (within `tolerance`).
 
 The same input name can be matched by several genera. Names that are
 not in any genus's matched list are unmatched by all of them.
@@ -244,9 +227,10 @@ Distribution per genus:
 | all names         | 2   | 24  | 53  | 240 | 1,251 | 3,914  | 29,925 |
 | distinct epithets | 2   | 23  | 49  | 215 | 1,053 | 3,178  | 17,013 |
 
-Genera within a given `maxGenusSize`:
+Genera within a given size, for a future limit of the misspelling check
+(see "Out of scope for v1"):
 
-| maxGenusSize | Genera within | Genera above |
+| Size limit   | Genera within | Genera above |
 |--------------|---------------|--------------|
 | 100          | 97.54%        | 12,280       |
 | 500          | 99.67%        | 1,627        |
@@ -279,7 +263,9 @@ after `abbr_lookups`. It has one row per genus and kingdom:
   time would scan all rows of a genus (more than 17,000 for
   *Hieracium*). With about 506K rows it is small enough for gnames to
   load into memory at startup. It takes about 50 seconds to build.
-- The size is used by the score and by `maxGenusSize`.
+- The size is used by the score. All names count: the database covers
+  250 years of nomenclature, and its data does not show which names are
+  accepted, synonyms, or forgotten.
 - Classifications are needed for the output, and for comparison with
   `mainTaxon` and `dominantClass`.
 
@@ -334,6 +320,20 @@ v1 handles homonyms simply:
 
 ## Out of scope for v1
 
+- Misspellings. Unmatched names are not compared with other epithets
+  of a candidate genus. They count against `tolerance`, and the client
+  can verify the full name with fuzzy matching once it knows the genus.
+  - A comparison needs all epithet stems of a genus, but `abbr_lookups`
+    is indexed only by key. Options for later: an index on
+    `abbr_lookups (genus) INCLUDE (canonical_stem)` and one more query
+    per request, or epithet stems of genera loaded into memory (about
+    8M stems, a few hundred MB). The choice depends on speed and memory
+    measured on BHL data.
+  - Large genera give many false matches for misspellings, so the check
+    would come with a request parameter `maxGenusSize`: the largest
+    genus, in distinct epithet stems, that is checked. Larger genera get
+    exact matches only, and the result marks them. A default of 500
+    covers 99.67% of genera (see "Data").
 - Separate sizes for homonyms of different kingdoms. It needs a kingdom
   in every `abbr_lookups` row (see "Future" in gndb `PLAN.md`).
 - Checks of gnparser versions of gnames and `abbr_lookups`. Keys depend
