@@ -55,17 +55,16 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
 
 - Names are sent verbatim. gnames parses them and builds keys, so keys
   are always built by the same gnparser version.
-- All names of a request must have the same genus abbreviation. Case
-  and the period are ignored: `Cae.`, `cae.` and `Cae` are the same.
-- Different abbreviations in one request are an error, including
-  `C.` with `Cae.`. Authors often use a longer abbreviation to
-  distinguish genera with the same first letter, so such names should
-  not be mixed. The error lists the abbreviations found and no results
-  are returned.
+- All names of a request must have the same genus abbreviation, which
+  is capitalized and ends with a period (`C.`, `Cae.`). Otherwise the
+  request is an error, and no results are returned. This includes
+  full genera (`Caenorhabditis`, `Mus`), abbreviations without a
+  period or capital (`C`, `cae.`), and different abbreviations (`C.`
+  with `Cae.`). Full genera belong to `genusHints`. Authors often use
+  a longer abbreviation to distinguish genera with the same first
+  letter, so `C.` and `Cae.` should not be mixed.
 - An abbreviation with several letters (`Cae.`) limits candidates to
   genera that start with these letters.
-- A name with a full genus is an error. Full genera belong to
-  `genusHints`.
 - Abbreviated epithets (`P. t. altaica`) are ignored in v1. Only full
   epithets are matched.
 - Client IDs allow mapping results back to positions in text, because
@@ -134,8 +133,8 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
 
 ### generaLimit
 
-- The maximum number of candidate genera in the result. Hints decide
-  which genera are good enough to be included.
+- The maximum number of candidate genera in the result. The genera
+  with the highest total score are included.
 
 ## Matching
 
@@ -143,17 +142,59 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
   *alba*, *albus* and *album* match each other.
 - An epithet matches regardless of its position, because species can
   become subspecies and the other way around.
-- A matched name has one of three match types:
+- Nominotypical repeats are removed before comparison, in the input and
+  in the database names: if the last epithet is the same as the one
+  before it, it is dropped. *Bubo bubo bubo* becomes *Bubo bubo*, and
+  botanical autonyms (*Aus bus var. bus*) become species the same way.
+  Only epithets are compared, so the genus of *Bubo bubo* stays.
+- The last epithet identifies a name. A matched name has one of three
+  match types:
 
-  | Type         | Example input       | Example match              |
-  |--------------|---------------------|----------------------------|
-  | full         | `P. tigris altaica` | *Panthera tigris altaica*  |
-  | rank changed | `P. altaica`        | *Panthera tigris altaica*  |
-  | partial      | `P. tigris altaica` | *Panthera tigris* only     |
+  | Type          | Rule                                              | Example input       | Example match                |
+  |---------------|---------------------------------------------------|---------------------|------------------------------|
+  | full          | the same epithets                                 | `P. tigris altaica` | *Panthera tigris altaica*    |
+  |               |                                                   | `B. bubo`           | *Bubo bubo bubo*             |
+  | epithet moved | the same last epithet, other epithets differ      | `P. tigris altaica` | *Panthera altaica*           |
+  |               |                                                   | `P. altaica`        | *Panthera tigris altaica*    |
+  |               |                                                   | `P. tigris altaica` | *Panthera pardus altaica*    |
+  | species level | the same species epithet, last epithets differ    | `P. tigris altaica` | *Panthera tigris*            |
+  |               |                                                   | `P. tigris`         | *Panthera tigris altaica*    |
+  |               |                                                   | `P. tigris altaica` | *Panthera tigris amurensis*  |
 
-- A partial match is not the name from the text, but it still shows
-  the genus. Partial matches count for the genus with a smaller weight.
+  An epithet moves when it changes rank (a subspecies becomes a
+  species or the other way around) or species (a subspecies is moved
+  to another species).
+
+  A species level match can be coarser than the input, finer than the
+  input, or another infraspecies of the same species.
+
+  Rank markers (`var.`, `subsp.`, `f.`) are not part of keys, so a
+  change of an infraspecific rank does not change the match type.
+
+- Any other shared epithet is not a match. For example,
+  `P. tigris altaica` does not match *Panthera onca tigris*: there
+  `tigris` is a subspecies of another species.
+- A species level match is not the name from the text, but it still
+  shows the genus. It counts for the genus with a smaller weight.
 - Hints never exclude candidates. They only change the ranking.
+
+## Score
+
+- The score of a candidate genus is a weighted sum of features
+  calculated over all names of the group: matched names, confirmed
+  genus hints, unmatched names, and whether the genus is in
+  `dominantClass` and in `mainTaxon`.
+- A matched name is worth less in a large genus or with a common
+  epithet, because such matches happen by chance more often. A large
+  genus can still win, but it needs more matched names.
+- Enough matched names win over a confirmed hint of another genus.
+  `dominantClass` and `mainTaxon` decide only between close candidates
+  and between homonyms, such as *Morus* (plant) and *Morus* (bird).
+- Weights are hardcoded constants, not request parameters. They change
+  when tests on real data show it.
+- The output returns each part after weighting, so the parts add up to
+  the total.
+- Details of features and weights are decided at implementation.
 
 ## Output
 
@@ -162,9 +203,6 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
 - Input names and their client IDs.
 - Input parameters as applied, including defaults.
 - Number of names submitted, matched and unmatched.
-- gnparser version of gnames and of the `abbr_lookups` table, with a
-  warning if they differ. Keys from different stemmer versions might
-  not match.
 
 ### Results
 
@@ -174,12 +212,13 @@ matched, the list is empty and the input names are only in metadata.
 Each candidate genus has:
 
 - the genus name and its classification;
-- a score: separate parts for genus hints, dominant class, main taxon
-  and matched names, and their total;
+- a score: weighted parts for matched names, genus hints, unmatched
+  names, dominant class and main taxon, and their total;
+- the genus size in distinct epithet stems;
 - matched names, each with:
   - the input name and its client ID;
   - the full canonical form it matched;
-  - the match type: full, rank changed or partial;
+  - the match type: full, epithet moved or species level;
   - whether the epithet ending matched exactly or only by stem;
 - unmatched names (within `tolerance`);
 - a flag for genera larger than `maxGenusSize`.
@@ -219,8 +258,18 @@ The largest genera by distinct epithets are *Hieracium* (17,013),
 catch-all genera of the 18th and 19th centuries, and old literature
 uses their names.
 
+### Needed from gndb
+
+- The size of every genus in distinct epithet stems, for the score and
+  for `maxGenusSize`. Counting it at request time is too slow, so
+  `gndb optimize` should store it, in a small table or as a column of
+  `abbr_lookups`.
+
 ## Out of scope for v1
 
+- Checks of gnparser versions of gnames and `abbr_lookups`. Keys depend
+  only on `stemmer.AbbrKey`, which has not changed. If it changes,
+  gnames can compare the versions once at startup and log a warning.
 - Abbreviated epithets (`P. t. altaica`) used as a filter.
 - Several abbreviation groups in one request, if throughput requires
   it.
