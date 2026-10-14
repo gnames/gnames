@@ -226,6 +226,7 @@ evidence  = −log10(p(chance)), from 0 to 6
 | Unmatched name   | −1 |
 | `dominantClass`  | +0.5 in, −0.5 in another class, 0 if unknown |
 | `mainTaxon`      | +0.5 in, −0.5 outside, 0 if unknown |
+| Unknown genus    | a penalty, value not decided (see "Open questions") |
 
 - A hint is confirmed when the hinted genus matched the name. The
   position counts only hints that start with the abbreviation.
@@ -335,11 +336,18 @@ after `abbr_lookups`. It has one row per genus and kingdom:
 | `classification`       | Classification path, ending with the genus. |
 | `classification_ranks` | Ranks of the classification. |
 | `data_source_id`       | Source of the classification, 0 if there is none. |
+| `known`                | The genus is in IRMNG or has a classification. |
 
 - The table is denormalized on purpose. Counting the size at request
   time would scan all rows of a genus (more than 17,000 for
   *Hieracium*). With about 506K rows it is small enough for gnames to
-  load into memory at startup. It takes about 50 seconds to build.
+  load into memory at startup. It takes about 75 seconds to build.
+- `known` marks genera with a real spelling. A genus is known if it is
+  a genus of IRMNG (data source 181), accepted or a synonym, or if it
+  has a classification, which covers new genera that IRMNG does not
+  have yet. Misspelled genera (*Caenorbditis*) and parsing artifacts
+  (*Helicidae*) are usually unknown. On `gntest`, 417,710 genera are
+  known and 81,580 are not. Details are in gndb `PLAN.md`.
 - The size is used by the score. All names count: the database covers
   250 years of nomenclature, and its data does not show which names are
   accepted, synonyms, or forgotten.
@@ -432,9 +440,17 @@ v1 handles homonyms simply:
   abbreviated names from BHL that are resolved manually.
 - Limits of names per request and of genus hints per name (5,000 and 5
   in v1).
-- Reliability of matched names. With a single name, genera with one
-  name win, and they are often misspellings of a genus
-  (*Caenorbditis elegans*, in 3 sources) rather than the real genus
-  (*Caenorhabditis*, 79 epithets). `ds_num` of `abbr_lookups`
-  separates them, so the evidence could be reduced for names from
-  few data sources. Groups of several names are not affected as much.
+- Genera with one name. With a single input name, they get the most
+  evidence and win. Two problems:
+  - Many of them are misspellings (*Caenorbditis elegans*). Decided:
+    gndb marks genera as `known` (IRMNG or a classification), and
+    unknown genera get a penalty. Its value and whether it is a new
+    score part (a gnlib change) are not decided.
+  - Real monotypic genera (*Cybiosarda elegans*) still beat larger
+    real genera (*Caenorhabditis*). Proposed: a genus prior, so the
+    size cancels for the first matched name and only further names pay
+    it. With one name, context and name popularity decide. Not decided.
+  - `ds_num` was considered as a reliability factor, but real names
+    can be in few sources too (*Caenorhabditis elegans bergerac*, 2),
+    and a multiplier does not change the ranking enough. It may stay
+    as a small tie-breaker for name popularity.
