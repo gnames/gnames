@@ -8,6 +8,7 @@ The GNames project follows [Semantic Versioning guidelines].
   with the same abbreviated genus (`C. elegans`). Needs `abbr_lookups`
   and `abbr_genera` tables built by `gndb optimize`.
 - Add: class statistics in verification metadata.
+- Add: REST tests run their own server on the `gntest` database.
 
 ## [v1.6.2] - 2026-05-18 Mon
 

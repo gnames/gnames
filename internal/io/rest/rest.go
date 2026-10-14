@@ -33,6 +33,18 @@ var (
 // Run starts HTTP/1 service on given port for scientific names verification.
 func Run(gn gnames.GNames, port int) {
 	slog.Info("Starting HTTP API server", slog.Int("port", port))
+	e := New(gn)
+	addr := fmt.Sprintf(":%d", port)
+	s := &http.Server{
+		Addr:         addr,
+		ReadTimeout:  5 * time.Minute,
+		WriteTimeout: 5 * time.Minute,
+	}
+	e.Logger.Fatal(e.StartServer(s))
+}
+
+// New creates the HTTP handler with all routes of the API.
+func New(gn gnames.GNames) *echo.Echo {
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.Use(middleware.CORS())
@@ -66,14 +78,7 @@ func Run(gn gnames.GNames, port int) {
 	e.GET(apiPath+"reconcile/suggest/properties", suggestPropertiesGET)
 	e.GET(apiPath+"reconcile/suggest/entities", suggestEntitiesGET(gn))
 	e.GET(apiPath+"reconcile/suggest/types", suggestTypesGET)
-
-	addr := fmt.Sprintf(":%d", port)
-	s := &http.Server{
-		Addr:         addr,
-		ReadTimeout:  5 * time.Minute,
-		WriteTimeout: 5 * time.Minute,
-	}
-	e.Logger.Fatal(e.StartServer(s))
+	return e
 }
 
 func info(c echo.Context) error {

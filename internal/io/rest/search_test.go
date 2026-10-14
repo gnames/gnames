@@ -13,11 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var searchURL = restURL + "search"
-
 func TestGetSearch(t *testing.T) {
 	query := url.PathEscape("n:Proh. wilsoni tx:Carnivora ds:172,11 all:t au:Gust.")
-	resp, err := http.Get(searchURL + "/" + query)
+	resp, err := http.Get(restURL + "search/" + query)
 	assert.Nil(t, err)
 	var response search.Output
 	respBytes, err := io.ReadAll(resp.Body)
@@ -62,7 +60,7 @@ func TestPostSearch(t *testing.T) {
 		req, err := gnfmt.GNjson{}.Encode(inp)
 		assert.Nil(t, err)
 		r := bytes.NewReader(req)
-		resp, err := http.Post(searchURL, "application/json", r)
+		resp, err := http.Post(restURL+"search", "application/json", r)
 		assert.Nil(t, err)
 
 		var response search.Output
