@@ -31,6 +31,12 @@ const (
 	// MainTaxonWeight is the bonus for a genus in the main taxon, and the
 	// penalty for a genus outside of it.
 	MainTaxonWeight = 0.5
+
+	// UnknownGenusWeight is the penalty for a genus that is not in IRMNG
+	// and has no classification. It is set high on purpose: such genera
+	// are usually misspellings, and with one name they get the most
+	// evidence. A real unknown genus needs several names or a hint.
+	UnknownGenusWeight = -5.0
 )
 
 // matchWeights reduce the evidence of matches that are not the name from
@@ -86,6 +92,9 @@ func (s Scorer) Score(c *Candidate) {
 		fit(c.Records, s.Query.Input.DominantClass, true)
 	res.MainTaxon = MainTaxonWeight *
 		fit(c.Records, s.Query.Input.MainTaxon, false)
+	if !known(c.Records) {
+		res.UnknownGenus = UnknownGenusWeight
+	}
 
 	res.MatchedNames = round(res.MatchedNames)
 	res.GenusHints = round(res.GenusHints)
@@ -93,7 +102,8 @@ func (s Scorer) Score(c *Candidate) {
 	res.DominantClass = round(res.DominantClass)
 	res.MainTaxon = round(res.MainTaxon)
 	res.Total = round(res.MatchedNames + res.GenusHints +
-		res.UnmatchedNames + res.DominantClass + res.MainTaxon)
+		res.UnmatchedNames + res.DominantClass + res.MainTaxon +
+		res.UnknownGenus)
 	c.Score = res
 }
 
@@ -141,6 +151,17 @@ func fit(recs []GenusRecord, taxon string, isClass bool) float64 {
 		return -1
 	}
 	return 0
+}
+
+// known tells if any row of the genus is known. A genus missing from
+// abbr_genera is unknown.
+func known(recs []GenusRecord) bool {
+	for _, r := range recs {
+		if r.Known {
+			return true
+		}
+	}
+	return false
 }
 
 // Sort sorts candidates by total score, then by the number of matched

@@ -78,4 +78,8 @@ type GenusRecord struct {
 	// DataSourceID is the source of the classification, 0 if there is
 	// none.
 	DataSourceID int
+
+	// Known is true if the genus is in IRMNG or has a classification.
+	// Misspelled genera are usually unknown.
+	Known bool
 }

@@ -117,6 +117,7 @@ func TestScore(t *testing.T) {
 		Classification:      "Animalia|Chordata|Aves|Suliformes|Sulidae|Morus",
 		ClassificationRanks: "kingdom|phylum|class|order|family|genus",
 		DataSourceID:        13,
+		Known:               true,
 	}
 	plant := abbr.GenusRecord{
 		Genus:               "Morus",
@@ -126,6 +127,7 @@ func TestScore(t *testing.T) {
 		Classification:      "Plantae|Tracheophyta|Magnoliopsida|Rosales|Morus",
 		ClassificationRanks: "kingdom|phylum|class|order|genus",
 		DataSourceID:        13,
+		Known:               true,
 	}
 	noClass := abbr.GenusRecord{
 		Genus:               "Morus",
@@ -133,6 +135,7 @@ func TestScore(t *testing.T) {
 		Classification:      "Rosales|Moraceae|Morus",
 		ClassificationRanks: "order|family|genus",
 		DataSourceID:        13,
+		Known:               true,
 	}
 	unknown := abbr.GenusRecord{Genus: "Morus", EpithetsNum: 10}
 
@@ -196,8 +199,14 @@ func TestScore(t *testing.T) {
 		assert.Equal(v.classScore, c.Score.DominantClass, v.msg)
 		assert.Equal(v.taxonScore, c.Score.MainTaxon, v.msg)
 		assert.Equal(v.kingdom, c.Record.Kingdom, v.msg)
+		if v.recs[0].Known {
+			assert.Equal(0.0, c.Score.UnknownGenus, v.msg)
+		} else {
+			assert.Equal(abbr.UnknownGenusWeight, c.Score.UnknownGenus, v.msg)
+		}
 		sum := c.Score.MatchedNames + c.Score.GenusHints +
-			c.Score.UnmatchedNames + c.Score.DominantClass + c.Score.MainTaxon
+			c.Score.UnmatchedNames + c.Score.DominantClass +
+			c.Score.MainTaxon + c.Score.UnknownGenus
 		assert.InDelta(sum, c.Score.Total, 1e-9, v.msg)
 	}
 }

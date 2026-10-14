@@ -226,12 +226,16 @@ evidence  = −log10(p(chance)), from 0 to 6
 | Unmatched name   | −1 |
 | `dominantClass`  | +0.5 in, −0.5 in another class, 0 if unknown |
 | `mainTaxon`      | +0.5 in, −0.5 outside, 0 if unknown |
-| Unknown genus    | a penalty, value not decided (see "Open questions") |
+| Unknown genus    | −5, if the genus is not `known` in `abbr_genera` |
 
 - A hint is confirmed when the hinted genus matched the name. The
   position counts only hints that start with the abbreviation.
 - For `dominantClass`, a classification is known only if it has the
   class rank.
+- The unknown genus penalty is high on purpose: a misspelled genus
+  with one matched name (*Caenorbditis elegans*, 2.84) drops below
+  zero. A real genus that is not known needs several names or a hint.
+  The penalty is lowered if it causes problems on real data.
 - Parts and the total are rounded to 3 decimals. The total is the sum
   of the rounded parts.
 
@@ -277,7 +281,7 @@ Each candidate genus has:
 
 - the genus name and its classification;
 - a score: weighted parts for matched names, genus hints, unmatched
-  names, dominant class and main taxon, and their total;
+  names, dominant class, main taxon and unknown genus, and their total;
 - the genus size in distinct epithet stems;
 - matched names, each with:
   - the input name and its client ID;
@@ -444,8 +448,8 @@ v1 handles homonyms simply:
   evidence and win. Two problems:
   - Many of them are misspellings (*Caenorbditis elegans*). Decided:
     gndb marks genera as `known` (IRMNG or a classification), and
-    unknown genera get a penalty. Its value and whether it is a new
-    score part (a gnlib change) are not decided.
+    unknown genera get a penalty of −5, a separate score part
+    `unknownGenus` (gnlib).
   - Real monotypic genera (*Cybiosarda elegans*) still beat larger
     real genera (*Caenorhabditis*). Proposed: a genus prior, so the
     size cancels for the first matched name and only further names pay

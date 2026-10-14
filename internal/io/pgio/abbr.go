@@ -57,7 +57,7 @@ func (p *pgio) AbbrGenera(
 	q := `
 SELECT genus, kingdom, epithets_num, names_num,
        coalesce(classification, ''), coalesce(classification_ranks, ''),
-       coalesce(data_source_id, 0)
+       coalesce(data_source_id, 0), known
 FROM abbr_genera
 WHERE genus = ANY($1)`
 
@@ -73,7 +73,7 @@ WHERE genus = ANY($1)`
 		var epithetsNum, namesNum, dsID int64
 		err = rows.Scan(
 			&r.Genus, &r.Kingdom, &epithetsNum, &namesNum,
-			&r.Classification, &r.ClassificationRanks, &dsID,
+			&r.Classification, &r.ClassificationRanks, &dsID, &r.Known,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("pgio.AbbrGenera: %w", err)
