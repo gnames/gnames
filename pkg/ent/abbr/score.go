@@ -37,6 +37,17 @@ const (
 	// are usually misspellings, and with one name they get the most
 	// evidence. A real unknown genus needs several names or a hint.
 	UnknownGenusWeight = -5.0
+
+	// GenusPriorWeight is the share of the genus size that the anchor
+	// match does not pay. A genus is mentioned in proportion to its size,
+	// so with the full prior (1) the size cancels for one matched name,
+	// and only further names pay it. With 0 every name pays the size.
+	GenusPriorWeight = 1.0
+
+	// PopularityWeight is the weight of the log10 of the number of data
+	// sources with a matched name. The mean over matched names is used,
+	// so popularity breaks ties without rewarding more matches again.
+	PopularityWeight = 0.5
 )
 
 // matchWeights reduce the evidence of matches that are not the name from
@@ -52,12 +63,20 @@ var matchWeights = map[alib.MatchTypeValue]float64{
 // times the number of genera with the key, divided by the size of all
 // genera with the prefix.
 func Evidence(genusSize, keyGenera, prefixSize int) float64 {
+	return evidence(logSize(genusSize), keyGenera, prefixSize)
+}
+
+// evidence is Evidence with the log10 of the genus size.
+func evidence(logSize float64, keyGenera, prefixSize int) float64 {
 	if prefixSize == 0 {
 		return 0
 	}
-	p := float64(max(genusSize, 1)) * float64(max(keyGenera, 1)) /
-		float64(prefixSize)
-	return min(max(-math.Log10(p), 0), MaxEvidence)
+	rarity := math.Log10(float64(prefixSize) / float64(max(keyGenera, 1)))
+	return min(max(rarity-logSize, 0), MaxEvidence)
+}
+
+func logSize(genusSize int) float64 {
+	return math.Log10(float64(max(genusSize, 1)))
 }
 
 // Scorer calculates scores of candidates.
@@ -76,9 +95,9 @@ func (s Scorer) Score(c *Candidate) {
 	}
 
 	var res alib.Score
+	res.MatchedNames = s.matched(c.Matches, size)
+	res.Popularity = popularity(c.Matches)
 	for _, m := range c.Matches {
-		ev := Evidence(size, s.KeyGenera[m.Key], s.PrefixSize)
-		res.MatchedNames += ev * matchWeights[m.MatchType]
 		if pos, ok := m.Unit.Hints[c.Genus]; ok {
 			res.GenusHints += HintWeight / float64(pos)
 		}
@@ -101,10 +120,43 @@ func (s Scorer) Score(c *Candidate) {
 	res.UnmatchedNames = round(res.UnmatchedNames)
 	res.DominantClass = round(res.DominantClass)
 	res.MainTaxon = round(res.MainTaxon)
+	res.Popularity = round(res.Popularity)
 	res.Total = round(res.MatchedNames + res.GenusHints +
 		res.UnmatchedNames + res.DominantClass + res.MainTaxon +
-		res.UnknownGenus)
+		res.UnknownGenus + res.Popularity)
 	c.Score = res
+}
+
+// matched returns the evidence of matched names. The anchor match pays
+// only a part of the genus size, according to the genus prior. The
+// anchor is the match where the prior adds most, so the result does not
+// depend on the order of names.
+func (s Scorer) matched(ms []Match, size int) float64 {
+	full := logSize(size)
+	part := full * (1 - GenusPriorWeight)
+
+	var res, gain float64
+	for _, m := range ms {
+		w := matchWeights[m.MatchType]
+		kg := s.KeyGenera[m.Key]
+		ev := evidence(full, kg, s.PrefixSize) * w
+		res += ev
+		gain = max(gain, evidence(part, kg, s.PrefixSize)*w-ev)
+	}
+	return res + gain
+}
+
+// popularity returns the weighted mean of log10 of the number of data
+// sources of matched names.
+func popularity(ms []Match) float64 {
+	if len(ms) == 0 {
+		return 0
+	}
+	var res float64
+	for _, m := range ms {
+		res += math.Log10(float64(max(m.Lookup.DsNum, 1)))
+	}
+	return PopularityWeight * res / float64(len(ms))
 }
 
 // record picks the row whose classification is shown: the one that fits

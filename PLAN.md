@@ -217,16 +217,47 @@ evidence  = −log10(p(chance)), from 0 to 6
   last epithet for an epithet moved match, the species epithet for a
   species level match.
 
+#### Genus prior
+
+Without a prior every genus is equally likely, so with one name the
+smallest genus wins: a monotypic *Cybiosarda elegans* beats
+*Caenorhabditis elegans*. Instead, a genus is assumed to be mentioned
+in proportion to its size:
+
+```
+P(g | names) ∝ P(g) × Π P(name_i | g)
+P(g)          = size(g) / size(prefix)
+P(name_i | g) = 1 / size(g)
+```
+
+The result is proportional to `size(g)^(1−n)` for n matched names: the
+size cancels for one name, and every further name pays it.
+
+- The anchor match pays no size:
+  `log10(size(prefix) / genera(key))`, from 0 to 6, times the match
+  weight. Other matches pay the size as above.
+- The anchor is the match where the prior adds most, so the score does
+  not depend on the order of names. The cap is applied to each match
+  after the size is subtracted, otherwise a large genus whose evidence
+  was capped at 0 would get its whole size back.
+- `GenusPriorWeight` (1 in v1) is the share of the size the anchor does
+  not pay. 0 turns the prior off.
+- With one name, all genera with the key get the same evidence, and
+  context (`dominantClass`, `mainTaxon`, hints) decides. A small genus
+  still wins when it explains several names.
+
 ### Starting weights
 
 | Feature          | Contribution |
 |------------------|--------------|
 | Matched name     | evidence × 1.0 (full), 0.8 (epithet moved), 0.6 (species level) |
+| Genus prior      | the anchor match does not pay the genus size (`GenusPriorWeight` 1) |
 | Genus hint       | +3 / position of the hint, for a matched name only |
 | Unmatched name   | −1 |
 | `dominantClass`  | +0.5 in, −0.5 in another class, 0 if unknown |
 | `mainTaxon`      | +0.5 in, −0.5 outside, 0 if unknown |
 | Unknown genus    | −5, if the genus is not `known` in `abbr_genera` |
+| Popularity       | 0.5 × mean of log10(`ds_num`) of matched names |
 
 - A hint is confirmed when the hinted genus matched the name. The
   position counts only hints that start with the abbreviation.
@@ -236,6 +267,11 @@ evidence  = −log10(p(chance)), from 0 to 6
   with one matched name (*Caenorbditis elegans*, 2.84) drops below
   zero. A real genus that is not known needs several names or a hint.
   The penalty is lowered if it causes problems on real data.
+- Popularity is a mean, not a sum, so it breaks ties without
+  rewarding more matches again. With one name and no context it puts
+  the most cited names first (*Cyperus elegans*, 30 sources); with
+  `dominantClass` Chromadorea, *Caenorhabditis* (21) wins over
+  *Craspedonema* and *Cucullanus* (15).
 - Parts and the total are rounded to 3 decimals. The total is the sum
   of the rounded parts.
 
@@ -450,11 +486,11 @@ v1 handles homonyms simply:
     gndb marks genera as `known` (IRMNG or a classification), and
     unknown genera get a penalty of −5, a separate score part
     `unknownGenus` (gnlib).
-  - Real monotypic genera (*Cybiosarda elegans*) still beat larger
-    real genera (*Caenorhabditis*). Proposed: a genus prior, so the
-    size cancels for the first matched name and only further names pay
-    it. With one name, context and name popularity decide. Not decided.
+  - Real monotypic genera (*Cybiosarda elegans*) beat larger real
+    genera (*Caenorhabditis*). Decided: a genus prior (see Evidence),
+    the size cancels for the first matched name.
+  - With one name genera tie on evidence. Decided: a popularity part
+    `popularity` (gnlib), see Starting weights.
   - `ds_num` was considered as a reliability factor, but real names
     can be in few sources too (*Caenorhabditis elegans bergerac*, 2),
-    and a multiplier does not change the ranking enough. It may stay
-    as a small tie-breaker for name popularity.
+    and a multiplier does not change the ranking enough.

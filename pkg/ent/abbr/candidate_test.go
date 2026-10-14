@@ -192,8 +192,9 @@ func TestScore(t *testing.T) {
 		}
 		s.Score(c)
 
-		// alba: 10*10/100000 -> 3; nigra: 10*1/100000 -> 4 * 0.8
-		assert.InDelta(6.2, c.Score.MatchedNames, 1e-9, v.msg)
+		// alba: 10*10/100000 -> 3; nigra: 10*1/100000 -> 4 * 0.8.
+		// The genus prior adds the size (1) to alba, where it adds most.
+		assert.InDelta(7.2, c.Score.MatchedNames, 1e-9, v.msg)
 		assert.Equal(-1.0, c.Score.UnmatchedNames, v.msg)
 		assert.Equal(v.hints, c.Score.GenusHints, v.msg)
 		assert.Equal(v.classScore, c.Score.DominantClass, v.msg)
@@ -206,9 +207,71 @@ func TestScore(t *testing.T) {
 		}
 		sum := c.Score.MatchedNames + c.Score.GenusHints +
 			c.Score.UnmatchedNames + c.Score.DominantClass +
-			c.Score.MainTaxon + c.Score.UnknownGenus
+			c.Score.MainTaxon + c.Score.UnknownGenus + c.Score.Popularity
 		assert.InDelta(sum, c.Score.Total, 1e-9, v.msg)
 	}
+}
+
+func TestGenusPrior(t *testing.T) {
+	assert := assert.New(t)
+	q, err := abbr.NewQuery(alib.Input{
+		Names: []alib.Name{{Name: "C. elegans"}, {Name: "C. briggsae"}},
+	})
+	assert.Nil(err)
+	s := abbr.Scorer{
+		Query:      q,
+		KeyGenera:  map[string]int{"c-elegans": 1000, "c-briggs": 1},
+		PrefixSize: 1_000_000,
+	}
+	score := func(size int, units int) float64 {
+		c := &abbr.Candidate{
+			Genus:   "Caenorhabditis",
+			Records: []abbr.GenusRecord{{EpithetsNum: size, Known: true}},
+		}
+		keys := []string{"c-elegans", "c-briggs"}
+		for i := range units {
+			c.Matches = append(c.Matches, abbr.Match{
+				Unit: q.Units[i], MatchType: alib.Full, Key: keys[i],
+			})
+		}
+		s.Score(c)
+		return c.Score.MatchedNames
+	}
+
+	// With one name the size cancels, even for a genus larger than the
+	// chance of the match.
+	assert.Equal(3.0, score(1, 1))
+	assert.Equal(3.0, score(100, 1))
+	assert.Equal(3.0, score(10_000, 1))
+
+	// The second name pays the size (2): briggsae 6 - 2, elegans 3 - 2,
+	// and the prior adds the size once.
+	assert.Equal(7.0, score(100, 2))
+}
+
+func TestPopularity(t *testing.T) {
+	assert := assert.New(t)
+	q, err := abbr.NewQuery(alib.Input{
+		Names: []alib.Name{{Name: "C. elegans"}, {Name: "C. briggsae"}},
+	})
+	assert.Nil(err)
+	s := abbr.Scorer{Query: q, PrefixSize: 1_000_000}
+
+	c := &abbr.Candidate{
+		Genus:   "Caenorhabditis",
+		Records: []abbr.GenusRecord{{EpithetsNum: 79, Known: true}},
+		Matches: []abbr.Match{
+			{Unit: q.Units[0], MatchType: alib.Full, Lookup: abbr.Lookup{DsNum: 100}},
+			{Unit: q.Units[1], MatchType: alib.Full, Lookup: abbr.Lookup{DsNum: 1}},
+		},
+	}
+	s.Score(c)
+	// mean of log10(100) and log10(1), times 0.5
+	assert.Equal(0.5, c.Score.Popularity)
+
+	c.Matches = nil
+	s.Score(c)
+	assert.Equal(0.0, c.Score.Popularity)
 }
 
 func TestSort(t *testing.T) {
