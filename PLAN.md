@@ -1,6 +1,7 @@
 # PLAN: Abbreviated names endpoint
 
-Status: requirements. No implementation decisions are made here.
+Status: v1 is implemented on branch `137-abbr`. Score weights are
+starting values, to be tuned on BHL data.
 
 ## Motivation
 
@@ -37,7 +38,9 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
 
 - `POST /api/v1/abbr_names`: the main endpoint.
 - `GET /api/v1/abbr_names/:names`: optional, for manual tests. Names
-  are separated by `|`, as in `verifications`.
+  are separated by `|`, as in `verifications`. Query parameters:
+  `main_taxon`, `dominant_class`, `tolerance`, `genera_limit`. Genus
+  hints are POST only.
 
 ## Input
 
@@ -52,8 +55,11 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
 
 ### names
 
-- Names are sent verbatim. gnames parses them and builds keys, so keys
-  are always built by the same gnparser version.
+- Names come from GNfinder, which already normalizes them. gnames
+  does not parse them: it splits them into words and builds keys with
+  gnparser's `stemmer.AbbrKey`, as gndb does. If the endpoint becomes
+  useful to other clients, parsing can return, with fixes for names
+  that gnparser does not parse now (`Cae. elegans var. alba`).
 - All names of a request must have the same genus abbreviation, which
   is capitalized and ends with a period (`C.`, `Cae.`). Otherwise the
   request is an error, and no results are returned. This includes
@@ -180,7 +186,78 @@ genus and the epithet stem (`c-elegans`), built by gnparser's
   when tests on real data show it.
 - The output returns each part after weighting, so the parts add up to
   the total.
-- Details of features and weights are decided at implementation.
+- How common an epithet is (the number of genera with its key) is
+  counted from the lookup rows fetched for the name. The key includes
+  the first letter of the genus, so the count is for that letter only.
+  No separate epithet table is needed in v1: the largest key
+  (`p-minor`) has 2,400 rows in 1,473 genera, the median key 1 row.
+
+### Evidence
+
+A score is measured in units of evidence. One unit makes a chance match
+ten times less likely, so the sum over names is a log-likelihood, and
+all features use the same units.
+
+For a matched name in genus *g*:
+
+```
+p(chance) = size(g) × genera(key) / size(prefix)
+evidence  = −log10(p(chance)), from 0 to 6
+```
+
+- `size(g)` is `epithets_num` from `abbr_genera`.
+- `genera(key)` is the number of genera with the key, among genera
+  that start with the abbreviation.
+- `size(prefix)` is the sum of sizes of all genera that start with the
+  abbreviation. Each genus counts once, even if it is a homonym. It is
+  cached for each prefix.
+- The cap of 6 keeps a single odd match from deciding alone.
+- A name with several epithets counts one key, not each epithet, so
+  related epithets do not add up: the rarest key for a full match, the
+  last epithet for an epithet moved match, the species epithet for a
+  species level match.
+
+### Starting weights
+
+| Feature          | Contribution |
+|------------------|--------------|
+| Matched name     | evidence × 1.0 (full), 0.8 (epithet moved), 0.6 (species level) |
+| Genus hint       | +3 / position of the hint, for a matched name only |
+| Unmatched name   | −1 |
+| `dominantClass`  | +0.5 in, −0.5 in another class, 0 if unknown |
+| `mainTaxon`      | +0.5 in, −0.5 outside, 0 if unknown |
+
+- A hint is confirmed when the hinted genus matched the name. The
+  position counts only hints that start with the abbreviation.
+- For `dominantClass`, a classification is known only if it has the
+  class rank.
+- Parts and the total are rounded to 3 decimals. The total is the sum
+  of the rounded parts.
+
+## Implementation notes
+
+- After the abbreviation, words with a period (rank markers,
+  abbreviated epithets) and `×` are skipped. Epithets are lowercase
+  words, maybe with hyphens. They end at the first other word, such as
+  an author: `C. elegans Maupas, 1900` gives `elegans`, and
+  `P. t. altaica` gives `altaica`. A name without epithets is not an
+  error. It is unmatched.
+- The abbreviation is a capital letter, up to two more lowercase
+  letters, and a period.
+- Names with the same epithet stems count once for matching, the
+  tolerance and the score. A name repeated in a text adds no evidence.
+  All its client IDs are in the output.
+- One candidate per genus. A homonym shows the classification that
+  fits `dominantClass` and `mainTaxon` best, then the one with most
+  names.
+- `abbr_genera` is read for each request, for candidates only, not
+  loaded into memory. Its index makes the query fast (about 4 ms for
+  1,400 genera), and it is the only source of classifications for the
+  context check anyway. Only prefix sizes are kept in memory.
+- Limits: up to 5,000 names per request, 5 genus hints per name.
+  `generaLimit` defaults to 10, up to 100. `tolerance` defaults to 20.
+- An input error is returned in `Meta.Error` with status 200, as in
+  verification. A database error returns status 500.
 
 ## Output
 
@@ -327,8 +404,10 @@ v1 handles homonyms simply:
     is indexed only by key. Options for later: an index on
     `abbr_lookups (genus) INCLUDE (canonical_stem)` and one more query
     per request, or epithet stems of genera loaded into memory (about
-    8M stems, a few hundred MB). The choice depends on speed and memory
-    measured on BHL data.
+    8M stems, a few hundred MB), or an epithet table with distinct
+    stems (about 2.5M keys) for a trigram index or an in-memory fuzzy
+    matcher. The choice depends on speed and memory measured on BHL
+    data.
   - Large genera give many false matches for misspellings, so the check
     would come with a request parameter `maxGenusSize`: the largest
     genus, in distinct epithet stems, that is checked. Larger genera get
@@ -351,4 +430,11 @@ v1 handles homonyms simply:
 
 - Weights of score parts. They should be tuned on a test set of
   abbreviated names from BHL that are resolved manually.
-- Maximum number of names per request and of genus hints per name.
+- Limits of names per request and of genus hints per name (5,000 and 5
+  in v1).
+- Reliability of matched names. With a single name, genera with one
+  name win, and they are often misspellings of a genus
+  (*Caenorbditis elegans*, in 3 sources) rather than the real genus
+  (*Caenorhabditis*, 79 epithets). `ds_num` of `abbr_lookups`
+  separates them, so the evidence could be reduced for names from
+  few data sources. Groups of several names are not affected as much.

@@ -15,6 +15,7 @@ import (
 	gnames "github.com/gnames/gnames/pkg"
 	"github.com/gnames/gnames/pkg/ent/recon"
 	"github.com/gnames/gnfmt"
+	alib "github.com/gnames/gnlib/ent/abbr"
 	"github.com/gnames/gnlib/ent/reconciler"
 	vlib "github.com/gnames/gnlib/ent/verifier"
 	"github.com/gnames/gnquery"
@@ -57,6 +58,8 @@ func Run(gn gnames.GNames, port int) {
 	e.GET(apiPath+"verify/:names", verificationGET(gn))
 	e.POST(apiPath+"search", searchPOST(gn))
 	e.GET(apiPath+"search/:query", searchGET(gn))
+	e.POST(apiPath+"abbr_names", abbrNamesPOST(gn))
+	e.GET(apiPath+"abbr_names/:names", abbrNamesGET(gn))
 	e.GET(apiPath+"reconcile", reconcileGET(gn))
 	e.POST(apiPath+"reconcile", reconcilePOST(gn))
 	e.GET(apiPath+"reconcile/properties", propertiesGET(gn))
@@ -621,6 +624,59 @@ func searchPOST(gn gnames.GNames) func(echo.Context) error {
 			return errors.New("rest.searchPOST: request took too long")
 		}
 	}
+}
+
+func abbrNamesPOST(gn gnames.GNames) func(echo.Context) error {
+	return func(c echo.Context) error {
+		ctx, cancel := getContext(c)
+		defer cancel()
+
+		var params alib.Input
+		if err := c.Bind(&params); err != nil {
+			return fmt.Errorf("rest.abbrNamesPOST: %w", err)
+		}
+
+		res, err := gn.AbbrNames(ctx, params)
+		if err != nil {
+			return fmt.Errorf("rest.abbrNamesPOST: %w", err)
+		}
+		logAbbrNames(params, "POST")
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func abbrNamesGET(gn gnames.GNames) func(echo.Context) error {
+	return func(c echo.Context) error {
+		nameStr, _ := url.QueryUnescape(c.Param("names"))
+		var params alib.Input
+		for name := range strings.SplitSeq(nameStr, "|") {
+			params.Names = append(params.Names, alib.Name{Name: name})
+		}
+		params.MainTaxon = c.QueryParam("main_taxon")
+		params.DominantClass = c.QueryParam("dominant_class")
+		if tol, err := strconv.Atoi(c.QueryParam("tolerance")); err == nil {
+			params.Tolerance = &tol
+		}
+		params.GeneraLimit, _ = strconv.Atoi(c.QueryParam("genera_limit"))
+
+		res, err := gn.AbbrNames(context.Background(), params)
+		if err != nil {
+			return fmt.Errorf("rest.abbrNamesGET: %w", err)
+		}
+		logAbbrNames(params, "GET")
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func logAbbrNames(params alib.Input, method string) {
+	if len(params.Names) == 0 {
+		return
+	}
+	slog.Info("Abbreviated names",
+		slog.Int("namesNum", len(params.Names)),
+		slog.String("example", params.Names[0].Name),
+		slog.String("method", method),
+	)
 }
 
 func getContext(c echo.Context) (ctx context.Context, cancel func()) {

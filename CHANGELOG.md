@@ -4,6 +4,11 @@ The GNames project follows [Semantic Versioning guidelines].
 
 ## Unreleased
 
+- Add [#137]: `abbr_names` endpoint finds candidate genera for names
+  with the same abbreviated genus (`C. elegans`). Needs `abbr_lookups`
+  and `abbr_genera` tables built by `gndb optimize`.
+- Add: class statistics in verification metadata.
+
 ## [v1.6.2] - 2026-05-18 Mon
 
 - Fix [#134]: filters data_source_ids and hither_taxon in OpenRefine
