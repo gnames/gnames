@@ -223,6 +223,8 @@ Direnv provides a flexible way to configure your environment.
   start their own server with an embedded GNmatcher. Its cache is kept
   in `~/.cache/gnames-test`; the first run builds it from `gntest` and
   takes a while.
+- Tests of the GNmatcher REST client run only if `GN_TEST_MATCHER_URL`
+  points to a standalone GNmatcher service that uses `gntest`.
 
 ## Authors
 
