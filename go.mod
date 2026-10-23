@@ -4,11 +4,11 @@ go 1.27.3
 
 require (
 	github.com/gnames/gnfmt v0.6.5
-	github.com/gnames/gnlib v0.69.0
+	github.com/gnames/gnlib v0.71.0
 	github.com/gnames/gnmatcher v1.1.27
 	github.com/gnames/gnparser v1.15.2
 	github.com/gnames/gnquery v0.4.2
-	github.com/gnames/gnstats v0.2.2
+	github.com/gnames/gnstats v0.2.3
 	github.com/gnames/gnsys v0.4.4
 	github.com/gnames/gnuuid v0.2.0
 	github.com/google/uuid v1.6.0
@@ -89,5 +89,3 @@ require (
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/gnames/gnlib => ../gnlib
