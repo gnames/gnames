@@ -127,13 +127,18 @@ dockerhub: docker
 lint:
     golangci-lint run
 
+# Build test cache without race detector (it needs too much memory with -race)
+test-cache:
+    @echo "Prepare test cache"
+    go test -count=1 -run '^$' ./internal/io/rest/
+
 # Run tests
-test: deps install
+test: deps install test-cache
     @echo "Run tests"
     go test {{test_opts}} ./...
 
 # Run tests with race detector
-test-race: deps install
+test-race: deps install test-cache
     go test -count=1 -race ./...
 
 # Run tests and export coverage
