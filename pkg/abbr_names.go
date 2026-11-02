@@ -149,7 +149,7 @@ func (g gnames) abbrCandidates(
 		recsMap[r.Genus] = append(recsMap[r.Genus], r)
 	}
 
-	prefixSize, err := g.ab.AbbrPrefixSize(ctx, q.Prefix)
+	prefixSize, err := g.ab.AbbrPrefixSize(ctx, q.FirstLetter)
 	if err != nil {
 		return nil, 0, err
 	}

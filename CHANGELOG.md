@@ -2,6 +2,15 @@
 
 The GNames project follows [Semantic Versioning guidelines].
 
+## [v1.7.1] - 2026-11-02 Mon
+
+- Fix: `abbr_names` scores a longer abbreviation (`Mon.`) at least as
+  high as a shorter one (`M.`) with the same matches. Evidence of a
+  match is measured against the size of all genera with the first
+  letter of the abbreviation, not with the whole abbreviation, which
+  gave `Mon.` less evidence than `M.`. `prefixSize` of `withFeatures`
+  output is now the size of genera with the first letter.
+
 ## [v1.7.0] - 2026-10-27 Tue
 
 - Add [#137]: `abbr_names` endpoint finds candidate genera for names
@@ -543,6 +552,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.7.1]: https://github.com/gnames/gnames/compare/v1.7.0...v1.7.1
 [v1.7.0]: https://github.com/gnames/gnames/compare/v1.6.2...v1.7.0
 [v1.6.2]: https://github.com/gnames/gnames/compare/v1.6.1...v1.6.2
 [v1.6.1]: https://github.com/gnames/gnames/compare/v1.6.0...v1.6.1

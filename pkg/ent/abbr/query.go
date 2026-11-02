@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"unicode/utf8"
 
 	alib "github.com/gnames/gnlib/ent/abbr"
 	"github.com/gnames/gnparser/ent/stemmer"
@@ -57,6 +58,12 @@ type Query struct {
 	// Prefix is the abbreviation without the period. Candidate genera
 	// start with it.
 	Prefix string
+
+	// FirstLetter is the first letter of the prefix. Evidence of matches
+	// is measured against the size of all genera that start with it (see
+	// Evidence), so a longer abbreviation (`Mon.`) never scores lower
+	// than a shorter one (`M.`): it only leaves fewer candidate genera.
+	FirstLetter string
 
 	// Tolerance is the percentage of names that may be unmatched for a
 	// genus.
@@ -139,6 +146,9 @@ func NewQuery(inp alib.Input) (Query, error) {
 		}
 	}
 	res.Prefix = strings.TrimSuffix(res.Abbreviation, ".")
+	if r, size := utf8.DecodeRuneInString(res.Prefix); r != utf8.RuneError {
+		res.FirstLetter = res.Prefix[:size]
+	}
 
 	units := make(map[string]*Unit)
 	for _, v := range inp.Names {

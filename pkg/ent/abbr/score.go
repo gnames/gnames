@@ -70,7 +70,15 @@ var matchWeights = map[alib.MatchTypeValue]float64{
 // Evidence is the evidence that a matched epithet did not appear in the
 // genus by chance. The chance is estimated as the size of the genus
 // times the number of genera with the key, divided by the size of all
-// genera with the prefix.
+// genera that start with the first letter of the prefix (Query.FirstLetter).
+//
+// The chance that an epithet of another genus also exists in this genus
+// does not depend on the length of the abbreviation, so the size is
+// that of the first letter, not of the whole prefix: with the prefix
+// `Mon` the size would be much smaller than with `M`, and the same
+// matches would give less evidence, although `Mon.` leaves fewer
+// genera to choose from. The number of genera with the key still
+// counts only genera with the prefix.
 func Evidence(genusSize, keyGenera, prefixSize int) float64 {
 	return evidence(logSize(genusSize), keyGenera, prefixSize)
 }

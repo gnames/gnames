@@ -74,6 +74,7 @@ func TestNewQueryDefaults(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal("C.", q.Abbreviation)
 	assert.Equal("C", q.Prefix)
+	assert.Equal("C", q.FirstLetter)
 	assert.Equal(abbr.DefaultTolerance, q.Tolerance)
 	assert.Equal(abbr.DefaultGeneraLimit, q.GeneraLimit)
 
@@ -85,6 +86,7 @@ func TestNewQueryDefaults(t *testing.T) {
 	})
 	assert.Nil(err)
 	assert.Equal("Cae", q.Prefix)
+	assert.Equal("C", q.FirstLetter)
 	assert.Equal(100, q.Tolerance)
 	assert.Equal(abbr.MaxGeneraLimit, q.GeneraLimit)
 

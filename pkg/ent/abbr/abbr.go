@@ -22,7 +22,8 @@ type Store interface {
 	AbbrGenera(ctx context.Context, genera []string) ([]GenusRecord, error)
 
 	// AbbrPrefixSize returns the sum of sizes (distinct epithet stems) of
-	// all genera that start with the given prefix.
+	// all genera that start with the given prefix. Scoring uses it with
+	// Query.FirstLetter, the first letter of the abbreviation.
 	AbbrPrefixSize(ctx context.Context, prefix string) (int, error)
 
 	// AbbrCanonicals returns canonical forms for the given IDs of
