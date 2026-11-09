@@ -2,6 +2,14 @@
 
 The GNames project follows [Semantic Versioning guidelines].
 
+## [v1.8.0] - 2026-11-09 Mon
+
+- **Requires the `maybe_misspelling` column in the `canonicals` table.**
+  `gnmatcher` v1.2.0 reads it and skips canonical forms flagged as possible
+  misspellings. Update the database before deploying.
+- Update modules, including `gnlib` v0.72.0 and `gnmatcher`
+  v1.2.0, `pgx` v5.12.0, `echo` v4.16.3 and `golang.org/x/text` v0.44.0.
+
 ## [v1.7.1] - 2026-11-02 Mon
 
 - Fix: `abbr_names` scores a longer abbreviation (`Mon.`) at least as
@@ -552,6 +560,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.8.0]: https://github.com/gnames/gnames/compare/v1.7.1...v1.8.0
 [v1.7.1]: https://github.com/gnames/gnames/compare/v1.7.0...v1.7.1
 [v1.7.0]: https://github.com/gnames/gnames/compare/v1.6.2...v1.7.0
 [v1.6.2]: https://github.com/gnames/gnames/compare/v1.6.1...v1.6.2
