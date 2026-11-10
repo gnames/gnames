@@ -2,6 +2,14 @@
 
 The GNames project follows [Semantic Versioning guidelines].
 
+## [v1.8.1] - 2026-11-10 Tue
+
+- Fix: crash on names that `gnparser` cannot parse. Names imported with
+  an older `gnparser` could keep a `canonical_id` although the current
+  parser rejects them, and one such record broke a whole verification
+  batch. Unparsable names from the database are now skipped with a
+  warning, and unparsable input names return an empty match record.
+
 ## [v1.8.0] - 2026-11-09 Mon
 
 - **Requires the `maybe_misspelling` column in the `canonicals` table.**
@@ -560,6 +568,7 @@ This document follows [changelog guidelines]
 
 <!-- Versions -->
 
+[v1.8.1]: https://github.com/gnames/gnames/compare/v1.8.0...v1.8.1
 [v1.8.0]: https://github.com/gnames/gnames/compare/v1.7.1...v1.8.0
 [v1.7.1]: https://github.com/gnames/gnames/compare/v1.7.0...v1.7.1
 [v1.7.0]: https://github.com/gnames/gnames/compare/v1.6.2...v1.7.0

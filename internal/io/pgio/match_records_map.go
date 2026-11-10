@@ -245,8 +245,10 @@ func (p *pgio) populateMatchRecord(
 		}
 
 		prsd := parser.ParseName(vsql.Name.String)
-		// The database can keep a canonical_id for a name that the current
-		// parser rejects, if the name was imported with an older parser.
+		// gndb reparse clears canonical IDs of names the parser rejects, so
+		// this happens only if gnames and the database use different gnparser
+		// versions, or the database was not reparsed. The warning means the
+		// database needs a reparse.
 		if !prsd.Parsed {
 			slog.Warn("Skipped unparsable name from database",
 				slog.String("name", vsql.Name.String),
