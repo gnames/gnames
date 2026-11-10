@@ -169,6 +169,11 @@ func (p *pgio) produceResultData(
 				"error", errors.New("cannot parse"),
 				slog.String("name", match.Name),
 			)
+			allMatchRecs[match.ID] = &verif.MatchRecord{
+				ID:   match.ID,
+				Name: match.Name,
+			}
+			continue
 		}
 		authors, year := processAuthorship(prsd.Authorship)
 
@@ -240,6 +245,15 @@ func (p *pgio) populateMatchRecord(
 		}
 
 		prsd := parser.ParseName(vsql.Name.String)
+		// The database can keep a canonical_id for a name that the current
+		// parser rejects, if the name was imported with an older parser.
+		if !prsd.Parsed {
+			slog.Warn("Skipped unparsable name from database",
+				slog.String("name", vsql.Name.String),
+				slog.Int("dataSourceID", vsql.DataSourceID),
+			)
+			continue
+		}
 		resData := p.addMatch(vsql, parser, prsd)
 
 		resData.MatchType = mItm.MatchType
